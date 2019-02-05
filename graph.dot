@@ -1,0 +1,8 @@
+digraph L {
+	q1[label="1", color=red];
+	q2[label="2", color=red];
+	q1 -> q2[label="3\nr(t1)\n0 <= t1 <= 1\n"];
+	q1 -> q2[label="1\nr(t1)\n0 <= t1 <= 1\n"];
+	q2 -> q2[label="4\nr(t1)\n0 <= t1 <= 2\n"];
+	q2 -> q1[label="2\nr(t1)\n0 <= t1 <= 2\n"];
+}
