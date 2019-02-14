@@ -146,10 +146,10 @@ fun createDotFile(automaton: MutableAutomaton) {
         for (edge in edges) {
             with(edge) {
                 println("\tq$from -> q$to[label=\"${conditions.label}\\n${
-                    resets.joinToString { "r(t$it)\\n" }
+                    resets.joinToString("") { "r(t$it)\\n" }
                 }${
                     conditions.timeGuards.entries.
-                        joinToString { "${it.value.first} <= t${it.key} <= ${it.value.last}\\n" }
+                        joinToString("\\n") { "${it.value.first} <= t${it.key} <= ${it.value.last}" }
                 }\"]")
             }
         }
@@ -202,17 +202,18 @@ fun writeDataIntoTmpDzn(scanner: Scanner, tree: Tree, statesNumber: Int, vertexD
         println("additionalTimersNumber = $additionalTimersNumber;")
         println("SYMBOLS = { ${symbols.joinToString()} };")
         while (true) {
-            val nextLine = scanner.nextLine()
-            if (!scanner.hasNextLine()) {
+            if (!scanner.hasNextLine() ||
+                scanner.hasNext("----------") ||
+                scanner.hasNext("==========")) {
                 break
             }
-            println(nextLine)
+            println(scanner.nextLine())
         }
     }.flush()
 }
 
 fun executeMinizinc(tmpPrinter: (Scanner) -> Unit): Scanner? {
-    val minizinc = ProcessBuilder("minizinc", "automaton_pref.mzn", "prefix_data.dzn", "-o", "tmp").start()
+    val minizinc = ProcessBuilder("minizinc", "automaton_pref.mzn", "prefix_data.dzn", "--solver", "org.chuffed.chuffed", "-o", "tmp").start()
     minizinc.waitFor()
     System.err.println(minizinc.errorStream.readAllBytes().toString(Charsets.UTF_8))
     val scanner = Scanner(Paths.get("tmp").toFile())
@@ -238,13 +239,16 @@ fun generateAutomaton(prefixTree: Tree, vertexDegree: Int, additionalTimersNumbe
                 println("Unsatisfiable for $statesNumber states")
                 statesNumber++
             }
-            else -> return parseMinizincOutput(scanner, statesNumber, additionalTimersNumber)
+            else -> {
+                println("Satisfiable for $statesNumber states")
+                return parseMinizincOutput(scanner, statesNumber, additionalTimersNumber)
+            }
         }
     }
 }
 
 const val defaultVertexDegree = 3
-const val defaultAdditionalTimersNumber = 0
+const val defaultAdditionalTimersNumber = 1
 
 fun readTraces(consoleInfo: ConsoleInfo): Array<Trace> {
     val scanner = Scanner(consoleInfo.inputStream)
@@ -282,7 +286,7 @@ fun main(args: Array<String>) {
     val automaton = generateAutomaton(prefixTree, defaultVertexDegree, defaultAdditionalTimersNumber)
     createDotFile(automaton)
     val verdict = checkAllTraces(traces, automaton)
-    println("Checking results: ")
+    println("Checking results:")
     println("Accepted traces: ${verdict.correct}")
     println("Unaccepted traces: ${verdict.incorrect}")
 }

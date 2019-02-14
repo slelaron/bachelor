@@ -1,125 +1,103 @@
 int: statesNumber;
-set of int: STATES = 1..statesNumber;
-
 int: additionalTimersNumber;
-set of int: TIMERS = 0..additionalTimersNumber;
-set of int: TIMERS_CAN_BE_RESETED = 1..additionalTimersNumber;
+int: edgeMaxNumber;
+int: prefixTreeEdgesNumber;
 
 enum SYMBOLS;
 
-int: edgeMaxNumber;
-set of int: EDGE_INDEX = 1..edgeMaxNumber;
+array[1..prefixTreeEdgesNumber] of int: labels;
+array[1..prefixTreeEdgesNumber] of int: nextVertex;
+array[1..prefixTreeEdgesNumber] of int: prevVertex;
+array[1..prefixTreeEdgesNumber] of int: times;
 
-int: prefixTreeEdgesNumber;
-set of int: PREFIX_TREE_EDGES = 1..prefixTreeEdgesNumber;
+int: prefixTreeVertexNumber = length (array_union ([ { prevVertex[edge], nextVertex[edge] } | edge in 1..prefixTreeEdgesNumber]));
 
-array[PREFIX_TREE_EDGES] of int: labels;
-array[PREFIX_TREE_EDGES] of int: nextVertex;
-array[PREFIX_TREE_EDGES] of int: prevVertex;
-array[PREFIX_TREE_EDGES] of int: times;
+array[2..prefixTreeVertexNumber] of 1..prefixTreeEdgesNumber: parents = array1d (2..prefixTreeVertexNumber, [edge | vertex in 1..prefixTreeVertexNumber, edge in 1..prefixTreeEdgesNumber where nextVertex[edge] = vertex]);
 
-int: prefixTreeVertexNumber = length (array_union ([ { prevVertex[edge], nextVertex[edge] } | edge in PREFIX_TREE_EDGES]));
-set of int: PREFIX_TREE_VERTEXES = 1..prefixTreeVertexNumber;
-set of int: TRIMMED_PREFIX_TREE_VERTEXES = 2..prefixTreeVertexNumber;
+array[1..prefixTreeVertexNumber] of bool: isPrefixTreeLeaf = [not (exists (edge in 1..prefixTreeEdgesNumber) (prevVertex[edge] = vertex)) | vertex in 1..prefixTreeVertexNumber];
 
-array[TRIMMED_PREFIX_TREE_VERTEXES] of PREFIX_TREE_EDGES: parents = array1d (TRIMMED_PREFIX_TREE_VERTEXES, [edge | vertex in PREFIX_TREE_VERTEXES, edge in PREFIX_TREE_EDGES where nextVertex[edge] = vertex]);
-array[PREFIX_TREE_VERTEXES] of set of PREFIX_TREE_EDGES: prefixTree = [array_union ([ { edge } | edge in PREFIX_TREE_EDGES where vertex = prevVertex[edge]]) | vertex in PREFIX_TREE_VERTEXES];
+array[1..statesNumber, 1..edgeMaxNumber] of var 1..statesNumber: table;
+array[1..statesNumber, 1..edgeMaxNumber] of var SYMBOLS: tableSymbols;
+array[1..statesNumber] of var bool: isFinal;
 
-set of int: prefixTreeLeafs = array_union ([ { vertex } | vertex in PREFIX_TREE_VERTEXES where not (exists (edge in PREFIX_TREE_EDGES) (prevVertex[edge] = vertex))]);
+int: maxBorderValue = max (edge in 1..prefixTreeEdgesNumber) (times[edge]) + 10;
 
-array[STATES, EDGE_INDEX] of var STATES: table;
-array[STATES, EDGE_INDEX] of var SYMBOLS: tableSymbols;
-var set of STATES: finals;
+array[1..statesNumber, 1..edgeMaxNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: leftBorder;
+array[1..statesNumber, 1..edgeMaxNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: rightBorder;
+array[1..statesNumber, 1..edgeMaxNumber, 0..additionalTimersNumber] of var bool: reset;
 
-int: maxBorderValue = max (edge in PREFIX_TREE_EDGES) (times[edge]) + 10;
-set of int: CONSTRAINT_DOMAIN = 0..maxBorderValue;
+array[1..statesNumber, 1..edgeMaxNumber] of var bool: disabledEdges;
 
-var int: maxBorderValueAnother;
-var int: prefixTreeVertexNumberAnother;
-
-array[STATES, EDGE_INDEX, TIMERS] of var CONSTRAINT_DOMAIN: leftBorder;
-array[STATES, EDGE_INDEX, TIMERS] of var CONSTRAINT_DOMAIN: rightBorder;
-array[STATES, EDGE_INDEX] of var set of TIMERS_CAN_BE_RESETED: reset;
-
-array[STATES] of var set of EDGE_INDEX: disabledEdges;
-
-array[PREFIX_TREE_VERTEXES] of var STATES: prefixState;
-array[PREFIX_TREE_VERTEXES, TIMERS] of var CONSTRAINT_DOMAIN: timeOfTimer;
-array[PREFIX_TREE_VERTEXES, TIMERS] of var CONSTRAINT_DOMAIN: timeBeforeTransition;
+array[1..prefixTreeVertexNumber] of var 1..statesNumber: prefixState;
+array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeOfTimer;
+array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeBeforeTransition;
 
 constraint
-maxBorderValueAnother = maxBorderValue;
+forall (state in 1..statesNumber,
+        edge  in 1..edgeMaxNumber)
+(reset[state, edge, 0] = false);
 
 constraint
-prefixTreeVertexNumberAnother = prefixTreeVertexNumber;
-
-constraint
-forall (prefixTreeEdge in PREFIX_TREE_EDGES)
-(assert (prefixTreeEdge in prefixTree[prevVertex[prefixTreeEdge]] /\ 
-         prefixTreeEdge =  parents   [nextVertex[prefixTreeEdge]], "parents and prefixTree has incompatible data"));
-
-constraint
-forall (state in STATES,
-        edge  in EDGE_INDEX)
-(edge in disabledEdges[state] ->
- forall (timer in TIMERS)
- ((leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0 /\ timer in reset[state, edge])) /\
+forall (state in 1..statesNumber,
+        edge  in 1..edgeMaxNumber)
+(disabledEdges[state, edge] ->
+ forall (timer in 0..additionalTimersNumber)
+ ((leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0 /\ reset[state, edge, timer])) /\
  table[state, edge] = 1 /\
  tableSymbols[state, edge] = labels[1]);
  
 constraint
-forall (state      in STATES,
-        firstEdge  in EDGE_INDEX,
-        secondEdge in EDGE_INDEX
+forall (state      in 1..statesNumber,
+        firstEdge  in 1..edgeMaxNumber,
+        secondEdge in 1..edgeMaxNumber
   where firstEdge != secondEdge /\ 
         tableSymbols[state, firstEdge] = tableSymbols[state, secondEdge])
-(firstEdge  in disabledEdges[state] \/
- secondEdge in disabledEdges[state] \/
- exists (timer in TIMERS) 
+(disabledEdges[state, firstEdge] \/
+ disabledEdges[state, secondEdge] \/
+ exists (timer in 0..additionalTimersNumber) 
  (rightBorder[state, firstEdge, timer] < leftBorder[state, secondEdge, timer] \/ 
   rightBorder[state, secondEdge, timer] < leftBorder[state, firstEdge, timer]));
 
-predicate transition_check (PREFIX_TREE_EDGES: prefixTreeEdge, EDGE_INDEX: edge) = 
+predicate transition_check (1..prefixTreeEdgesNumber: prefixTreeEdge, 1..edgeMaxNumber: edge) = 
  tableSymbols[prefixState[prevVertex[prefixTreeEdge]], edge] = labels[prefixTreeEdge] /\
  prefixState[nextVertex[prefixTreeEdge]] = table[prefixState[prevVertex[prefixTreeEdge]], edge] /\
- forall (timer in TIMERS)
+ forall (timer in 0..additionalTimersNumber)
  (leftBorder[prefixState[prevVertex[prefixTreeEdge]], edge, timer] <= timeBeforeTransition[nextVertex[prefixTreeEdge], timer] /\
   timeBeforeTransition[nextVertex[prefixTreeEdge], timer] <= rightBorder[prefixState[prevVertex[prefixTreeEdge]], edge, timer] /\
-  timeOfTimer[nextVertex[prefixTreeEdge], timer] = if timer in reset[prefixState[prevVertex[prefixTreeEdge]], edge] then 0 else timeBeforeTransition[nextVertex[prefixTreeEdge], timer] endif);
+  timeOfTimer[nextVertex[prefixTreeEdge], timer] = if reset[prefixState[prevVertex[prefixTreeEdge]], edge, timer] then 0 else timeBeforeTransition[nextVertex[prefixTreeEdge], timer] endif);
 
 constraint
-forall (prefixTreeEdge in PREFIX_TREE_EDGES)
-(exists (edge in EDGE_INDEX)
+forall (prefixTreeEdge in 1..prefixTreeEdgesNumber)
+(exists (edge in 1..edgeMaxNumber)
  (transition_check (prefixTreeEdge, edge)));
-   
+ 
 constraint
-forall (state in STATES,
-        edge  in EDGE_INDEX)
-(edge in disabledEdges[state] \/
- exists (prefixTreeEdge in PREFIX_TREE_EDGES
+forall (state in 1..statesNumber,
+        edge  in 1..edgeMaxNumber)
+(disabledEdges[state, edge] \/
+ exists (prefixTreeEdge in 1..prefixTreeEdgesNumber
    where prefixState[prevVertex[prefixTreeEdge]] = state)
  (transition_check (prefixTreeEdge, edge)));
 
 constraint
-forall (prefixTreeEdge in PREFIX_TREE_EDGES,
-        timer          in TIMERS)
+forall (prefixTreeEdge in 1..prefixTreeEdgesNumber,
+        timer          in 0..additionalTimersNumber)
 (timeBeforeTransition[nextVertex[prefixTreeEdge], timer] = timeOfTimer[prevVertex[prefixTreeEdge], timer] + times[prefixTreeEdge] - if (prevVertex[prefixTreeEdge] = 1) then 0 else times[parents[prevVertex[prefixTreeEdge]]] endif);
 
 constraint
-forall (timer in TIMERS)
+forall (timer in 0..additionalTimersNumber)
 (timeOfTimer[1, timer] = 0);
 
 constraint
 prefixState[1] = 1;
 
 constraint
-forall (state in STATES)
-(state in finals <-> (exists (prefixTreeVertex in PREFIX_TREE_VERTEXES) 
-                      (prefixState[prefixTreeVertex] = state /\ prefixTreeVertex in prefixTreeLeafs)));
+forall (state in 1..statesNumber)
+(isFinal[state] <-> (exists (prefixTreeVertex in 1..prefixTreeVertexNumber) 
+                     (prefixState[prefixTreeVertex] = state /\ isPrefixTreeLeaf[prefixTreeVertex])));
 
-%
-solve minimize (sum (state in STATES,
-                     edge  in EDGE_INDEX
-               where not (edge in disabledEdges[state]))
-                (sum (timer in TIMERS) 
+solve minimize (sum (state in 1..statesNumber,
+                     edge  in 1..edgeMaxNumber
+               where not (disabledEdges[state, edge]))
+                (sum (timer in 0..additionalTimersNumber) 
                  (rightBorder[state, edge, timer] - leftBorder[state, edge, timer])));

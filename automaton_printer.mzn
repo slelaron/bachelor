@@ -3,7 +3,6 @@ set of int: STATES = 1..statesNumber;
 
 int: additionalTimersNumber;
 set of int: TIMERS = 0..additionalTimersNumber;
-set of int: TIMERS_CAN_BE_RESETED = 1..additionalTimersNumber;
 
 enum SYMBOLS;
 
@@ -12,26 +11,20 @@ set of int: EDGE_INDEX = 1..edgeMaxNumber;
 
 array[STATES, EDGE_INDEX] of STATES: table;
 array[STATES, EDGE_INDEX] of SYMBOLS: tableSymbols;
-set of STATES: finals;
+array[STATES] of bool: isFinal;
 
-int: maxBorderValueAnother;
-set of int: CONSTRAINT_DOMAIN = 0..maxBorderValueAnother;
+array[STATES, EDGE_INDEX, TIMERS] of int: leftBorder;
+array[STATES, EDGE_INDEX, TIMERS] of int: rightBorder;
+array[STATES, EDGE_INDEX, TIMERS] of bool: reset;
 
-int: prefixTreeVertexNumberAnother;
-set of int: PREFIX_TREE_VERTEXES = 1..prefixTreeVertexNumberAnother;
+array[STATES, EDGE_INDEX] of bool: disabledEdges;
 
-array[STATES, EDGE_INDEX, TIMERS] of CONSTRAINT_DOMAIN: leftBorder;
-array[STATES, EDGE_INDEX, TIMERS] of CONSTRAINT_DOMAIN: rightBorder;
-array[STATES, EDGE_INDEX] of set of TIMERS_CAN_BE_RESETED: reset;
-
-array[STATES] of set of EDGE_INDEX: disabledEdges;
-
-array[PREFIX_TREE_VERTEXES] of STATES: prefixState;
-array[PREFIX_TREE_VERTEXES, TIMERS] of CONSTRAINT_DOMAIN: timeOfTimer;
-array[PREFIX_TREE_VERTEXES, TIMERS] of CONSTRAINT_DOMAIN: timeBeforeTransition;
+array[int] of STATES: prefixState;
+array[int, int] of int: timeOfTimer;
+array[int, int] of int: timeBeforeTransition;
 
 output let {
-  array[int] of int: printVertex = [state | state in STATES, edge in EDGE_INDEX where not (edge in disabledEdges[state])];
-  array[int] of int: printEdge   = [edge  | state in STATES, edge in EDGE_INDEX where not (edge in disabledEdges[state])];
-  array[int] of int: finalsArr = [final | final in finals];
-} in ["\(length(finalsArr)) "] ++ ["\(final) " | final in finalsArr] ++ ["\(length (printVertex))\n"] ++ ["\(printVertex[index]) \(table[printVertex[index], printEdge[index]]) \(tableSymbols[printVertex[index], printEdge[index]]) " ++ concat (["\(leftBorder[printVertex[index], printEdge[index], timer]) \(rightBorder[printVertex[index], printEdge[index], timer]) " | timer in TIMERS]) ++ (let { array[int] of string: resetable = ["\(timer) " | timer in reset[printVertex[index], printEdge[index]]] } in ("\(length (resetable)) " ++ concat (resetable))) ++ "\n" | index in 1..length (printVertex)];
+  array[int] of int: printVertex = [state | state in STATES, edge in EDGE_INDEX where not (disabledEdges[state, edge])];
+  array[int] of int: printEdge   = [edge  | state in STATES, edge in EDGE_INDEX where not (disabledEdges[state, edge])];
+  array[int] of int: finalsArr   = [state | state in STATES where isFinal[state]];
+} in ["\(length(finalsArr)) "] ++ ["\(final) " | final in finalsArr] ++ ["\(length (printVertex))\n"] ++ ["\(printVertex[index]) \(table[printVertex[index], printEdge[index]]) \(tableSymbols[printVertex[index], printEdge[index]]) " ++ concat (["\(leftBorder[printVertex[index], printEdge[index], timer]) \(rightBorder[printVertex[index], printEdge[index], timer]) " | timer in TIMERS]) ++ (let { array[int] of string: resetable = ["\(timer) " | timer in TIMERS where reset[printVertex[index], printEdge[index], timer]] } in ("\(length (resetable)) " ++ concat (resetable))) ++ "\n" | index in 1..length (printVertex)];
