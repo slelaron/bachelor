@@ -3,7 +3,9 @@ import java.io.PrintWriter
 import java.nio.file.Paths
 import java.util.*
 
-data class Record(val name: String, val time: Int)
+enum class Type { B, E }
+
+data class Record(val name: String, val type: Type, val time: Int)
 
 class Tree(val ways: Map<Record, Tree>)
 
@@ -18,7 +20,7 @@ class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMap
 
 typealias Timer = Int
 
-data class Conditions(val label: String, val timeGuards: Map<Timer, IntRange>) {
+data class Conditions(val label: String, val type: Type, val timeGuards: Map<Timer, IntRange>) {
     fun suit(label: String, timerManager: TimerManager) =
         label == this.label && timeGuards.all { timerManager[it.key] in it.value }
 }
@@ -105,10 +107,19 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int, additionalTimersNum
         val from = scanner.nextInt()
         val to   = scanner.nextInt()
         val label = scanner.next()
-        val conditions = Conditions(label, mapOf(*Array(additionalTimersNumber + 1) {
+        val type = run {
+            when (scanner.next()) {
+                "E" -> Type.E
+                "B" -> Type.B
+                else -> throw IllegalStateException("Wrong output format")
+            }
+        }
+        val timerNumber = scanner.nextInt()
+        val conditions = Conditions(label, type, mapOf(*Array(timerNumber) {
+            val timer = scanner.nextInt()
             val leftBorder = scanner.nextInt()
             val rightBorder = scanner.nextInt()
-            it to leftBorder..rightBorder
+            timer to leftBorder..rightBorder
         }))
         val resetNumber = scanner.nextInt()
         automatonStates[from - 1].ways[conditions] = Pair(
@@ -158,7 +169,7 @@ fun createDotFile(automaton: MutableAutomaton) {
             }
         }
         println("}")
-    }.flush()
+    }.close()
 
     val dot = ProcessBuilder("dot", "-Tps", "graph.dot", "-o", "graph.ps").start()
     dot.waitFor()
@@ -181,7 +192,11 @@ fun getEdges(tree: Tree): List<Edge<Record>> {
     return list
 }
 
-fun writeDataIntoDzn(tree: Tree, statesNumber: Int, vertexDegree: Int, additionalTimersNumber: Int) {
+fun writeDataIntoDzn(tree: Tree,
+                     statesNumber: Int,
+                     vertexDegree: Int,
+                     additionalTimersNumber: Int,
+                     maxActiveTimersCount: Int) {
     val edges = getEdges(tree)
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
@@ -189,15 +204,21 @@ fun writeDataIntoDzn(tree: Tree, statesNumber: Int, vertexDegree: Int, additiona
         println("edgeMaxNumber = $vertexDegree;")
         println("prefixTreeEdgesNumber = ${edges.size};")
         println("additionalTimersNumber = $additionalTimersNumber;")
+        println("maxActiveTimersCount = $maxActiveTimersCount;")
         println("SYMBOLS = { ${symbols.joinToString()} };")
         println("labels = ${edges.map { it.data.name }};")
+        println("types = ${edges.map { it.data.type }}")
         println("prevVertex = ${edges.map { it.from }};")
         println("nextVertex = ${edges.map { it.to }};")
         println("times = ${edges.map { it.data.time }};")
-    }.flush()
+    }.close()
 }
 
-fun writeDataIntoTmpDzn(scanner: Scanner, tree: Tree, statesNumber: Int, vertexDegree: Int, additionalTimersNumber: Int) {
+fun writeDataIntoTmpDzn(scanner: Scanner,
+                        tree: Tree,
+                        statesNumber: Int,
+                        vertexDegree: Int,
+                        additionalTimersNumber: Int) {
     val edges = getEdges(tree)
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("tmp.dzn").apply {
@@ -213,39 +234,84 @@ fun writeDataIntoTmpDzn(scanner: Scanner, tree: Tree, statesNumber: Int, vertexD
             }
             println(scanner.nextLine())
         }
-    }.flush()
+    }.close()
 }
 
-fun executeMinizinc(tmpPrinter: (Scanner) -> Unit): Scanner? {
-    val minizinc = ProcessBuilder("minizinc", "automaton_pref.mzn", "prefix_data.dzn", "--solver", "org.chuffed.chuffed", "-o", "tmp").start()
+fun executeMinizinc(): Scanner? {
+    val minizinc = ProcessBuilder(
+        "minizinc",
+        "automaton_cbs.mzn",
+        "prefix_data.dzn",
+        "--solver", "org.chuffed.chuffed",
+        "-o", "tmp").start()
     minizinc.waitFor()
     System.err.println(minizinc.errorStream.readAllBytes().toString(Charsets.UTF_8))
     val scanner = Scanner(Paths.get("tmp").toFile())
     return when (scanner.hasNext("=====UNSATISFIABLE=====")) {
-        false -> {
-            tmpPrinter(scanner)
-            val automatonPrinter = ProcessBuilder("minizinc", "automaton_printer.mzn", "tmp.dzn", "-o", "tmp1").start()
-            automatonPrinter.waitFor()
-            System.err.println(automatonPrinter.errorStream.readAllBytes().toString(Charsets.UTF_8))
-            Scanner(Paths.get("tmp1").toFile()).also { automatonPrinter.destroy() }
+        false -> scanner
+        else -> {
+            scanner.close()
+            null
         }
-        else -> null
     }.also { minizinc.destroy() }
 }
 
-fun generateAutomaton(prefixTree: Tree, vertexDegree: Int, additionalTimersNumber: Int): MutableAutomaton {
+fun getAutomaton(prefixTree: Tree,
+                 statesNumber: Int,
+                 vertexDegree: Int,
+                 additionalTimersNumber: Int,
+                 scanner: Scanner): MutableAutomaton {
+    writeDataIntoTmpDzn(scanner, prefixTree, statesNumber, vertexDegree, additionalTimersNumber)
+    scanner.close()
+
+    val automatonPrinter = ProcessBuilder(
+        "minizinc",
+        "automaton_printer.mzn",
+        "tmp.dzn", "-o", "tmp1").start()
+    automatonPrinter.waitFor()
+    System.err.println(automatonPrinter.errorStream.readAllBytes().toString(Charsets.UTF_8))
+    automatonPrinter.destroy()
+
+    return parseMinizincOutput(Scanner(Paths.get("tmp1").toFile()), statesNumber, additionalTimersNumber)
+}
+
+fun generateAutomaton(prefixTree: Tree,
+                      vertexDegree: Int,
+                      additionalTimersNumber: Int): MutableAutomaton {
     var statesNumber = 1
     while(true) {
-        writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber)
-        val scanner = executeMinizinc { writeDataIntoTmpDzn(it, prefixTree, statesNumber, vertexDegree, additionalTimersNumber) }
-        when (scanner) {
-            null -> {
-                println("Unsatisfiable for $statesNumber states")
-                statesNumber++
-            }
-            else -> {
-                println("Satisfiable for $statesNumber states")
-                return parseMinizincOutput(scanner, statesNumber, additionalTimersNumber)
+        val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
+        writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, maxActiveTimersCount)
+
+        println("Checking $statesNumber states")
+        val scanner = executeMinizinc()
+
+        if (scanner == null) {
+            println("Unsatisfiable for $statesNumber states")
+            statesNumber++
+        } else  {
+            println("Satisfiable for $statesNumber states")
+            println("Starting moving maxActiveTimersCount")
+            scanner.close()
+
+            //var activeTimersNumber = 0
+            var activeTimersNumber = maxActiveTimersCount
+            while (true) {
+                writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, activeTimersNumber)
+                println("Checking $statesNumber states and $activeTimersNumber active timers")
+                val scanner = executeMinizinc()
+                if (scanner == null) {
+                    println("Unsatisfiable for $statesNumber states and $activeTimersNumber active timers")
+                    activeTimersNumber++
+                } else {
+                    println("Satisfiable for $statesNumber states and $activeTimersNumber active timers")
+                    return getAutomaton(
+                        prefixTree,
+                        statesNumber,
+                        vertexDegree,
+                        additionalTimersNumber,
+                        scanner)
+                }
             }
         }
     }
@@ -260,7 +326,12 @@ fun readTraces(scanner: Scanner, amount: Int) =
         Array(amount) {
             val traceLength = scanner.nextInt()
             Array(traceLength) {
-                Record(scanner.next(), scanner.nextInt())
+                Record(scanner.next(),
+                    when (scanner.next()) {
+                        "E" -> Type.E
+                        "B" -> Type.B
+                        else -> throw IllegalStateException("Invalid type of label")
+                    },scanner.nextInt())
             }.toList()
         }.toList()
 
@@ -275,7 +346,7 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
 
 fun normalizeTrace(trace: Trace): Trace {
     val shiftedTrace = listOf(trace[0], *trace.toTypedArray())
-    return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.time - s.time) }
+    return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.type, f.time - s.time) }
 }
 
 fun normalizeAllTraces(traces: ProgramTraces) =
