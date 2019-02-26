@@ -5,8 +5,10 @@ int: prefixTreeEdgesNumber;
 int: maxActiveTimersCount;
 
 enum SYMBOLS;
+enum TYPES = { B, E };
 
 array[1..prefixTreeEdgesNumber] of int: labels;
+array[1..prefixTreeEdgesNumber] of TYPES: types;
 array[1..prefixTreeEdgesNumber] of int: nextVertex;
 array[1..prefixTreeEdgesNumber] of int: prevVertex;
 array[1..prefixTreeEdgesNumber] of int: times;
@@ -19,6 +21,7 @@ array[1..prefixTreeVertexNumber] of bool: isPrefixTreeLeaf = [not (exists (edge 
 
 array[1..statesNumber, 1..edgeMaxNumber] of var 1..statesNumber: table;
 array[1..statesNumber, 1..edgeMaxNumber] of var SYMBOLS: tableSymbols;
+array[1..statesNumber, 1..edgeMaxNumber] of var TYPES: tableTypes;
 array[1..statesNumber] of var bool: isFinal;
 
 int: maxBorderValue = max (edge in 1..prefixTreeEdgesNumber) (times[edge]) + 10;
@@ -34,7 +37,7 @@ array[1..prefixTreeVertexNumber] of var 1..statesNumber: prefixState;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeOfTimer;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeBeforeTransition;
 
-%  temporary
+% temporary
 
 constraint
 forall (state in 1..statesNumber,
@@ -42,7 +45,14 @@ forall (state in 1..statesNumber,
         timer in 0..additionalTimersNumber)
 (isTimerDisabled[state, edge, timer] = false);
 
-% ~temporary
+%~temporary
+
+% cbs
+
+array[1..statesNumber, 1..statesNumber] of var bool: isReachable;
+array[1..statesNumber, 1..statesNumber] of var bool: inRelation;
+
+%~cbs
 
 constraint
 forall (state in 1..statesNumber,
@@ -56,7 +66,8 @@ forall (state in 1..statesNumber,
  forall (timer in 0..additionalTimersNumber)
  ((leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0 /\ reset[state, edge, timer])) /\
  table[state, edge] = 1 /\
- tableSymbols[state, edge] = labels[1]);
+ tableSymbols[state, edge] = labels[1] /\
+ tableTypes  [state, edge] = B);
  
 constraint
 forall (state in 1..statesNumber,
@@ -69,7 +80,8 @@ forall (state      in 1..statesNumber,
         firstEdge  in 1..edgeMaxNumber,
         secondEdge in 1..edgeMaxNumber
   where firstEdge != secondEdge /\ 
-        tableSymbols[state, firstEdge] = tableSymbols[state, secondEdge])
+        tableSymbols[state, firstEdge] = tableSymbols[state, secondEdge] /\
+        tableTypes  [state, firstEdge] = tableTypes  [state, secondEdge])
 (disabledEdges[state, firstEdge] \/
  disabledEdges[state, secondEdge] \/
  exists (timer in 0..additionalTimersNumber) 
@@ -78,6 +90,7 @@ forall (state      in 1..statesNumber,
 
 predicate transition_check (1..prefixTreeEdgesNumber: prefixTreeEdge, 1..edgeMaxNumber: edge) = 
  tableSymbols[prefixState[prevVertex[prefixTreeEdge]], edge] = labels[prefixTreeEdge] /\
+ tableTypes  [prefixState[prevVertex[prefixTreeEdge]], edge] = types [prefixTreeEdge] /\
  prefixState[nextVertex[prefixTreeEdge]] = table[prefixState[prevVertex[prefixTreeEdge]], edge] /\
  forall (timer in 0..additionalTimersNumber)
  (leftBorder[prefixState[prevVertex[prefixTreeEdge]], edge, timer] <= timeBeforeTransition[nextVertex[prefixTreeEdge], timer] /\
@@ -119,6 +132,44 @@ constraint
 forall (state in 1..statesNumber)
 (isFinal[state] <-> (exists (prefixTreeVertex in 1..prefixTreeVertexNumber) 
                      (prefixState[prefixTreeVertex] = state /\ isPrefixTreeLeaf[prefixTreeVertex])));
+
+% cbs
+
+constraint
+forall (state in 1..statesNumber)
+(isReachable[state, state]);
+
+constraint
+forall (state in 1..statesNumber,
+        edge  in 0..edgeMaxNumber)
+(disabledEdges[state, edge] \/ 
+ isReachable[state, table[state, edge]]);
+
+constraint
+forall (firstState  in 1..statesNumber,
+        secondState in 1..statesNumber,
+        thirdState  in 1..statesNumber)
+((isReachable[firstState, secondState] /\ isReachable[secondState, thirdState]) -> isReachable[firstState, thirdState]);
+
+constraint
+forall (firstState  in 1..statesNumber,
+        firstEdge   in 0..edgeMaxNumber,
+        secondState in 1..statesNumber,
+        secondEdge  in 0..edgeMaxNumber)
+(disabledEdges[firstState, firstEdge] \/ 
+ disabledEdges[secondState, secondEdge] \/
+ (inRelation[firstState, table[secondState, secondEdge]] ->
+  (not isReachable[table[firstState, firstEdge], secondState]) \/ 
+  (inRelation[table[firstState, firstEdge], secondState] /\ 
+   tableSymbols[firstState, firstEdge] = tableSymbols[secondState, secondEdge] /\ 
+   tableTypes[firstState , firstEdge ] = B /\ 
+   tableTypes[secondState, secondEdge] = E)));
+  
+constraint
+forall (state in 1..statesNumber)
+(isFinal[state] -> inRelation[1, state]);
+
+%~cbs
 
 solve minimize (sum (state in 1..statesNumber,
                      edge  in 1..edgeMaxNumber
