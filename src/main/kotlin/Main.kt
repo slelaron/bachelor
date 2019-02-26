@@ -273,13 +273,13 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
     return ProgramTraces(validTraces, invalidTraces)
 }
 
-fun correctTraces(trace: Trace): Trace {
+fun normalizeTrace(trace: Trace): Trace {
     val shiftedTrace = listOf(trace[0], *trace.toTypedArray())
     return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.time - s.time) }
 }
 
-fun correctAllTraces(traces: ProgramTraces) =
-    ProgramTraces(traces.validTraces.map { correctTraces(it) }, traces.invalidTraces.map { correctTraces(it) })
+fun normalizeAllTraces(traces: ProgramTraces) =
+    ProgramTraces(traces.validTraces.map { normalizeTrace(it) }, traces.invalidTraces.map { normalizeTrace(it) })
 
 data class ConsoleInfo(val inputStream: InputStream)
 
@@ -301,7 +301,7 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
 
 fun main(args: Array<String>) {
     val consoleInfo = parseConsoleArguments(args)
-    val traces = correctAllTraces(readTraces(consoleInfo))
+    val traces = normalizeAllTraces(readTraces(consoleInfo))
     val prefixTree = buildPrefixTree(traces.validTraces)
     val automaton = generateAutomaton(prefixTree, defaultVertexDegree, defaultAdditionalTimersNumber)
     createDotFile(automaton)
