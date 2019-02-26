@@ -32,13 +32,13 @@ class MutableAutomaton(
     var final: Boolean = false,
     val name: String) {
 
-    fun nextState(label: String, timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, Error> {
+    fun nextState(label: String, timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
-            return ErrorContainer(Error("There is more than one way to go"))
+            return ErrorContainer("There is more than one way to go")
         }
         val possibleAutomaton = possibleWays.firstOrNull()
-            ?: return ErrorContainer(Error("There is no way to go!"))
+            ?: return ErrorContainer("There is no way to go!")
         return AnswerContainer(possibleAutomaton)
     }
 }
@@ -47,10 +47,12 @@ typealias Trace = List<Record>
 
 data class Edge<T>(val from: Int, val to: Int, val data: T)
 
-fun buildPrefixTree(traces: Array<Trace>) =
+fun buildPrefixTree(traces: List<Trace>) =
     MutableTree().also { tree -> traces.forEach { tree.addTrace(it) } }.toTree()
 
-data class Verdict(val correct: List<Trace>, val incorrect: List<Trace>)
+data class AnnotatedTrace(val trace: Trace, val reason: String)
+
+data class Verdict(val correct: List<Trace>, val incorrect: List<AnnotatedTrace>)
 
 class TimerManager {
     private val timer2Time = mutableMapOf<Timer, Int>()
@@ -67,8 +69,8 @@ class TimerManager {
     }
 }
 
-fun checkAllTraces(traces: Array<Trace>, automaton: MutableAutomaton): Verdict {
-    val result = traces.groupBy {
+fun checkAllTraces(traces: List<Trace>, automaton: MutableAutomaton): Verdict {
+    val result = traces.map {
         val timerManager = TimerManager()
         var state = automaton
         for (record in it) {
@@ -76,8 +78,7 @@ fun checkAllTraces(traces: Array<Trace>, automaton: MutableAutomaton): Verdict {
             val possibleNext = state.nextState(record.name, timerManager)
             state = when (possibleNext) {
                 is ErrorContainer -> {
-                    println(possibleNext.error)
-                    return@groupBy false
+                    return@map AnnotatedTrace(it, possibleNext.error)
                 }
                 is AnswerContainer -> {
                     for (timer in possibleNext.answer.first) {
@@ -87,10 +88,13 @@ fun checkAllTraces(traces: Array<Trace>, automaton: MutableAutomaton): Verdict {
                 }
             }
         }
-        state.final
+        AnnotatedTrace(it, if (state.final) "" else "Nonterminal state")
     }
-    return Verdict(result.getOrDefault(true, listOf()), result.getOrDefault(false, listOf()))
+    return Verdict(result.filter { it.reason == "" }.map { it.trace }, result.filter { it.reason != "" })
 }
+
+fun checkAllTraces(traces: ProgramTraces, automaton: MutableAutomaton): Pair<Verdict, Verdict> =
+        Pair(checkAllTraces(traces.validTraces, automaton), checkAllTraces(traces.invalidTraces, automaton))
 
 fun parseMinizincOutput(scanner: Scanner, statesNumber: Int, additionalTimersNumber: Int): MutableAutomaton {
     val finalCount = scanner.nextInt()
@@ -250,16 +254,32 @@ fun generateAutomaton(prefixTree: Tree, vertexDegree: Int, additionalTimersNumbe
 const val defaultVertexDegree = 3
 const val defaultAdditionalTimersNumber = 1
 
-fun readTraces(consoleInfo: ConsoleInfo): Array<Trace> {
-    val scanner = Scanner(consoleInfo.inputStream)
-    val tracesAmount = scanner.nextInt()
-    return Array(tracesAmount) {
-        val traceLength = scanner.nextInt()
-        Array(traceLength) {
-            Record(scanner.next(), scanner.nextInt())
+data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
+
+fun readTraces(scanner: Scanner, amount: Int) =
+        Array(amount) {
+            val traceLength = scanner.nextInt()
+            Array(traceLength) {
+                Record(scanner.next(), scanner.nextInt())
+            }.toList()
         }.toList()
-    }
+
+fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
+    val scanner = Scanner(consoleInfo.inputStream)
+    val validTracesAmount = scanner.nextInt()
+    val validTraces = readTraces(scanner, validTracesAmount)
+    val invalidTracesAmount = scanner.nextInt()
+    val invalidTraces = readTraces(scanner, invalidTracesAmount)
+    return ProgramTraces(validTraces, invalidTraces)
 }
+
+fun correctTraces(trace: Trace): Trace {
+    val shiftedTrace = listOf(trace[0], *trace.toTypedArray())
+    return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.time - s.time) }
+}
+
+fun correctAllTraces(traces: ProgramTraces) =
+    ProgramTraces(traces.validTraces.map { correctTraces(it) }, traces.invalidTraces.map { correctTraces(it) })
 
 data class ConsoleInfo(val inputStream: InputStream)
 
@@ -281,12 +301,17 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
 
 fun main(args: Array<String>) {
     val consoleInfo = parseConsoleArguments(args)
-    val traces: Array<Trace> = readTraces(consoleInfo)
-    val prefixTree = buildPrefixTree(traces)
+    val traces = correctAllTraces(readTraces(consoleInfo))
+    val prefixTree = buildPrefixTree(traces.validTraces)
     val automaton = generateAutomaton(prefixTree, defaultVertexDegree, defaultAdditionalTimersNumber)
     createDotFile(automaton)
-    val verdict = checkAllTraces(traces, automaton)
+    val (validVerdict, invalidVerdict) = checkAllTraces(traces, automaton)
+
     println("Checking results:")
-    println("Accepted traces: ${verdict.correct}")
-    println("Unaccepted traces: ${verdict.incorrect}")
+    println("Valid traces:")
+    println("Accepted traces: ${validVerdict.correct}")
+    println("Unaccepted traces: ${validVerdict.incorrect}")
+    println("Invalid traces:")
+    println("Accepted traces: ${invalidVerdict.correct}")
+    println("Unaccepted traces: ${invalidVerdict.incorrect}")
 }
