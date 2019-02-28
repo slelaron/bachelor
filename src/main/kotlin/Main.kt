@@ -98,10 +98,10 @@ fun checkAllTraces(traces: List<Trace>, automaton: MutableAutomaton): Verdict {
 fun checkAllTraces(traces: ProgramTraces, automaton: MutableAutomaton): Pair<Verdict, Verdict> =
         Pair(checkAllTraces(traces.validTraces, automaton), checkAllTraces(traces.invalidTraces, automaton))
 
-fun parseMinizincOutput(scanner: Scanner, statesNumber: Int, additionalTimersNumber: Int): MutableAutomaton {
+fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): MutableAutomaton {
     val finalCount = scanner.nextInt()
-    val finals = setOf(*Array(finalCount) { scanner.nextInt() })
-    val automatonStates = Array(statesNumber) { MutableAutomaton(name = "${it + 1}", final = finals.contains(it + 1)) }
+    val finals = List(finalCount) { scanner.nextInt() }.toSet()
+    val automatonStates = List(statesNumber) { MutableAutomaton(name = "${it + 1}", final = finals.contains(it + 1)) }
     val edgeCount = scanner.nextInt()
     for (edge in 0 until edgeCount) {
         val from = scanner.nextInt()
@@ -114,15 +114,15 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int, additionalTimersNum
         }
 
         val timerNumber = scanner.nextInt()
-        val conditions = Conditions(label, type, mapOf(*Array(timerNumber) {
+        val conditions = Conditions(label, type, List(timerNumber) {
             val timer = scanner.nextInt()
             val leftBorder = scanner.nextInt()
             val rightBorder = scanner.nextInt()
             timer to leftBorder..rightBorder
-        }))
+        }.toMap())
         val resetNumber = scanner.nextInt()
         automatonStates[from - 1].ways[conditions] = Pair(
-            setOf(*Array(resetNumber) { scanner.nextInt() }),
+            List(resetNumber) { scanner.nextInt() }.toSet(),
             automatonStates[to - 1])
     }
     return automatonStates[0]
@@ -277,7 +277,7 @@ fun getAutomaton(prefixTree: Tree,
     System.err.println(automatonPrinter.errorStream.readAllBytes().toString(Charsets.UTF_8))
     automatonPrinter.destroy()
 
-    return parseMinizincOutput(Scanner(Paths.get("tmp1").toFile()), statesNumber, additionalTimersNumber)
+    return parseMinizincOutput(Scanner(Paths.get("tmp1").toFile()), statesNumber)
 }
 
 fun generateAutomaton(prefixTree: Tree,
@@ -305,8 +305,8 @@ fun generateAutomaton(prefixTree: Tree,
             while (true) {
                 writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, activeTimersNumber, maxTotalEdges)
                 println("Checking $statesNumber states and $activeTimersNumber active timers")
-                val scanner = executeMinizinc()
-                if (scanner == null) {
+                val secondScanner = executeMinizinc()
+                if (secondScanner == null) {
                     println("Unsatisfiable for $statesNumber states and $activeTimersNumber active timers")
                     activeTimersNumber++
                 } else {
@@ -316,7 +316,7 @@ fun generateAutomaton(prefixTree: Tree,
                         statesNumber,
                         vertexDegree,
                         additionalTimersNumber,
-                        scanner)
+                        secondScanner)
                 }
             }
         }
@@ -330,9 +330,9 @@ const val defaultAdditionalTimersNumber = 1
 data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
 
 fun readTraces(scanner: Scanner, amount: Int) =
-        Array(amount) {
+        List(amount) {
             val traceLength = scanner.nextInt()
-            Array(traceLength) {
+            List(traceLength) {
                 Record(scanner.next(),
                     when (scanner.next()) {
                         "E" -> Type.E
