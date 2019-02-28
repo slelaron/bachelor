@@ -3,6 +3,7 @@ int: additionalTimersNumber;
 int: edgeMaxNumber;
 int: prefixTreeEdgesNumber;
 int: maxActiveTimersCount;
+int: maxTotalEdges;
 
 enum SYMBOLS;
 enum TYPES = { B, E };
@@ -123,6 +124,11 @@ forall (timer in 0..additionalTimersNumber)
 
 constraint
 prefixState[1] = 1;
+
+constraint
+sum  (state in 1..statesNumber,
+      edge  in 1..edgeMaxNumber)
+(1 - bool2int (disabledEdges[state, edge])) <= maxTotalEdges;
 
 constraint
 sum (state in 1..statesNumber,

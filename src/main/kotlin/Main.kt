@@ -197,7 +197,8 @@ fun writeDataIntoDzn(tree: Tree,
                      statesNumber: Int,
                      vertexDegree: Int,
                      additionalTimersNumber: Int,
-                     maxActiveTimersCount: Int) {
+                     maxActiveTimersCount: Int,
+                     maxTotalEdges: Int) {
     val edges = getEdges(tree)
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
@@ -212,6 +213,7 @@ fun writeDataIntoDzn(tree: Tree,
         println("prevVertex = ${edges.map { it.from }};")
         println("nextVertex = ${edges.map { it.to }};")
         println("times = ${edges.map { it.data.time }};")
+        println("maxTotalEdges = $maxTotalEdges;")
     }.close()
 }
 
@@ -280,11 +282,12 @@ fun getAutomaton(prefixTree: Tree,
 
 fun generateAutomaton(prefixTree: Tree,
                       vertexDegree: Int,
-                      additionalTimersNumber: Int): MutableAutomaton {
+                      additionalTimersNumber: Int,
+                      maxTotalEdges: Int): MutableAutomaton {
     var statesNumber = 1
     while (true) {
         val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
-        writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, maxActiveTimersCount)
+        writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, maxActiveTimersCount, maxTotalEdges)
 
         println("Checking $statesNumber states")
         val scanner = executeMinizinc()
@@ -300,7 +303,7 @@ fun generateAutomaton(prefixTree: Tree,
             //var activeTimersNumber = 0
             var activeTimersNumber = maxActiveTimersCount
             while (true) {
-                writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, activeTimersNumber)
+                writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, activeTimersNumber, maxTotalEdges)
                 println("Checking $statesNumber states and $activeTimersNumber active timers")
                 val scanner = executeMinizinc()
                 if (scanner == null) {
@@ -320,7 +323,8 @@ fun generateAutomaton(prefixTree: Tree,
     }
 }
 
-const val defaultVertexDegree = 4
+const val defaultVertexDegree = 3
+const val defaultMaxTotalEdges = 8
 const val defaultAdditionalTimersNumber = 1
 
 data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
@@ -348,7 +352,7 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
 }
 
 fun normalizeTrace(trace: Trace): Trace {
-    val shiftedTrace = listOf(trace[0], *trace.toTypedArray())
+    val shiftedTrace = generateSequence { trace[0] }.asIterable()
     return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.type, f.time - s.time) }
 }
 
@@ -377,7 +381,11 @@ fun main(args: Array<String>) {
     val consoleInfo = parseConsoleArguments(args)
     val traces = normalizeAllTraces(readTraces(consoleInfo))
     val prefixTree = buildPrefixTree(traces.validTraces)
-    val automaton = generateAutomaton(prefixTree, defaultVertexDegree, defaultAdditionalTimersNumber)
+    val automaton = generateAutomaton(
+        prefixTree,
+        defaultVertexDegree,
+        defaultAdditionalTimersNumber,
+        defaultMaxTotalEdges)
     createDotFile(automaton)
     val (validVerdict, invalidVerdict) = checkAllTraces(traces, automaton)
 
