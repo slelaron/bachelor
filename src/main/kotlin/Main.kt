@@ -352,8 +352,8 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
 }
 
 fun normalizeTrace(trace: Trace): Trace {
-    val shiftedTrace = generateSequence { trace[0] }.asIterable()
-    return (trace zip shiftedTrace).map { (f, s) -> Record(f.name, f.type, f.time - s.time) }
+    val infSequence = generateSequence { trace[0] }.asIterable()
+    return (trace zip infSequence).map { (f, s) -> Record(f.name, f.type, f.time - s.time) }
 }
 
 fun normalizeAllTraces(traces: ProgramTraces) =
