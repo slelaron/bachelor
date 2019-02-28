@@ -38,6 +38,7 @@ array[1..prefixTreeVertexNumber] of var 1..statesNumber: prefixState;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeOfTimer;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeBeforeTransition;
 
+
 % temporary
 
 constraint
@@ -68,6 +69,8 @@ forall (state in 1..statesNumber,
  (leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0) /\
  forall (timer in 1..additionalTimersNumber)
  (reset[state, edge, timer]) /\
+ forall (timer in 0..additionalTimersNumber)
+ (isTimerDisabled[state, edge, timer] = false) /\
  table[state, edge] = 1 /\
  tableSymbols[state, edge] = labels[1] /\
  tableTypes  [state, edge] = B);
@@ -131,9 +134,10 @@ sum  (state in 1..statesNumber,
 (1 - bool2int (disabledEdges[state, edge])) <= maxTotalEdges;
 
 constraint
-sum (state in 1..statesNumber,
-     edge  in 1..edgeMaxNumber,
-     timer in 0..additionalTimersNumber)
+sum  (state in 1..statesNumber,
+      edge  in 1..edgeMaxNumber,
+      timer in 0..additionalTimersNumber
+where (not disabledEdges[state, edge]))
 (1 - bool2int (isTimerDisabled[state, edge, timer])) <= maxActiveTimersCount;
 
 constraint
@@ -171,7 +175,6 @@ forall (position in 1..statesNumber)
 constraint
 forall (state in 1..statesNumber)
 (isFinal[state] -> balance[state] = 0);
-
 
 %~cbs
 
