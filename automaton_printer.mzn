@@ -26,6 +26,13 @@ array[int] of STATES: prefixState;
 array[int, int] of int: timeOfTimer;
 array[int, int] of int: timeBeforeTransition;
 
+% cbs
+
+array[1..statesNumber] of var 0..(statesNumber - 1): balance;
+array[1..statesNumber, 0..statesNumber] of var SYMBOLS: balanceStack;
+
+%~cbs
+
 output let {
   array[int] of int: printVertex  = [state | state in STATES, edge in EDGE_INDEX where not (disabledEdges[state, edge])];
   array[int] of int: printEdge    = [edge  | state in STATES, edge in EDGE_INDEX where not (disabledEdges[state, edge])];

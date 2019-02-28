@@ -21,8 +21,8 @@ class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMap
 typealias Timer = Int
 
 data class Conditions(val label: String, val type: Type, val timeGuards: Map<Timer, IntRange>) {
-    fun suit(label: String, timerManager: TimerManager) =
-        label == this.label && timeGuards.all { timerManager[it.key] in it.value }
+    fun suit(label: String, type: Type, timerManager: TimerManager) =
+        label == this.label && type == this.type && timeGuards.all { timerManager[it.key] in it.value }
 }
 
 sealed class Either<T, E>
@@ -34,8 +34,8 @@ class MutableAutomaton(
     var final: Boolean = false,
     val name: String) {
 
-    fun nextState(label: String, timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
-        val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
+    fun nextState(label: String, type: Type, timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
+        val possibleWays = ways.filterKeys { it.suit(label, type, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
             return ErrorContainer("There is more than one way to go")
         }
@@ -77,7 +77,7 @@ fun checkAllTraces(traces: List<Trace>, automaton: MutableAutomaton): Verdict {
         var state = automaton
         for (record in it) {
             timerManager.rewind(record.time)
-            val possibleNext = state.nextState(record.name, timerManager)
+            val possibleNext = state.nextState(record.name, record.type, timerManager)
             state = when (possibleNext) {
                 is ErrorContainer -> {
                     return@map AnnotatedTrace(it, possibleNext.error)
@@ -107,13 +107,12 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int, additionalTimersNum
         val from = scanner.nextInt()
         val to   = scanner.nextInt()
         val label = scanner.next()
-        val type = run {
-            when (scanner.next()) {
-                "E" -> Type.E
-                "B" -> Type.B
-                else -> throw IllegalStateException("Wrong output format")
-            }
+        val type = when (scanner.next()) {
+            "E" -> Type.E
+            "B" -> Type.B
+            else -> throw IllegalStateException("Wrong output format")
         }
+
         val timerNumber = scanner.nextInt()
         val conditions = Conditions(label, type, mapOf(*Array(timerNumber) {
             val timer = scanner.nextInt()
@@ -160,7 +159,9 @@ fun createDotFile(automaton: MutableAutomaton) {
         }
         for (edge in edges) {
             with(edge) {
-                println("\tq$from -> q$to[label=\"${conditions.label}\\n${
+                println("\tq$from -> q$to[label=\"${conditions.label}:${
+                        if (conditions.type == Type.B) "B" else "E"
+                    }\\n${
                     resets.joinToString("") { "r(t$it)\\n" }
                 }${
                     conditions.timeGuards.entries.
@@ -207,7 +208,7 @@ fun writeDataIntoDzn(tree: Tree,
         println("maxActiveTimersCount = $maxActiveTimersCount;")
         println("SYMBOLS = { ${symbols.joinToString()} };")
         println("labels = ${edges.map { it.data.name }};")
-        println("types = ${edges.map { it.data.type }}")
+        println("types = ${edges.map { it.data.type }};")
         println("prevVertex = ${edges.map { it.from }};")
         println("nextVertex = ${edges.map { it.to }};")
         println("times = ${edges.map { it.data.time }};")
@@ -245,9 +246,10 @@ fun executeMinizinc(): Scanner? {
         "--solver", "org.chuffed.chuffed",
         "-o", "tmp").start()
     minizinc.waitFor()
+    val output = minizinc.inputStream.readAllBytes().toString(Charsets.UTF_8)
     System.err.println(minizinc.errorStream.readAllBytes().toString(Charsets.UTF_8))
     val scanner = Scanner(Paths.get("tmp").toFile())
-    return when (scanner.hasNext("=====UNSATISFIABLE=====")) {
+    return when (scanner.hasNext("=====UNSATISFIABLE=====") || output.startsWith("=====UNSATISFIABLE=====")) {
         false -> scanner
         else -> {
             scanner.close()
@@ -267,7 +269,8 @@ fun getAutomaton(prefixTree: Tree,
     val automatonPrinter = ProcessBuilder(
         "minizinc",
         "automaton_printer.mzn",
-        "tmp.dzn", "-o", "tmp1").start()
+        "tmp.dzn",
+        "-o", "tmp1").start()
     automatonPrinter.waitFor()
     System.err.println(automatonPrinter.errorStream.readAllBytes().toString(Charsets.UTF_8))
     automatonPrinter.destroy()
@@ -279,7 +282,7 @@ fun generateAutomaton(prefixTree: Tree,
                       vertexDegree: Int,
                       additionalTimersNumber: Int): MutableAutomaton {
     var statesNumber = 1
-    while(true) {
+    while (true) {
         val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
         writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, maxActiveTimersCount)
 
@@ -317,7 +320,7 @@ fun generateAutomaton(prefixTree: Tree,
     }
 }
 
-const val defaultVertexDegree = 3
+const val defaultVertexDegree = 4
 const val defaultAdditionalTimersNumber = 1
 
 data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
@@ -331,7 +334,7 @@ fun readTraces(scanner: Scanner, amount: Int) =
                         "E" -> Type.E
                         "B" -> Type.B
                         else -> throw IllegalStateException("Invalid type of label")
-                    },scanner.nextInt())
+                    }, scanner.nextInt())
             }.toList()
         }.toList()
 

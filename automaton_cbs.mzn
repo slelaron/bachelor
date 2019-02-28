@@ -49,8 +49,8 @@ forall (state in 1..statesNumber,
 
 % cbs
 
-array[1..statesNumber, 1..statesNumber] of var bool: isReachable;
-array[1..statesNumber, 1..statesNumber] of var bool: inRelation;
+array[1..statesNumber] of var 0..statesNumber: balance;
+array[1..statesNumber, 0..statesNumber] of var SYMBOLS: balanceStack;
 
 %~cbs
 
@@ -64,7 +64,9 @@ forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
 (disabledEdges[state, edge] ->
  forall (timer in 0..additionalTimersNumber)
- ((leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0 /\ reset[state, edge, timer])) /\
+ (leftBorder[state, edge, timer] = 1 /\ rightBorder[state, edge, timer] = 0) /\
+ forall (timer in 1..additionalTimersNumber)
+ (reset[state, edge, timer]) /\
  table[state, edge] = 1 /\
  tableSymbols[state, edge] = labels[1] /\
  tableTypes  [state, edge] = B);
@@ -113,7 +115,7 @@ forall (state in 1..statesNumber,
 constraint
 forall (prefixTreeEdge in 1..prefixTreeEdgesNumber,
         timer          in 0..additionalTimersNumber)
-(timeBeforeTransition[nextVertex[prefixTreeEdge], timer] = timeOfTimer[prevVertex[prefixTreeEdge], timer] + times[prefixTreeEdge] - if (prevVertex[prefixTreeEdge] = 1) then 0 else times[parents[prevVertex[prefixTreeEdge]]] endif);
+(timeBeforeTransition[nextVertex[prefixTreeEdge], timer] = timeOfTimer[prevVertex[prefixTreeEdge], timer] + times[prefixTreeEdge] - if prevVertex[prefixTreeEdge] = 1 then 0 else times[parents[prevVertex[prefixTreeEdge]]] endif);
 
 constraint
 forall (timer in 0..additionalTimersNumber)
@@ -136,38 +138,34 @@ forall (state in 1..statesNumber)
 % cbs
 
 constraint
-forall (state in 1..statesNumber)
-(isReachable[state, state]);
-
-constraint
 forall (state in 1..statesNumber,
-        edge  in 0..edgeMaxNumber)
+        edge  in 1..edgeMaxNumber)
 (disabledEdges[state, edge] \/ 
- isReachable[state, table[state, edge]]);
+ (if tableTypes[state, edge] = B then
+   balance[table[state, edge]] = balance[state] + 1 /\
+   forall (position in 1..statesNumber)
+   (if     position < balance[table[state, edge]] then balanceStack[table[state, edge], position] = balanceStack[state, position]
+    elseif position = balance[table[state, edge]] then balanceStack[table[state, edge], position] = tableSymbols[state, edge]
+    else                                               balanceStack[table[state, edge], position] = labels[1]
+    endif)
+  else
+   balance[table[state, edge]] = balance[state] - 1 /\
+   balanceStack[state, balance[state]] = tableSymbols[state, edge] /\
+   forall (position in 1..statesNumber)
+   (if position < balance[state] then balanceStack[table[state, edge], position] = balanceStack[state, position]
+    else                              balanceStack[table[state, edge], position] = labels[1]
+    endif)
+  endif));
 
 constraint
-forall (firstState  in 1..statesNumber,
-        secondState in 1..statesNumber,
-        thirdState  in 1..statesNumber)
-((isReachable[firstState, secondState] /\ isReachable[secondState, thirdState]) -> isReachable[firstState, thirdState]);
+balance[1] = 0 /\
+forall (position in 1..statesNumber)
+(balanceStack[1, position] = labels[1]);
 
-constraint
-forall (firstState  in 1..statesNumber,
-        firstEdge   in 0..edgeMaxNumber,
-        secondState in 1..statesNumber,
-        secondEdge  in 0..edgeMaxNumber)
-(disabledEdges[firstState, firstEdge] \/ 
- disabledEdges[secondState, secondEdge] \/
- (inRelation[firstState, table[secondState, secondEdge]] ->
-  (not isReachable[table[firstState, firstEdge], secondState]) \/ 
-  (inRelation[table[firstState, firstEdge], secondState] /\ 
-   tableSymbols[firstState, firstEdge] = tableSymbols[secondState, secondEdge] /\ 
-   tableTypes[firstState , firstEdge ] = B /\ 
-   tableTypes[secondState, secondEdge] = E)));
-  
 constraint
 forall (state in 1..statesNumber)
-(isFinal[state] -> inRelation[1, state]);
+(isFinal[state] -> balance[state] = 0);
+
 
 %~cbs
 
@@ -177,3 +175,5 @@ solve minimize (sum (state in 1..statesNumber,
                 (sum (timer in 0..additionalTimersNumber
                where not (isTimerDisabled[state, edge, timer])) 
                  (rightBorder[state, edge, timer] - leftBorder[state, edge, timer])));
+                 
+%solve satisfy;
