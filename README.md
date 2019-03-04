@@ -3,7 +3,7 @@
 To create executable jar-file run the following:
 
 ```
-gradle shadowJar
+./gradlew shadowJar
 ```
 
 You'll find jar-file by path build/libs.
