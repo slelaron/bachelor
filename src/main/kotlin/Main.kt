@@ -34,7 +34,9 @@ class MutableAutomaton(
     var final: Boolean = false,
     val name: String) {
 
-    fun nextState(label: String, type: Type, timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
+    fun nextState(label: String,
+                  type: Type,
+                  timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, type, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
             return ErrorContainer("There is more than one way to go")
@@ -101,7 +103,9 @@ fun checkAllTraces(traces: ProgramTraces, automaton: MutableAutomaton): Pair<Ver
 fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): MutableAutomaton {
     val finalCount = scanner.nextInt()
     val finals = List(finalCount) { scanner.nextInt() }.toSet()
-    val automatonStates = List(statesNumber) { MutableAutomaton(name = "${it + 1}", final = finals.contains(it + 1)) }
+    val automatonStates = List(statesNumber) {
+        MutableAutomaton(name = "${it + 1}", final = finals.contains(it + 1))
+    }
     val edgeCount = scanner.nextInt()
     for (edge in 0 until edgeCount) {
         val from = scanner.nextInt()
@@ -251,7 +255,8 @@ fun executeMinizinc(): Scanner? {
     val output = minizinc.inputStream.readAllBytes().toString(Charsets.UTF_8)
     System.err.println(minizinc.errorStream.readAllBytes().toString(Charsets.UTF_8))
     val scanner = Scanner(Paths.get("tmp").toFile())
-    return when (scanner.hasNext("=====UNSATISFIABLE=====") || output.startsWith("=====UNSATISFIABLE=====")) {
+    return when (scanner.hasNext("=====UNSATISFIABLE=====") ||
+            output.startsWith("=====UNSATISFIABLE=====")) {
         false -> scanner
         else -> {
             scanner.close()
@@ -265,7 +270,12 @@ fun getAutomaton(prefixTree: Tree,
                  vertexDegree: Int,
                  additionalTimersNumber: Int,
                  scanner: Scanner): MutableAutomaton {
-    writeDataIntoTmpDzn(scanner, prefixTree, statesNumber, vertexDegree, additionalTimersNumber)
+    writeDataIntoTmpDzn(
+        scanner,
+        prefixTree,
+        statesNumber,
+        vertexDegree,
+        additionalTimersNumber)
     scanner.close()
 
     val automatonPrinter = ProcessBuilder(
@@ -287,7 +297,13 @@ fun generateAutomaton(prefixTree: Tree,
     var statesNumber = 1
     while (true) {
         val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
-        writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, maxActiveTimersCount, maxTotalEdges)
+        writeDataIntoDzn(
+            prefixTree,
+            statesNumber,
+            vertexDegree,
+            additionalTimersNumber,
+            maxActiveTimersCount,
+            maxTotalEdges)
 
         println("Checking $statesNumber states")
         val scanner = executeMinizinc()
@@ -303,7 +319,13 @@ fun generateAutomaton(prefixTree: Tree,
             //var activeTimersNumber = 0
             var activeTimersNumber = maxActiveTimersCount
             while (true) {
-                writeDataIntoDzn(prefixTree, statesNumber, vertexDegree, additionalTimersNumber, activeTimersNumber, maxTotalEdges)
+                writeDataIntoDzn(
+                    prefixTree,
+                    statesNumber,
+                    vertexDegree,
+                    additionalTimersNumber,
+                    activeTimersNumber,
+                    maxTotalEdges)
                 println("Checking $statesNumber states and $activeTimersNumber active timers")
                 val secondScanner = executeMinizinc()
                 if (secondScanner == null) {
@@ -316,7 +338,7 @@ fun generateAutomaton(prefixTree: Tree,
                         statesNumber,
                         vertexDegree,
                         additionalTimersNumber,
-                        secondScanner)
+                        secondScanner).also { secondScanner.close() }
                 }
             }
         }
@@ -348,7 +370,7 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
     val validTraces = readTraces(scanner, validTracesAmount)
     val invalidTracesAmount = scanner.nextInt()
     val invalidTraces = readTraces(scanner, invalidTracesAmount)
-    return ProgramTraces(validTraces, invalidTraces)
+    return ProgramTraces(validTraces, invalidTraces).also { scanner.close() }
 }
 
 fun normalizeTrace(trace: Trace): Trace {
