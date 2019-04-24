@@ -56,11 +56,16 @@ array[1..statesNumber, 0..statesNumber] of var SYMBOLS: balanceStack;
 
 %~cbs
 
+% Нулевой таймер не должен сбрасываться ни на каком ребре во временном автомате
 constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
 (reset[state, edge, 0] = false);
 
+% Сужаем область поиска: сразу устанавливаем ограничения, что если ребро не присутствует в данном автомате, то
+% его левая граница на все таймеры равна 0, а правая равна 1, все таймеры, проходя по ребру сбрасываются, 
+% активны ограничения на все таймеры, ребро ведет в вершину 1, символ перехода равен некоторому, одинаковому для
+% всех таких ребер, тип символа устанавливаем равным B
 constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
@@ -74,26 +79,40 @@ forall (state in 1..statesNumber,
  table[state, edge] = 1 /\
  tableSymbols[state, edge] = labels[1] /\
  tableTypes  [state, edge] = B);
- 
+
+% Если таймер на данном ребре выключен, то по ребру можно пройти с любым значением таймера, значит левая граница перехода
+% по таймеру равна 0, а правая граница равна условной бесконечности
 constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber,
         timer in 0..additionalTimersNumber)
 (isTimerDisabled[state, edge, timer] -> leftBorder[state, edge, timer] = 0 /\ rightBorder[state, edge, timer] = maxBorderValue);
  
+% Ограничение на детерминизм: из любого состояния по данному символу и значению таймеров существует не более одного перехода.
+% Значит для любых двух переходов, присутствующих в автомате, у которых совпадают символы перехода и тип перехода, должен существовать таймер, 
+% у которого валидные диапазоны для первого перехода и для второго перехода не пересекаются, иначе говоря, либо нижняя граница первого перехода
+% больше верхней границы второго перехода, либо наоборот.
 constraint
 forall (state      in 1..statesNumber,
         firstEdge  in 1..edgeMaxNumber,
         secondEdge in 1..edgeMaxNumber
-  where firstEdge != secondEdge /\ 
-        tableSymbols[state, firstEdge] = tableSymbols[state, secondEdge] /\
-        tableTypes  [state, firstEdge] = tableTypes  [state, secondEdge])
-(disabledEdges[state, firstEdge] \/
+  where firstEdge != secondEdge)
+(tableSymbols[state, firstEdge] = tableSymbols[state, secondEdge] /\
+ tableTypes  [state, firstEdge] = tableTypes  [state, secondEdge] -> 
+ disabledEdges[state, firstEdge] \/
  disabledEdges[state, secondEdge] \/
  exists (timer in 0..additionalTimersNumber) 
  (rightBorder[state, firstEdge, timer] < leftBorder[state, secondEdge, timer] \/ 
   rightBorder[state, secondEdge, timer] < leftBorder[state, firstEdge, timer]));
 
+% Предикат: ребру в префиксном дереве соответствует текущее ребро, если
+% символ перехода по данному ребру соответствует символ перехода в префиксном дереве,
+% тип перехода по данному ребру соответствует тип перехода в префиксном дереве,
+% вершина, в которую ведет данное ребро, соответствует вершине, в которую ведет ребро в префиксном дереве,
+% выполняются все ограничения на таймеры:
+% значение любого таймера сразу перед переходом не меньше нижней границы и не больше верхней границы, а также
+% значение таймера сразу после перехода равно 0, если таймер находился во множестве сброса для данного ребра,
+% и равно значению таймера сразу перед переходом иначе.
 predicate transition_check (1..prefixTreeEdgesNumber: prefixTreeEdge, 1..edgeMaxNumber: edge) = 
  tableSymbols[prefixState[prevVertex[prefixTreeEdge]], edge] = labels[prefixTreeEdge] /\
  tableTypes  [prefixState[prevVertex[prefixTreeEdge]], edge] = types [prefixTreeEdge] /\
@@ -103,11 +122,14 @@ predicate transition_check (1..prefixTreeEdgesNumber: prefixTreeEdge, 1..edgeMax
   timeBeforeTransition[nextVertex[prefixTreeEdge], timer] <= rightBorder[prefixState[prevVertex[prefixTreeEdge]], edge, timer] /\
   timeOfTimer[nextVertex[prefixTreeEdge], timer] = if reset[prefixState[prevVertex[prefixTreeEdge]], edge, timer] then 0 else timeBeforeTransition[nextVertex[prefixTreeEdge], timer] endif);
 
+% Ограничение, что для каждого ребра в префиксном дереве существует соответствующее ему ребро во временном автомате
 constraint
 forall (prefixTreeEdge in 1..prefixTreeEdgesNumber)
 (exists (edge in 1..edgeMaxNumber)
  (transition_check (prefixTreeEdge, edge)));
- 
+
+% Ограничение на исключение из рассмотрения ребер, которым не соответствует ни одно из ребер префиксного дерева,
+% то есть либо ребро не включено в автомат, либо существует ребро в префиксном дереве, соответствующее данному ребру
 constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
@@ -116,30 +138,39 @@ forall (state in 1..statesNumber,
    where prefixState[prevVertex[prefixTreeEdge]] = state)
  (transition_check (prefixTreeEdge, edge)));
 
+% Ограничение на связь таймеров вразу после перехода и сразу после перехода:
+% таймер сразу до перехода должен увеличиться относительно таймера после перехода
+% на значение, являющееся разницей между временем, зафиксированным в текущем ребре префиксного дерева,
+% и временем в ребре, являющееся предком данного, в префиксном дереве.
 constraint
 forall (prefixTreeEdge in 1..prefixTreeEdgesNumber,
         timer          in 0..additionalTimersNumber)
 (timeBeforeTransition[nextVertex[prefixTreeEdge], timer] = timeOfTimer[prevVertex[prefixTreeEdge], timer] + times[prefixTreeEdge] - if prevVertex[prefixTreeEdge] = 1 then 0 else times[parents[prevVertex[prefixTreeEdge]]] endif);
 
+% Ограничение, что изначально значение всех таймеров равно 0 (то есть в первой вершине)
 constraint
 forall (timer in 0..additionalTimersNumber)
 (timeOfTimer[1, timer] = 0);
 
+% Ограничение, что вершина, соответствующая корню префиксного дерева, является первая вершина в автомате
 constraint
 prefixState[1] = 1;
 
+% Ограничение, что количество используемых в автомате ребре не превышает максимально допустимого
 constraint
 sum  (state in 1..statesNumber,
       edge  in 1..edgeMaxNumber)
 (1 - bool2int (disabledEdges[state, edge])) <= maxTotalEdges;
 
+% Ограничение, что количество используемых в автомате таймеров не превышает максимально допустимого
 constraint
 sum  (state in 1..statesNumber,
       edge  in 1..edgeMaxNumber,
-      timer in 0..additionalTimersNumber
-where (not disabledEdges[state, edge]))
-(1 - bool2int (isTimerDisabled[state, edge, timer])) <= maxActiveTimersCount;
+      timer in 0..additionalTimersNumber)
+(1 - bool2int (isTimerDisabled[state, edge, timer] \/ disabledEdges[state, edge])) <= maxActiveTimersCount;
 
+% Ограничение на принимающие состояния: чтобы состояние было принимающим необходимо и достаточно,
+% чтобы существовал лист в префиксном дереве соответствующей нашей вершине
 constraint
 forall (state in 1..statesNumber)
 (isFinal[state] <-> (exists (prefixTreeVertex in 1..prefixTreeVertexNumber) 
@@ -178,6 +209,7 @@ forall (state in 1..statesNumber)
 
 %~cbs
 
+% Попытка решения сразу с минимизацией суммарной длины используемых ограничений
 solve minimize (sum (state in 1..statesNumber,
                      edge  in 1..edgeMaxNumber
                where not (disabledEdges[state, edge]))
