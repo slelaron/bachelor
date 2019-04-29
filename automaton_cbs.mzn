@@ -38,6 +38,14 @@ array[1..prefixTreeVertexNumber] of var 1..statesNumber: prefixState;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeOfTimer;
 array[1..prefixTreeVertexNumber, 0..additionalTimersNumber] of var 0..maxBorderValue: timeBeforeTransition;
 
+% bfs
+
+array[1..statesNumber, 1..edgeMaxNumber] of var 0..additionalTimersNumber: timerMin;
+array[1..statesNumber] of var 1..statesNumber: parentInOrder;
+array[1..statesNumber] of var 1..edgeMaxNumber: edgeMin;
+
+%~bfs
+
 
 % temporary
 
@@ -55,6 +63,75 @@ array[1..statesNumber] of var 0..statesNumber: balance;
 array[1..statesNumber, 0..statesNumber] of var SYMBOLS: balanceStack;
 
 %~cbs
+
+% bfs
+
+% Выбираем для каждого ребра таймер, у которого наименьшая левая граница, 
+% из таких - у которых наименьшая правая граница, из таких - 
+% у которых наименьший номер
+constraint
+forall (state in 1..statesNumber,
+        edge  in 1..edgeMaxNumber)
+((not disabledEdges[state, edge]) -> 
+ forall (timer in 0..additionalTimersNumber)
+ (leftBorder[state, edge, timerMin[state, edge]] < leftBorder[state, edge, timer] \/
+  (leftBorder[state, edge, timerMin[state, edge]] = leftBorder[state, edge, timer] /\
+   rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge, timer] \/
+   (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge, timer] /\
+    timerMin[state, edge] <= timer))));
+
+% Условие, чтобы все выключенные ребра были в конце списка
+constraint
+forall (state in 1..statesNumber,
+        edge  in 1..(edgeMaxNumber - 1))
+(disabledEdges[state, edge] -> disabledEdges[state, edge + 1]);
+
+% Задаем порядок на ребрах. Пусть есть 2 подряд идущих невыключенных ребра.
+% Тогда первое ребро имеет либо меньший символ перехода, иначе, при равенстве,
+% имеет меньшую левую границу для перехода по выбранному таймеру, иначе, при равенстве,
+% имеет меньшую правую границу для перехода по выбранному таймеру, иначе, при равенстве,
+% имеет меньший номер выбранного таймера
+constraint
+forall (state in 1..statesNumber,
+        edge  in 1..(edgeMaxNumber - 1))
+((not disabledEdges[state, edge]) -> 
+ disabledEdges[state, edge + 1] \/
+ tableSymbols[state, edge] < tableSymbols[state, edge + 1] \/
+ (tableSymbols[state, edge] = tableSymbols[state, edge + 1] /\
+  tableTypes[state, edge] < tableTypes[state, edge + 1] \/
+  (tableTypes[state, edge] = tableTypes[state, edge + 1] /\
+   leftBorder[state, edge, timerMin[state, edge]] < leftBorder[state, edge + 1, timerMin[state, edge + 1]] \/
+   (leftBorder[state, edge, timerMin[state, edge]] = leftBorder[state, edge + 1, timerMin[state, edge + 1]] /\
+    rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge + 1, timerMin[state, edge + 1]] \/
+    (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge + 1, timerMin[state, edge + 1]] /\
+     timerMin[state, edge] < timerMin[state, edge + 1])))));
+
+% Номер предка всегда меньше номера ребенка
+constraint
+forall (state in 2..statesNumber)
+(parentInOrder[state] < state);
+     
+% Условие, что из предка можно перейти по некоторому ребру в данную вершину,
+% причем по меньшим ребрам перейти в данную вершину нельзя.
+% Выберем для каждой вершины такое ребро.
+constraint
+forall (state in 2..statesNumber)
+(table[parentInOrder[state], edgeMin[state]] = state /\
+ forall (edge in 1..edgeMaxNumber)
+ (edge < edgeMin[state] -> table[parentInOrder[state], edge] != state));
+
+% Условие, что для двух вершин, первая по номеру меньше второй,
+% либо номер предка первой будет меньше номера предка второй,
+% либо у них общий предок, и у первой вершины меньше номер вырбанного ребра, чем у второй.
+constraint
+forall (state1 in 2..statesNumber,
+        state2 in 2..statesNumber
+  where state1 < state2)
+(parentInOrder[state1] < parentInOrder[state2] \/
+ parentInOrder[state1] = parentInOrder[state2] /\
+ edgeMin[state1] < edgeMin[state2]);
+
+%~bfs
 
 % Нулевой таймер не должен сбрасываться ни на каком ребре во временном автомате
 constraint
@@ -134,9 +211,8 @@ constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
 (disabledEdges[state, edge] \/
- exists (prefixTreeEdge in 1..prefixTreeEdgesNumber
-   where prefixState[prevVertex[prefixTreeEdge]] = state)
- (transition_check (prefixTreeEdge, edge)));
+ exists (prefixTreeEdge in 1..prefixTreeEdgesNumber)
+ (prefixState[prevVertex[prefixTreeEdge]] = state -> transition_check (prefixTreeEdge, edge)));
 
 % Ограничение на связь таймеров вразу после перехода и сразу после перехода:
 % таймер сразу до перехода должен увеличиться относительно таймера после перехода
@@ -170,7 +246,7 @@ sum  (state in 1..statesNumber,
 (1 - bool2int (isTimerDisabled[state, edge, timer] \/ disabledEdges[state, edge])) <= maxActiveTimersCount;
 
 % Ограничение на принимающие состояния: чтобы состояние было принимающим необходимо и достаточно,
-% чтобы существовал лист в префиксном дереве соответствующей нашей вершине
+% чтобы существовал лист в префиксном дереве, соответствующий нашей вершине
 constraint
 forall (state in 1..statesNumber)
 (isFinal[state] <-> (exists (prefixTreeVertex in 1..prefixTreeVertexNumber) 
@@ -211,10 +287,9 @@ forall (state in 1..statesNumber)
 
 % Попытка решения сразу с минимизацией суммарной длины используемых ограничений
 solve minimize (sum (state in 1..statesNumber,
-                     edge  in 1..edgeMaxNumber
-               where not (disabledEdges[state, edge]))
-                (sum (timer in 0..additionalTimersNumber
-               where not (isTimerDisabled[state, edge, timer])) 
-                 (rightBorder[state, edge, timer] - leftBorder[state, edge, timer])));
+                     edge  in 1..edgeMaxNumber)
+                (if disabledEdges[state, edge] then 0 else 
+                (sum (timer in 0..additionalTimersNumber) 
+                 (if isTimerDisabled[state, edge, timer] then 0 else (rightBorder[state, edge, timer] - leftBorder[state, edge, timer]) endif)) endif));
                  
 %solve satisfy;

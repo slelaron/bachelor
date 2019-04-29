@@ -28,10 +28,18 @@ array[int, int] of int: timeBeforeTransition;
 
 % cbs
 
-array[1..statesNumber] of var 0..(statesNumber - 1): balance;
+array[1..statesNumber] of var 0..statesNumber: balance;
 array[1..statesNumber, 0..statesNumber] of var SYMBOLS: balanceStack;
 
 %~cbs
+
+% bfs
+
+array[1..statesNumber, 1..edgeMaxNumber] of var 0..additionalTimersNumber: timerMin;
+array[1..statesNumber] of var 1..statesNumber: parentInOrder;
+array[1..statesNumber] of var 1..edgeMaxNumber: edgeMin;
+
+%~bfs
 
 output let {
   array[int] of int: printVertex  = [state | state in STATES, edge in EDGE_INDEX where not (disabledEdges[state, edge])];
