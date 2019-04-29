@@ -76,9 +76,9 @@ forall (state in 1..statesNumber,
  forall (timer in 0..additionalTimersNumber)
  (leftBorder[state, edge, timerMin[state, edge]] < leftBorder[state, edge, timer] \/
   (leftBorder[state, edge, timerMin[state, edge]] = leftBorder[state, edge, timer] /\
-   rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge, timer] \/
-   (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge, timer] /\
-    timerMin[state, edge] <= timer))));
+   (rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge, timer] \/
+    (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge, timer] /\
+     (timerMin[state, edge] <= timer))))));
 
 % Условие, чтобы все выключенные ребра были в конце списка
 constraint
@@ -96,15 +96,15 @@ forall (state in 1..statesNumber,
         edge  in 1..(edgeMaxNumber - 1))
 ((not disabledEdges[state, edge]) -> 
  disabledEdges[state, edge + 1] \/
- tableSymbols[state, edge] < tableSymbols[state, edge + 1] \/
- (tableSymbols[state, edge] = tableSymbols[state, edge + 1] /\
-  tableTypes[state, edge] < tableTypes[state, edge + 1] \/
-  (tableTypes[state, edge] = tableTypes[state, edge + 1] /\
-   leftBorder[state, edge, timerMin[state, edge]] < leftBorder[state, edge + 1, timerMin[state, edge + 1]] \/
-   (leftBorder[state, edge, timerMin[state, edge]] = leftBorder[state, edge + 1, timerMin[state, edge + 1]] /\
-    rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge + 1, timerMin[state, edge + 1]] \/
-    (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge + 1, timerMin[state, edge + 1]] /\
-     timerMin[state, edge] < timerMin[state, edge + 1])))));
+ (tableSymbols[state, edge] < tableSymbols[state, edge + 1] \/
+  (tableSymbols[state, edge] = tableSymbols[state, edge + 1] /\
+   (tableTypes[state, edge] < tableTypes[state, edge + 1] \/
+    (tableTypes[state, edge] = tableTypes[state, edge + 1] /\
+     (leftBorder[state, edge, timerMin[state, edge]] < leftBorder[state, edge + 1, timerMin[state, edge + 1]] \/
+      (leftBorder[state, edge, timerMin[state, edge]] = leftBorder[state, edge + 1, timerMin[state, edge + 1]] /\
+       (rightBorder[state, edge, timerMin[state, edge]] < rightBorder[state, edge + 1, timerMin[state, edge + 1]] \/
+        (rightBorder[state, edge, timerMin[state, edge]] = rightBorder[state, edge + 1, timerMin[state, edge + 1]] /\
+         (timerMin[state, edge] < timerMin[state, edge + 1]))))))))));
 
 % Номер предка всегда меньше номера ребенка
 constraint
@@ -112,13 +112,17 @@ forall (state in 2..statesNumber)
 (parentInOrder[state] < state);
      
 % Условие, что из предка можно перейти по некоторому ребру в данную вершину,
-% причем по меньшим ребрам перейти в данную вершину нельзя.
+% причем по меньшим ребрам перейти в данную вершину нельзя и из меньших вершин в данную прийти тоже нельзя.
 % Выберем для каждой вершины такое ребро.
 constraint
 forall (state in 2..statesNumber)
 (table[parentInOrder[state], edgeMin[state]] = state /\
  forall (edge in 1..edgeMaxNumber)
- (edge < edgeMin[state] -> table[parentInOrder[state], edge] != state));
+ (edge < edgeMin[state] -> table[parentInOrder[state], edge] != state) /\
+ forall (state1 in 1..statesNumber)
+ (state1 < parentInOrder[state] ->
+  forall (edge in 1..edgeMaxNumber)
+  (disabledEdges[state1, edge] \/ table[state1, edge] != state)));
 
 % Условие, что для двух вершин, первая по номеру меньше второй,
 % либо номер предка первой будет меньше номера предка второй,
@@ -140,9 +144,9 @@ forall (state in 1..statesNumber,
 (reset[state, edge, 0] = false);
 
 % Сужаем область поиска: сразу устанавливаем ограничения, что если ребро не присутствует в данном автомате, то
-% его левая граница на все таймеры равна 0, а правая равна 1, все таймеры, проходя по ребру сбрасываются, 
+% его левая граница на все таймеры равна 0, а правая равна 1, все таймеры, проходя по ребру, сбрасываются,
 % активны ограничения на все таймеры, ребро ведет в вершину 1, символ перехода равен некоторому, одинаковому для
-% всех таких ребер, тип символа устанавливаем равным B
+% всех таких ребер
 constraint
 forall (state in 1..statesNumber,
         edge  in 1..edgeMaxNumber)
@@ -156,6 +160,13 @@ forall (state in 1..statesNumber,
  table[state, edge] = 1 /\
  tableSymbols[state, edge] = labels[1] /\
  tableTypes  [state, edge] = B);
+ 
+% Если ребро включено, то левая граница каждого таймера должна быть меньше правой
+constraint
+forall (state in 1..statesNumber,
+        edge  in 1..edgeMaxNumber,
+        timer in 0..additionalTimersNumber)
+((not disabledEdges[state, edge]) -> leftBorder[state, edge, timer] <= rightBorder[state, edge, timer]);
 
 % Если таймер на данном ребре выключен, то по ребру можно пройти с любым значением таймера, значит левая граница перехода
 % по таймеру равна 0, а правая граница равна условной бесконечности
