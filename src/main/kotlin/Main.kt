@@ -203,20 +203,21 @@ fun Tree.createDotFile(name: String) {
     convert(MutableAutomaton(name = "${vertexNumber++}")).createDotFile(name)
 }
 
-fun getEdges(tree: Tree): List<Edge<Record>> {
-    fun getEdges(list: MutableList<Edge<Record>>, tree: Tree, enumerator: () -> Int): Int {
-        val number = enumerator()
-        for ((record, internal) in tree.ways) {
-            val childNumber = getEdges(list, internal, enumerator)
-            list += Edge(number, childNumber, record)
+val Tree.edges: List<Edge<Record>>
+    get() {
+        fun Tree.getEdges(list: MutableList<Edge<Record>>, enumerator: () -> Int): Int {
+            val number = enumerator()
+            for ((record, internal) in ways) {
+                val childNumber = internal.getEdges(list, enumerator)
+                list += Edge(number, childNumber, record)
+            }
+            return number
         }
-        return number
+        val list = mutableListOf<Edge<Record>>()
+        var nextVertex = 1
+        getEdges(list) { nextVertex++ }
+        return list
     }
-    val list = mutableListOf<Edge<Record>>()
-    var nextVertex = 1
-    getEdges(list, tree) { nextVertex++ }
-    return list
-}
 
 fun writeDataIntoDzn(tree: Tree,
                      statesNumber: Int,
@@ -224,7 +225,7 @@ fun writeDataIntoDzn(tree: Tree,
                      additionalTimersNumber: Int,
                      maxActiveTimersCount: Int,
                      maxTotalEdges: Int) {
-    val edges = getEdges(tree)
+    val edges = tree.edges
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
         println("statesNumber = $statesNumber;")
@@ -247,7 +248,7 @@ fun writeDataIntoTmpDzn(scanner: Scanner,
                         statesNumber: Int,
                         vertexDegree: Int,
                         additionalTimersNumber: Int) {
-    val edges = getEdges(tree)
+    val edges = tree.edges
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("tmp.dzn").apply {
         println("statesNumber = $statesNumber;")
