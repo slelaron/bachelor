@@ -3,26 +3,32 @@ import java.io.PrintWriter
 import java.nio.file.Paths
 import java.util.*
 
-enum class Type { B, E }
+data class Record(val name: String, val time: Int)
 
-data class Record(val name: String, val type: Type, val time: Int)
+class Tree(val ways: Map<Record, Tree>, val acceptable: Boolean?)
 
-class Tree(val ways: Map<Record, Tree>)
-
-class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMapOf()) {
-    fun toTree(): Tree = Tree(ways.mapValues { it.value.toTree() })
+class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMapOf(), var acceptable: Boolean? = null) {
+    fun toTree(): Tree = Tree(ways.mapValues { it.value.toTree() }, acceptable)
 
     fun addTrace(trace: Trace) {
-        val next = ways.getOrPut(trace.firstOrNull() ?: return) { MutableTree() }
-        next.addTrace(trace.subList(1, trace.size))
+        val next = ways.getOrPut(trace.records.firstOrNull() ?: let {
+            if (acceptable != null && acceptable != trace.acceptable) {
+                throw IllegalStateException("Inconsistent traces")
+            }
+            acceptable = trace.acceptable
+            return
+        }) {
+            MutableTree()
+        }
+        next.addTrace(Trace(trace.records.subList(1, trace.records.size), trace.acceptable))
     }
 }
 
 typealias Timer = Int
 
-data class Conditions(val label: String, val type: Type?, val timeGuards: Map<Timer, IntRange>) {
-    fun suit(label: String, type: Type, timerManager: TimerManager) =
-        label == this.label && type == this.type && timeGuards.all { timerManager[it.key] in it.value }
+data class Conditions(val label: String, val timeGuards: Map<Timer, IntRange>) {
+    fun suit(label: String, timerManager: TimerManager) =
+        label == this.label && timeGuards.all { timerManager[it.key] in it.value }
 }
 
 sealed class Either<T, E>
@@ -35,9 +41,8 @@ class MutableAutomaton(
     val name: String) {
 
     fun nextState(label: String,
-                  type: Type,
                   timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
-        val possibleWays = ways.filterKeys { it.suit(label, type, timerManager) }.values.toList()
+        val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
             return ErrorContainer("There is more than one way to go")
         }
@@ -47,7 +52,7 @@ class MutableAutomaton(
     }
 }
 
-typealias Trace = List<Record>
+data class Trace(val records: List<Record>, val acceptable: Boolean)
 
 data class Edge<T>(val from: Int, val to: Int, val data: T)
 
@@ -77,9 +82,9 @@ fun MutableAutomaton.checkAllTraces(traces: List<Trace>): Verdict {
     val result = traces.map {
         val timerManager = TimerManager()
         var state = this
-        for (record in it) {
+        for (record in it.records) {
             timerManager.rewind(record.time)
-            val possibleNext = state.nextState(record.name, record.type, timerManager)
+            val possibleNext = state.nextState(record.name, timerManager)
             state = when (possibleNext) {
                 is ErrorContainer -> {
                     return@map AnnotatedTrace(it, possibleNext.error)
@@ -111,14 +116,9 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): MutableAutomaton {
         val from = scanner.nextInt()
         val to   = scanner.nextInt()
         val label = scanner.next()
-        val type = when (scanner.next()) {
-            "E" -> Type.E
-            "B" -> Type.B
-            else -> throw IllegalStateException("Wrong output format")
-        }
 
         val timerNumber = scanner.nextInt()
-        val conditions = Conditions(label, type, List(timerNumber) {
+        val conditions = Conditions(label, List(timerNumber) {
             val timer = scanner.nextInt()
             val leftBorder = scanner.nextInt()
             val rightBorder = scanner.nextInt()
@@ -163,13 +163,7 @@ fun MutableAutomaton.createDotFile(name: String) {
         }
         for (edge in edges) {
             with(edge) {
-                println("\tq$from -> q$to[label=\"${conditions.label}${
-                        when (conditions.type) {
-                            null -> ""
-                            Type.B -> ":B"
-                            Type.E -> ":E"
-                        }
-                    }\\n${
+                println("\tq$from -> q$to[label=\"${conditions.label}\\n${
                     resets.joinToString("") { "r(t$it)\\n" }
                 }${
                     conditions.timeGuards.entries.
@@ -194,7 +188,7 @@ fun Tree.createDotFile(name: String) {
         }
         for ((record, next) in ways) {
             val nxt = next.convert(MutableAutomaton(name = "${vertexNumber++}"))
-            val condition = Conditions("${record.name}:${record.type}, ${record.time}", null, mapOf())
+            val condition = Conditions("${record.name}, ${record.time}", mapOf())
             automaton.ways[condition] = setOf<Timer>() to nxt
         }
         return automaton
@@ -219,27 +213,49 @@ val Tree.edges: List<Edge<Record>>
         return list
     }
 
+val Tree.vertexes: List<Boolean?>
+    get() {
+        fun Tree.getVertexes(list: MutableList<Boolean?>) {
+            list += acceptable
+            for ((_, internal) in ways) {
+                internal.getVertexes(list)
+            }
+        }
+        val list = mutableListOf<Boolean?>()
+        getVertexes(list)
+        return list
+    }
+
 fun writeDataIntoDzn(tree: Tree,
                      statesNumber: Int,
                      vertexDegree: Int,
                      additionalTimersNumber: Int,
                      maxActiveTimersCount: Int,
-                     maxTotalEdges: Int) {
+                     maxTotalEdges: Int,
+                     inf: Int) {
     val edges = tree.edges
+    val vertexes = tree.vertexes
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
-        println("statesNumber = $statesNumber;")
-        println("edgeMaxNumber = $vertexDegree;")
-        println("prefixTreeEdgesNumber = ${edges.size};")
-        println("additionalTimersNumber = $additionalTimersNumber;")
-        println("maxActiveTimersCount = $maxActiveTimersCount;")
-        println("SYMBOLS = { ${symbols.joinToString()} };")
+        println("V = $statesNumber;")
+        println("E = $vertexDegree;")
+        println("M = ${edges.size};")
+        println("T = $additionalTimersNumber;")
+        println("TC = $maxActiveTimersCount;")
+        println("S = { ${symbols.joinToString()} };")
         println("labels = ${edges.map { it.data.name }};")
-        println("types = ${edges.map { it.data.type }};")
-        println("prevVertex = ${edges.map { it.from }};")
-        println("nextVertex = ${edges.map { it.to }};")
+        println("prev = ${edges.map { it.from }};")
+        println("next = ${edges.map { it.to }};")
         println("times = ${edges.map { it.data.time }};")
-        println("maxTotalEdges = $maxTotalEdges;")
+        println("acc = ${vertexes.map {
+            when(it) {
+                true -> "B"
+                false -> "W"
+                else -> "G"
+            }
+        }};")
+        println("TE = $maxTotalEdges;")
+        println("inf = $inf;")
     }.close()
 }
 
@@ -251,10 +267,10 @@ fun writeDataIntoTmpDzn(scanner: Scanner,
     val edges = tree.edges
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("tmp.dzn").apply {
-        println("statesNumber = $statesNumber;")
-        println("edgeMaxNumber = $vertexDegree;")
-        println("additionalTimersNumber = $additionalTimersNumber;")
-        println("SYMBOLS = { ${symbols.joinToString()} };")
+        println("V = $statesNumber;")
+        println("E = $vertexDegree;")
+        println("T = $additionalTimersNumber;")
+        println("S = { ${symbols.joinToString()} };")
         while (true) {
             if (!scanner.hasNextLine() ||
                 scanner.hasNext("----------") ||
@@ -316,6 +332,7 @@ fun generateAutomaton(prefixTree: Tree,
                       vertexDegree: Int,
                       additionalTimersNumber: Int,
                       maxTotalEdges: Int,
+                      inf: Int,
                       range: IntRange): MutableAutomaton? {
     for (statesNumber in range) {
         val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
@@ -325,7 +342,8 @@ fun generateAutomaton(prefixTree: Tree,
             vertexDegree,
             additionalTimersNumber,
             maxActiveTimersCount,
-            maxTotalEdges)
+            maxTotalEdges,
+            inf)
 
         println("Checking $statesNumber states")
         val scanner = executeMinizinc()
@@ -334,34 +352,6 @@ fun generateAutomaton(prefixTree: Tree,
             println("Unsatisfiable for $statesNumber states")
         } else  {
             println("Satisfiable for $statesNumber states")
-            /*println("Starting moving maxActiveTimersCount")
-            scanner.close()*/
-
-            //var activeTimersNumber = 0
-            //var activeTimersNumber = maxActiveTimersCount
-            /*while (true) {
-                writeDataIntoDzn(
-                    prefixTree,
-                    statesNumber,
-                    vertexDegree,
-                    additionalTimersNumber,
-                    activeTimersNumber,
-                    maxTotalEdges)
-                println("Checking $statesNumber states and $activeTimersNumber active timers")
-                val secondScanner = executeMinizinc()
-                if (secondScanner == null) {
-                    println("Unsatisfiable for $statesNumber states and $activeTimersNumber active timers")
-                    activeTimersNumber++
-                } else {
-                    println("Satisfiable for $statesNumber states and $activeTimersNumber active timers")
-                    return getAutomaton(
-                        prefixTree,
-                        statesNumber,
-                        vertexDegree,
-                        additionalTimersNumber,
-                        secondScanner).also { secondScanner.close() }
-                }
-            }*/
 
             return getAutomaton(
                 prefixTree,
@@ -374,41 +364,40 @@ fun generateAutomaton(prefixTree: Tree,
     return null
 }
 
-const val defaultVertexDegree = 3
+const val defaultVertexDegree = 10
 const val defaultMaxTotalEdges = 20
-const val defaultAdditionalTimersNumber = 1
+const val defaultAdditionalTimersNumber = 0
 
-data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
+data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>, val inf: Int)
 
-fun readTraces(scanner: Scanner, amount: Int) =
-        List(amount) {
-            val traceLength = scanner.nextInt()
-            List(traceLength) {
-                Record(scanner.next(),
-                    when (scanner.next()) {
-                        "E" -> Type.E
-                        "B" -> Type.B
-                        else -> throw IllegalStateException("Invalid type of label")
-                    }, scanner.nextInt())
-            }.toList()
-        }.toList()
+fun readTraces(scanner: Scanner, amount: Int, acceptable: Boolean, infSetter: (Int) -> Unit): List<Trace> =
+    List(amount) {
+        val traceLength = scanner.nextInt()
+        var prev = 0
+        val records = List(traceLength) {
+            Record(
+                scanner.next(),
+                run {
+                    val buf = prev
+                    prev = scanner.nextInt()
+                    prev - buf
+                }
+            )
+        }
+        infSetter(prev)
+        Trace(records, acceptable)
+    }
 
 fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
     val scanner = Scanner(consoleInfo.inputStream)
     val validTracesAmount = scanner.nextInt()
-    val validTraces = readTraces(scanner, validTracesAmount)
+    var inf = 0
+    val infSetter = { a: Int -> if (inf < a) inf = a }
+    val validTraces = readTraces(scanner, validTracesAmount, true, infSetter)
     val invalidTracesAmount = scanner.nextInt()
-    val invalidTraces = readTraces(scanner, invalidTracesAmount)
-    return ProgramTraces(validTraces, invalidTraces).also { scanner.close() }
+    val invalidTraces = readTraces(scanner, invalidTracesAmount, false, infSetter)
+    return ProgramTraces(validTraces, invalidTraces, inf + 2).also { scanner.close() }
 }
-
-fun normalizeTrace(trace: Trace): Trace {
-    val infSequence = generateSequence { trace[0] }.asIterable()
-    return (trace zip infSequence).map { (f, s) -> Record(f.name, f.type, f.time - s.time) }
-}
-
-fun normalizeAllTraces(traces: ProgramTraces) =
-    ProgramTraces(traces.validTraces.map { normalizeTrace(it) }, traces.invalidTraces.map { normalizeTrace(it) })
 
 data class ConsoleInfo(val inputStream: InputStream,
                        val vertexDegree: Int,
@@ -438,13 +427,13 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
         map.getFirstArg("-vd", defaultVertexDegree) { it.toInt() },
         map.getFirstArg("-mte", defaultMaxTotalEdges) { it.toInt() },
         map.getFirstArg("-atn", defaultAdditionalTimersNumber) { it.toInt() },
-        map.getFirstArg("-n", 1..Int.MAX_VALUE) { val n = it.toInt(); n..n })
+        map.getFirstArg("-n", 1../*Int.MAX_VALUE*/1) { val n = it.toInt(); n..n })
 }
 
 fun main(args: Array<String>) {
     val consoleInfo = parseConsoleArguments(args)
-    val traces = normalizeAllTraces(readTraces(consoleInfo))
-    val prefixTree = buildPrefixTree(traces.validTraces)
+    val traces = readTraces(consoleInfo)
+    val prefixTree = buildPrefixTree(traces.validTraces + traces.invalidTraces)
     prefixTree.createDotFile("prefixTree")
 
     val automaton = generateAutomaton(
@@ -452,6 +441,7 @@ fun main(args: Array<String>) {
         consoleInfo.vertexDegree,
         consoleInfo.additionalTimersNumber,
         consoleInfo.maxTotalEdges,
+        traces.inf,
         consoleInfo.range)
 
     if (automaton != null) {
