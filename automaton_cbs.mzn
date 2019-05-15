@@ -17,16 +17,12 @@ array[1..M] of int: times;
 int: N = M + 1; % prefix tree vertex number
 array[1..N] of COL: acc; % acceptable state or not
 
-array[2..N] of 1..M: parents = array1d (2..N, [e | vertex in 1..N, e in 1..M where next[e] = vertex]);
-
-array[1..N] of bool: leaf = [not (exists (e in 1..M) (prev[e] = vertex)) | vertex in 1..N];
-
 array[1..V, 1..E] of var 1..V: table;
 array[1..V, 1..E] of var S: symbols;
 array[1..V] of var bool: final;
 
 int: inf;
-int: volume = pow (inf, T + 1) * length (S);
+int: volume = pow (inf + 1, T + 1) * length (S);
 
 array[1..V, 1..E, 0..T] of var 0..inf: mn; % min timer value need to have to go by the transition
 array[1..V, 1..E, 0..T] of var 0..inf: mx; % max timer value need to have to go by the transition
@@ -35,29 +31,14 @@ array[1..V, 1..E, 0..T] of var bool: disTimer;
 
 array[1..V, 1..E] of var bool: disEdge;
 
-array[1..N] of var 1..V: ps;
+array[1..N] of var 1..V: map;
 array[1..N, 0..T] of var 0..inf: after; % time of some timer directly after transition
-array[1..N, 0..T] of var 0..inf: before; % time of some timer directly before transition
+array[1..M, 0..T] of var 0..inf: before; % time of some timer directly before transition
 
 % bfs
 
-array[1..V, 1..E] of var 0..T: minTimer;
 array[1..V] of var 1..V: vparents;
 array[1..V] of var 1..E: minEdge;
-
-% Выбираем для каждого ребра таймер, у которого наименьшая левая граница, 
-% из таких - у которых наименьшая правая граница, из таких - 
-% у которых наименьший номер
-constraint
-forall (s in 1..V,
-        e in 1..E)
-((not disEdge[s, e]) -> 
- forall (t in 0..T)
- (mn[s, e, minTimer[s, e]] < mn[s, e, t] \/
-  (mn[s, e, minTimer[s, e]] = mn[s, e, t] /\
-   (mx[s, e, minTimer[s, e]] < mx[s, e, t] \/
-    (mx[s, e, minTimer[s, e]] = mx[s, e, t] /\
-     (minTimer[s, e] <= t))))));
 
 % Условие, чтобы все выключенные ребра были в конце списка
 constraint
@@ -67,21 +48,27 @@ forall (s in 1..V,
 
 % Задаем порядок на ребрах. Пусть есть 2 подряд идущих невыключенных ребра.
 % Тогда первое ребро имеет либо меньший символ перехода, иначе, при равенстве,
-% имеет меньшую левую границу для перехода по выбранному таймеру, иначе, при равенстве,
-% имеет меньшую правую границу для перехода по выбранному таймеру, иначе, при равенстве,
-% имеет меньший номер выбранного таймера
+% существует таймер, на котором либо левая граница перехода для данного таймера
+% по первому ребру меньше чем по второму, либо, при равенстве, правая граница
+% перехода для данного таймера по первому ребру меньше чем по второму, а также
+% для всех таймеров с меньшим номером левая и правая граница перехода для данного таймера
+% по первому ребру равна левой и правой границе перехода для данного таймера 
+% по второму ребру соответственно.
 constraint
 forall (s in 1..V,
         e in 1..(E - 1))
 ((not disEdge[s, e]) -> 
- disEdge[s, e + 1] \/
- (symbols[s, e] < symbols[s, e + 1] \/
+ ((not disEdge[s, e + 1]) ->
+  symbols[s, e] < symbols[s, e + 1] \/
   (symbols[s, e] = symbols[s, e + 1] /\
-   (mn[s, e, minTimer[s, e]] < mn[s, e + 1, minTimer[s, e + 1]] \/
-    (mn[s, e, minTimer[s, e]] = mn[s, e + 1, minTimer[s, e + 1]] /\
-     (mx[s, e, minTimer[s, e]] < mx[s, e + 1, minTimer[s, e + 1]] \/
-      (mx[s, e, minTimer[s, e]] = mx[s, e + 1, minTimer[s, e + 1]] /\
-       (minTimer[s, e] < minTimer[s, e + 1]))))))));
+   exists (t in 0..T)
+   ((mn[s, e, t] < mn[s, e + 1, t] \/
+     (mn[s, e, t] == mn[s, e + 1, t] /\
+      mx[s, e, t] < mx[s, e + 1, t])) /\
+    forall (t0 in 0..T)
+    (t0 < t ->
+     mn[s, e, t0] == mn[s, e, t0] /\
+     mx[s, e, t0] == mx[s, e, t0])))));
 
 % Номер предка всегда меньше номера ребенка
 constraint
@@ -142,14 +129,14 @@ constraint
 forall (s in 1..V,
         e in 1..E,
         t in 0..T)
-((not disEdge[s, e]) -> mn[s, e, t] <= mx[s, e, t]);
-
+(disEdge[s, e] \/ mn[s, e, t] <= mx[s, e, t]);
+/*
 % Полнота: объем области, покрытой всеми таймерами, должен быть равен inf^(T + 1)*|S|
 constraint
-sum (s in 1..V,
-     e in 1..E)
-(if disEdge[s, e] then 0 else product (t in 0..T) (mx[s, e, t] - mn[s, e, t]) endif) = volume;
-
+forall (s in 1..V)
+(sum (e in 1..E)
+ (if disEdge[s, e] then 0 else product (t in 0..T) (mx[s, e, t] - mn[s, e, t] + 1) endif) = volume);
+*/
 % Если таймер на данном ребре выключен, то по ребру можно пройти с любым значением таймера, значит левая граница перехода
 % по таймеру равна 0, а правая граница равна условной бесконечности
 constraint
@@ -168,11 +155,11 @@ forall (s  in 1..V,
         e2 in 1..E
   where e1 != e2)
 (symbols[s, e1] = symbols[s, e2] -> 
- disEdge[s, e1] \/
- disEdge[s, e2] \/
- exists (t in 0..T) 
- (mx[s, e1, t] < mn[s, e2, t] \/ 
-  mx[s, e2, t] < mn[s, e1, t]));
+ (disEdge[s, e1] \/
+  disEdge[s, e2] \/
+  exists (t in 0..T) 
+  (mx[s, e1, t] < mn[s, e2, t] \/ 
+   mx[s, e2, t] < mn[s, e1, t])));
 
 % Предикат: ребру в префиксном дереве соответствует текущее ребро, если
 % символ перехода по данному ребру соответствует символ перехода в префиксном дереве,
@@ -183,12 +170,12 @@ forall (s  in 1..V,
 % значение таймера сразу после перехода равно 0, если таймер находился во множестве сброса для данного ребра,
 % и равно значению таймера сразу перед переходом иначе.
 predicate check (1..M: pe, 1..E: e) = 
- symbols[ps[prev[pe]], e] = labels[pe] /\
- ps[next[pe]] = table[ps[prev[pe]], e] /\
+ symbols[map[prev[pe]], e] = labels[pe] /\
+ map[next[pe]] = table[map[prev[pe]], e] /\
  forall (t in 0..T)
- (mn[ps[prev[pe]], e, t] <= before[next[pe], t] /\
-  before[next[pe], t] <= mx[ps[prev[pe]], e, t] /\
-  after[next[pe], t] = if reset[ps[prev[pe]], e, t] then 0 else before[next[pe], t] endif);
+ (before[pe, t] >= mn[map[prev[pe]], e, t] /\
+  before[pe, t] <= mx[map[prev[pe]], e, t] /\
+  after[next[pe], t] = if reset[map[prev[pe]], e, t] then 0 else before[pe, t] endif);
 
 % Ограничение, что для каждого ребра в префиксном дереве существует соответствующее ему ребро во временном автомате
 constraint
@@ -203,7 +190,7 @@ forall (s in 1..V,
         e in 1..E)
 (disEdge[s, e] \/
  exists (pe in 1..M)
- (ps[prev[pe]] = s -> check (pe, e)));
+ (map[prev[pe]] = s -> check (pe, e)));
 
 % Ограничение на связь таймеров вразу после перехода и сразу после перехода:
 % таймер сразу до перехода должен увеличиться относительно таймера после перехода
@@ -212,7 +199,7 @@ forall (s in 1..V,
 constraint
 forall (pe in 1..M,
         t  in 0..T)
-(before[next[pe], t] = after[prev[pe], t] + times[pe]);
+(before[pe, t] = after[prev[pe], t] + times[pe]);
 
 % Ограничение, что изначально значение всех таймеров равно 0 (то есть в первой вершине)
 constraint
@@ -221,8 +208,8 @@ forall (t in 0..T)
 
 % Ограничение, что вершина, соответствующая корню префиксного дерева, является первая вершина в автомате
 constraint
-ps[1] = 1;
-
+map[1] = 1;
+/*
 % Ограничение, что количество используемых в автомате ребре не превышает максимально допустимого
 constraint
 sum  (s in 1..V,
@@ -235,17 +222,18 @@ sum  (s in 1..V,
       e in 1..E,
       t in 0..T)
 (1 - bool2int (disTimer[s, e, t] \/ disEdge[s, e])) <= TC;
-
+*/
 % Ограничение на принимающие состояния: чтобы состояние было принимающим необходимо и достаточно,
 % чтобы существовал лист в префиксном дереве, соответствующий нашей вершине
-constraint
-forall (s in 1..V,
-        pv in 1..N)
-(ps[pv] = s -> acc[pv] = B -> final[s]);
 
 constraint
-forall (s in 1..V,
-        pv in 1..N)
-(ps[pv] = s -> acc[pv] = W -> (not final[s]));
+forall (s  in 1..V,
+        ps in 1..N)
+(map[ps] = s -> (acc[ps] = B -> final[s]));
+
+constraint
+forall (s  in 1..V,
+        ps in 1..N)
+(map[ps] = s -> (acc[ps] = W -> (not final[s])));
 
 solve satisfy;

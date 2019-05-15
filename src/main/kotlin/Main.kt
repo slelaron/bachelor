@@ -1,3 +1,4 @@
+import java.io.File
 import java.io.InputStream
 import java.io.PrintWriter
 import java.nio.file.Paths
@@ -17,9 +18,7 @@ class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMap
             }
             acceptable = trace.acceptable
             return
-        }) {
-            MutableTree()
-        }
+        }) { MutableTree() }
         next.addTrace(Trace(trace.records.subList(1, trace.records.size), trace.acceptable))
     }
 }
@@ -32,8 +31,8 @@ data class Conditions(val label: String, val timeGuards: Map<Timer, IntRange>) {
 }
 
 sealed class Either<T, E>
-class ErrorContainer<T, E>(val error: E): Either<T, E>()
-class AnswerContainer<T, E>(val answer: T): Either<T, E>()
+data class ErrorContainer<T, E>(val error: E): Either<T, E>()
+data class AnswerContainer<T, E>(val answer: T): Either<T, E>()
 
 class MutableAutomaton(
     val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>> = mutableMapOf(),
@@ -44,10 +43,10 @@ class MutableAutomaton(
                   timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
-            return ErrorContainer("There is more than one way to go")
+            return ErrorContainer("There is more than one way to go: need={$label, $timerManager}, have=$ways")
         }
         val possibleAutomaton = possibleWays.firstOrNull()
-            ?: return ErrorContainer("There is no way to go!")
+            ?: return ErrorContainer("There is no way to go: need={$label, $timerManager}, have=${ways.filterKeys { it.label == label }}")
         return AnswerContainer(possibleAutomaton)
     }
 }
@@ -56,8 +55,18 @@ data class Trace(val records: List<Record>, val acceptable: Boolean)
 
 data class Edge<T>(val from: Int, val to: Int, val data: T)
 
-fun buildPrefixTree(traces: List<Trace>) =
-    MutableTree().also { tree -> traces.forEach { tree.addTrace(it) } }.toTree()
+fun normalize(rawTrace: Trace) =
+        Trace(rawTrace.records.zipWithNext { a, b ->
+            Record(b.name, b.time - a.time)
+        }, rawTrace.acceptable) // plug until there are bad traces, after some time it doesn't need any more
+
+fun buildPrefixTree(traces: List<Trace>): Tree {
+    val tree = MutableTree()
+    for (trace in traces) {
+        tree.addTrace(trace)
+    }
+    return tree.toTree()
+}
 
 data class AnnotatedTrace(val trace: Trace, val reason: String)
 
@@ -65,17 +74,18 @@ data class Verdict(val correct: List<Trace>, val incorrect: List<AnnotatedTrace>
 
 class TimerManager {
     private val timer2Time = mutableMapOf<Timer, Int>()
-    private var time = 0
+    var global = 0
+        set(new: Int) {
+            field = new.takeIf { it >= global } ?: throw IllegalStateException("New time must be more than previous")
+        }
 
-    operator fun get(timer: Timer) = time - timer2Time.getOrPut(timer) { 0 }
+    operator fun get(timer: Timer) = global - timer2Time.getOrPut(timer) { 0 }
 
     fun reset(timer: Timer) {
-        timer2Time[timer] = time
+        timer2Time[timer] = global
     }
 
-    fun rewind(curTime: Int) {
-        time = curTime
-    }
+    override fun toString() = "Manager(globalTime=$global, timer2time=$timer2Time)"
 }
 
 fun MutableAutomaton.checkAllTraces(traces: List<Trace>): Verdict {
@@ -83,7 +93,7 @@ fun MutableAutomaton.checkAllTraces(traces: List<Trace>): Verdict {
         val timerManager = TimerManager()
         var state = this
         for (record in it.records) {
-            timerManager.rewind(record.time)
+            timerManager.global += record.time
             val possibleNext = state.nextState(record.name, timerManager)
             state = when (possibleNext) {
                 is ErrorContainer -> {
@@ -172,6 +182,7 @@ fun MutableAutomaton.createDotFile(name: String) {
             }
         }
         println("}")
+        flush()
     }.close()
 
     val dot = ProcessBuilder("dot", "-Tps", "$name.dot", "-o", "$name.ps").start()
@@ -181,49 +192,47 @@ fun MutableAutomaton.createDotFile(name: String) {
 }
 
 fun Tree.createDotFile(name: String) {
-    var vertexNumber = 1
-    fun Tree.convert(automaton: MutableAutomaton): MutableAutomaton {
-        if (ways.isEmpty()) {
-            automaton.final = true
+    val (edges, vertexes) = this.edgesAndVertexes
+    PrintWriter("$name.dot").apply {
+        println("digraph L {")
+        for ((i, acc) in vertexes.withIndex()) {
+	    println("\tq${i + 1}[label=${i + 1}${
+                when (acc) {
+                    null -> ""
+                    true -> " shape=doublecircle"
+                    else -> " shape=octagon"
+                }
+            }]")
         }
-        for ((record, next) in ways) {
-            val nxt = next.convert(MutableAutomaton(name = "${vertexNumber++}"))
-            val condition = Conditions("${record.name}, ${record.time}", mapOf())
-            automaton.ways[condition] = setOf<Timer>() to nxt
+        for (edge in edges) {
+            with(edge) {
+                println("\tq$from->q$to[label=\"${data.name}, ${data.time}\"]")
+            }
         }
-        return automaton
-    }
+        println("}")
+        flush()
+    }.close()
 
-    convert(MutableAutomaton(name = "${vertexNumber++}")).createDotFile(name)
+    val dot = ProcessBuilder("dot", "-Tps", "$name.dot", "-o", "$name.ps").start()
+    dot.waitFor()
+    System.err.println(dot.errorStream.readAllBytes().toString(Charsets.UTF_8))
+    dot.destroy()
 }
 
-val Tree.edges: List<Edge<Record>>
+val Tree.edgesAndVertexes: Pair<List<Edge<Record>>, List<Boolean?>>
     get() {
-        fun Tree.getEdges(list: MutableList<Edge<Record>>, enumerator: () -> Int): Int {
-            val number = enumerator()
+        val vertexes = mutableListOf<Boolean?>()
+        val edges = mutableListOf<Edge<Record>>()
+        fun Tree.get() {
+            val number = vertexes.size + 1
+            vertexes += acceptable
             for ((record, internal) in ways) {
-                val childNumber = internal.getEdges(list, enumerator)
-                list += Edge(number, childNumber, record)
-            }
-            return number
-        }
-        val list = mutableListOf<Edge<Record>>()
-        var nextVertex = 1
-        getEdges(list) { nextVertex++ }
-        return list
-    }
-
-val Tree.vertexes: List<Boolean?>
-    get() {
-        fun Tree.getVertexes(list: MutableList<Boolean?>) {
-            list += acceptable
-            for ((_, internal) in ways) {
-                internal.getVertexes(list)
+                edges += Edge(number, vertexes.size + 1, record)
+                internal.get()
             }
         }
-        val list = mutableListOf<Boolean?>()
-        getVertexes(list)
-        return list
+        get()
+        return edges to vertexes
     }
 
 fun writeDataIntoDzn(tree: Tree,
@@ -233,8 +242,7 @@ fun writeDataIntoDzn(tree: Tree,
                      maxActiveTimersCount: Int,
                      maxTotalEdges: Int,
                      inf: Int) {
-    val edges = tree.edges
-    val vertexes = tree.vertexes
+    val (edges, vertexes) = tree.edgesAndVertexes
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
         println("V = $statesNumber;")
@@ -264,7 +272,7 @@ fun writeDataIntoTmpDzn(scanner: Scanner,
                         statesNumber: Int,
                         vertexDegree: Int,
                         additionalTimersNumber: Int) {
-    val edges = tree.edges
+    val (edges, _) = tree.edgesAndVertexes
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("tmp.dzn").apply {
         println("V = $statesNumber;")
@@ -368,35 +376,24 @@ const val defaultVertexDegree = 10
 const val defaultMaxTotalEdges = 20
 const val defaultAdditionalTimersNumber = 0
 
-data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>, val inf: Int)
+data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
 
-fun readTraces(scanner: Scanner, amount: Int, acceptable: Boolean, infSetter: (Int) -> Unit): List<Trace> =
+fun readTraces(scanner: Scanner, amount: Int, acceptable: Boolean): List<Trace> =
     List(amount) {
         val traceLength = scanner.nextInt()
-        var prev = 0
         val records = List(traceLength) {
-            Record(
-                scanner.next(),
-                run {
-                    val buf = prev
-                    prev = scanner.nextInt()
-                    prev - buf
-                }
-            )
+            Record(scanner.next(), scanner.nextInt())
         }
-        infSetter(prev)
-        Trace(records, acceptable)
+        normalize(Trace(records, acceptable))
     }
 
 fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
     val scanner = Scanner(consoleInfo.inputStream)
     val validTracesAmount = scanner.nextInt()
-    var inf = 0
-    val infSetter = { a: Int -> if (inf < a) inf = a }
-    val validTraces = readTraces(scanner, validTracesAmount, true, infSetter)
+    val validTraces = readTraces(scanner, validTracesAmount, true)
     val invalidTracesAmount = scanner.nextInt()
-    val invalidTraces = readTraces(scanner, invalidTracesAmount, false, infSetter)
-    return ProgramTraces(validTraces, invalidTraces, inf + 2).also { scanner.close() }
+    val invalidTraces = readTraces(scanner, invalidTracesAmount, false)
+    return ProgramTraces(validTraces, invalidTraces).also { scanner.close() }
 }
 
 data class ConsoleInfo(val inputStream: InputStream,
@@ -423,11 +420,11 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
         }
     }
     return ConsoleInfo(
-        map.getFirstArg("-s", System.`in`) { Paths.get(it).toFile().inputStream() },
+        map.getFirstArg("-s", System.`in`) { File(it).inputStream() },
         map.getFirstArg("-vd", defaultVertexDegree) { it.toInt() },
         map.getFirstArg("-mte", defaultMaxTotalEdges) { it.toInt() },
         map.getFirstArg("-atn", defaultAdditionalTimersNumber) { it.toInt() },
-        map.getFirstArg("-n", 1../*Int.MAX_VALUE*/1) { val n = it.toInt(); n..n })
+        map.getFirstArg("-n", 1..Int.MAX_VALUE) { val n = it.toInt(); n..n })
 }
 
 fun main(args: Array<String>) {
@@ -436,12 +433,18 @@ fun main(args: Array<String>) {
     val prefixTree = buildPrefixTree(traces.validTraces + traces.invalidTraces)
     prefixTree.createDotFile("prefixTree")
 
+    val infinity = ((traces.invalidTraces + traces.validTraces).map {
+        it.records.sumBy { it.time }
+    }.max() ?: 0) + 2
+
+    System.err.println("Infinity = $infinity")
+
     val automaton = generateAutomaton(
         prefixTree,
         consoleInfo.vertexDegree,
         consoleInfo.additionalTimersNumber,
         consoleInfo.maxTotalEdges,
-        traces.inf,
+        infinity,
         consoleInfo.range)
 
     if (automaton != null) {
