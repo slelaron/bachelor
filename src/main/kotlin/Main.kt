@@ -33,9 +33,9 @@ sealed class Either<T, E>
 data class ErrorContainer<T, E>(val error: E): Either<T, E>()
 data class AnswerContainer<T, E>(val answer: T): Either<T, E>()
 
-open class Automaton(open val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>>,
-                     open var final: Boolean,
-                     open val name: String) {
+open class Automaton(open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>,
+                     open val final: Boolean,
+                     val name: String) {
     fun nextState(label: String,
                   timerManager: TimerManager): Either<Pair<Set<Timer>, Automaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
@@ -51,7 +51,7 @@ open class Automaton(open val ways: MutableMap<Conditions, Pair<Set<Timer>, Muta
 class MutableAutomaton(
     override val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>> = mutableMapOf(),
     override var final: Boolean = false,
-    override val name: String): Automaton(ways, final, name)
+    name: String): Automaton(ways, final, name)
 
 data class Trace(val records: List<Record>, val acceptable: Boolean)
 
