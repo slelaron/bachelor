@@ -6,11 +6,10 @@ import java.util.*
 
 data class Record(val name: String, val time: Int)
 
-class Tree(val ways: Map<Record, Tree>, val acceptable: Boolean?)
+open class Tree(open val ways: Map<Record, Tree>, open val acceptable: Boolean?)
 
-class MutableTree(private val ways: MutableMap<Record, MutableTree> = mutableMapOf(), var acceptable: Boolean? = null) {
-    fun toTree(): Tree = Tree(ways.mapValues { it.value.toTree() }, acceptable)
-
+class MutableTree(override val ways: MutableMap<Record, MutableTree> = mutableMapOf(),
+                  override var acceptable: Boolean? = null): Tree(ways, acceptable) {
     fun addTrace(trace: Trace) {
         val next = ways.getOrPut(trace.records.firstOrNull() ?: let {
             if (acceptable != null && acceptable != trace.acceptable) {
@@ -34,13 +33,11 @@ sealed class Either<T, E>
 data class ErrorContainer<T, E>(val error: E): Either<T, E>()
 data class AnswerContainer<T, E>(val answer: T): Either<T, E>()
 
-class MutableAutomaton(
-    val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>> = mutableMapOf(),
-    var final: Boolean = false,
-    val name: String) {
-
+open class Automaton(open val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>>,
+                     open var final: Boolean,
+                     open val name: String) {
     fun nextState(label: String,
-                  timerManager: TimerManager): Either<Pair<Set<Timer>, MutableAutomaton>, String> {
+                  timerManager: TimerManager): Either<Pair<Set<Timer>, Automaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
             return ErrorContainer("There is more than one way to go: need={$label, $timerManager}, have=$ways")
@@ -50,6 +47,11 @@ class MutableAutomaton(
         return AnswerContainer(possibleAutomaton)
     }
 }
+
+class MutableAutomaton(
+    override val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>> = mutableMapOf(),
+    override var final: Boolean = false,
+    override val name: String): Automaton(ways, final, name)
 
 data class Trace(val records: List<Record>, val acceptable: Boolean)
 
@@ -65,7 +67,7 @@ fun buildPrefixTree(traces: List<Trace>): Tree {
     for (trace in traces) {
         tree.addTrace(trace)
     }
-    return tree.toTree()
+    return tree
 }
 
 data class AnnotatedTrace(val trace: Trace, val reason: String)
@@ -75,7 +77,7 @@ data class Verdict(val correct: List<Trace>, val incorrect: List<AnnotatedTrace>
 class TimerManager {
     private val timer2Time = mutableMapOf<Timer, Int>()
     var global = 0
-        set(new: Int) {
+        set(new) {
             field = new.takeIf { it >= global } ?: throw IllegalStateException("New time must be more than previous")
         }
 
@@ -88,7 +90,7 @@ class TimerManager {
     override fun toString() = "Manager(globalTime=$global, timer2time=$timer2Time)"
 }
 
-fun MutableAutomaton.checkAllTraces(traces: List<Trace>): Verdict {
+fun Automaton.checkAllTraces(traces: List<Trace>): Verdict {
     val result = traces.map {
         val timerManager = TimerManager()
         var state = this
@@ -112,10 +114,10 @@ fun MutableAutomaton.checkAllTraces(traces: List<Trace>): Verdict {
     return Verdict(result.filter { it.reason == "" }.map { it.trace }, result.filter { it.reason != "" })
 }
 
-fun MutableAutomaton.checkAllTraces(traces: ProgramTraces): Pair<Verdict, Verdict> =
+fun Automaton.checkAllTraces(traces: ProgramTraces): Pair<Verdict, Verdict> =
         Pair(checkAllTraces(traces.validTraces), checkAllTraces(traces.invalidTraces))
 
-fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): MutableAutomaton {
+fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): Automaton {
     val finalCount = scanner.nextInt()
     val finals = List(finalCount) { scanner.nextInt() }.toSet()
     val automatonStates = List(statesNumber) {
@@ -144,10 +146,10 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): MutableAutomaton {
 
 data class AutomatonEdge(val from: String, val to: String, val conditions: Conditions, val resets: Set<Timer>)
 
-fun MutableAutomaton.createDotFile(name: String) {
+fun Automaton.createDotFile(name: String) {
     val states = mutableListOf<Pair<String, Boolean>>()
     val edges = mutableListOf<AutomatonEdge>()
-    fun visitAutomaton(visited: MutableSet<String>, state: MutableAutomaton) {
+    fun visitAutomaton(visited: MutableSet<String>, state: Automaton) {
         visited += state.name
         states += Pair(state.name, state.final)
         for ((key, value) in state.ways) {
@@ -315,7 +317,7 @@ fun getAutomaton(prefixTree: Tree,
                  statesNumber: Int,
                  vertexDegree: Int,
                  additionalTimersNumber: Int,
-                 scanner: Scanner): MutableAutomaton {
+                 scanner: Scanner): Automaton {
     writeDataIntoTmpDzn(
         scanner,
         prefixTree,
@@ -341,7 +343,7 @@ fun generateAutomaton(prefixTree: Tree,
                       additionalTimersNumber: Int,
                       maxTotalEdges: Int,
                       inf: Int,
-                      range: IntRange): MutableAutomaton? {
+                      range: IntRange): Automaton? {
     for (statesNumber in range) {
         val maxActiveTimersCount = statesNumber * vertexDegree * (1 + additionalTimersNumber)
         writeDataIntoDzn(
@@ -468,9 +470,9 @@ You should give samples to the program in following format (TAB symbols aren't n
         <NEGATIVE LABEL_N_<LN_N>> <NEGATIVE DELAY_N_<LN_N>>
 We provide you usage of following flags:
     (-s | --source) <PATH> - use your own <PATH> to samples.
-    (-vd | --vertexDegree) <NUMBER> - computed automaton's vertex degree will be <NUMBER> at most. By default = $defaultVertexDegree
-    (-mte | --maxTotalEdges) <NUMBER> - computed automaton will have <NUMBER> edges at most. By default = $defaultMaxTotalEdges
-    (-tn | --timersNumber) <NUMBER> - computed automaton will use <NUMBER> timers at most. By default = $defaultTimersNumber
+    (-vd | --vertexDegree) <NUMBER> - computed automaton's vertex degree will be <NUMBER> at most. By default = $defaultVertexDegree.
+    (-mte | --maxTotalEdges) <NUMBER> - computed automaton will have <NUMBER> edges at most. By default = $defaultMaxTotalEdges.
+    (-tn | --timersNumber) <NUMBER> - computed automaton will use <NUMBER> timers at most. By default = $defaultTimersNumber.
     (-n | --number) <NUMBER> - program will check possibility to build automaton with <NUMBER> states.
     (-h | --help) - program will print help message to you.
 """
@@ -486,8 +488,6 @@ fun main(args: Array<String>) {
     val infinity = ((traces.invalidTraces + traces.validTraces).map {
         it.records.sumBy { it.time }
     }.max() ?: 0) + 2
-
-    System.err.println("Infinity = $infinity")
 
     val automaton = generateAutomaton(
         prefixTree,
