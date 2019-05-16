@@ -24,16 +24,16 @@ array[1..V] of var bool: final;
 int: inf;
 int: volume = pow (inf + 1, T + 1) * length (S);
 
-array[1..V, 1..E, 0..T] of var 0..inf: mn; % min timer value need to have to go by the transition
-array[1..V, 1..E, 0..T] of var 0..inf: mx; % max timer value need to have to go by the transition
-array[1..V, 1..E, 0..T] of var bool: reset;
-array[1..V, 1..E, 0..T] of var bool: disTimer;
+array[1..V, 1..E, 1..T] of var 0..inf: mn; % min timer value need to have to go by the transition
+array[1..V, 1..E, 1..T] of var 0..inf: mx; % max timer value need to have to go by the transition
+array[1..V, 1..E, 1..T] of var bool: reset;
+array[1..V, 1..E, 1..T] of var bool: disTimer;
 
 array[1..V, 1..E] of var bool: disEdge;
 
 array[1..N] of var 1..V: map;
-array[1..N, 0..T] of var 0..inf: after; % time of some timer directly after transition
-array[1..M, 0..T] of var 0..inf: before; % time of some timer directly before transition
+array[1..N, 1..T] of var 0..inf: after; % time of some timer directly after transition
+array[1..M, 1..T] of var 0..inf: before; % time of some timer directly before transition
 
 % bfs
 
@@ -61,11 +61,11 @@ forall (s in 1..V,
  ((not disEdge[s, e + 1]) ->
   symbols[s, e] < symbols[s, e + 1] \/
   (symbols[s, e] = symbols[s, e + 1] /\
-   exists (t in 0..T)
+   exists (t in 1..T)
    ((mn[s, e, t] < mn[s, e + 1, t] \/
      (mn[s, e, t] == mn[s, e + 1, t] /\
       mx[s, e, t] < mx[s, e + 1, t])) /\
-    forall (t0 in 0..T)
+    forall (t0 in 1..T)
     (t0 < t ->
      mn[s, e, t0] == mn[s, e, t0] /\
      mx[s, e, t0] == mx[s, e, t0])))));
@@ -101,12 +101,6 @@ forall (s1 in 2..V,
 
 %~bfs
 
-% Нулевой таймер не должен сбрасываться ни на каком ребре во временном автомате
-constraint
-forall (s in 1..V,
-        e in 1..E)
-(reset[s, e, 0] = false);
-
 % Сужаем область поиска: сразу устанавливаем ограничения, что если ребро не присутствует в данном автомате, то
 % его левая граница на все таймеры равна 0, а правая равна 1, все таймеры, проходя по ребру, сбрасываются,
 % активны ограничения на все таймеры, ребро ведет в вершину 1, символ перехода равен некоторому, одинаковому для
@@ -115,11 +109,11 @@ constraint
 forall (s in 1..V,
         e in 1..E)
 (disEdge[s, e] ->
- forall (t in 0..T)
+ forall (t in 1..T)
  (mn[s, e, t] = 1 /\ mx[s, e, t] = 0) /\
  forall (t in 1..T)
  (reset[s, e, t]) /\
- forall (t in 0..T)
+ forall (t in 1..T)
  (disTimer[s, e, t] = false) /\
  table[s, e] = 1 /\
  symbols[s, e] = labels[1]);
@@ -128,21 +122,21 @@ forall (s in 1..V,
 constraint
 forall (s in 1..V,
         e in 1..E,
-        t in 0..T)
+        t in 1..T)
 (disEdge[s, e] \/ mn[s, e, t] <= mx[s, e, t]);
 /*
 % Полнота: объем области, покрытой всеми таймерами, должен быть равен inf^(T + 1)*|S|
 constraint
 forall (s in 1..V)
 (sum (e in 1..E)
- (if disEdge[s, e] then 0 else product (t in 0..T) (mx[s, e, t] - mn[s, e, t] + 1) endif) = volume);
+ (if disEdge[s, e] then 0 else product (t in 1..T) (mx[s, e, t] - mn[s, e, t] + 1) endif) = volume);
 */
 % Если таймер на данном ребре выключен, то по ребру можно пройти с любым значением таймера, значит левая граница перехода
 % по таймеру равна 0, а правая граница равна условной бесконечности
 constraint
 forall (s in 1..V,
         e in 1..E,
-        t in 0..T)
+        t in 1..T)
 (disTimer[s, e, t] -> mn[s, e, t] = 0 /\ mx[s, e, t] = inf);
  
 % Ограничение на детерминизм: из любого состояния по данному символу и значению таймеров существует не более одного перехода.
@@ -157,7 +151,7 @@ forall (s  in 1..V,
 (symbols[s, e1] = symbols[s, e2] -> 
  (disEdge[s, e1] \/
   disEdge[s, e2] \/
-  exists (t in 0..T) 
+  exists (t in 1..T) 
   (mx[s, e1, t] < mn[s, e2, t] \/ 
    mx[s, e2, t] < mn[s, e1, t])));
 
@@ -172,7 +166,7 @@ forall (s  in 1..V,
 predicate check (1..M: pe, 1..E: e) = 
  symbols[map[prev[pe]], e] = labels[pe] /\
  map[next[pe]] = table[map[prev[pe]], e] /\
- forall (t in 0..T)
+ forall (t in 1..T)
  (before[pe, t] >= mn[map[prev[pe]], e, t] /\
   before[pe, t] <= mx[map[prev[pe]], e, t] /\
   after[next[pe], t] = if reset[map[prev[pe]], e, t] then 0 else before[pe, t] endif);
@@ -198,12 +192,12 @@ forall (s in 1..V,
 % и временем в ребре, являющееся предком данного, в префиксном дереве.
 constraint
 forall (pe in 1..M,
-        t  in 0..T)
+        t  in 1..T)
 (before[pe, t] = after[prev[pe], t] + times[pe]);
 
 % Ограничение, что изначально значение всех таймеров равно 0 (то есть в первой вершине)
 constraint
-forall (t in 0..T)
+forall (t in 1..T)
 (after[1, t] = 0);
 
 % Ограничение, что вершина, соответствующая корню префиксного дерева, является первая вершина в автомате
@@ -220,7 +214,7 @@ sum  (s in 1..V,
 constraint
 sum  (s in 1..V,
       e in 1..E,
-      t in 0..T)
+      t in 1..T)
 (1 - bool2int (disTimer[s, e, t] \/ disEdge[s, e])) <= TC;
 */
 % Ограничение на принимающие состояния: чтобы состояние было принимающим необходимо и достаточно,

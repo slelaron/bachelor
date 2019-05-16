@@ -374,7 +374,7 @@ fun generateAutomaton(prefixTree: Tree,
 
 const val defaultVertexDegree = 10
 const val defaultMaxTotalEdges = 20
-const val defaultAdditionalTimersNumber = 0
+const val defaultTimersNumber = 1
 
 data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<Trace>)
 
@@ -400,12 +400,14 @@ data class ConsoleInfo(val inputStream: InputStream,
                        val vertexDegree: Int,
                        val maxTotalEdges: Int,
                        val additionalTimersNumber: Int,
-                       val range: IntRange)
+                       val range: IntRange,
+                       val helpMessage: String)
 
-fun<T> Map<String, List<String>>.getFirstArg(key: String,
+inline fun<T> Map<String, List<String>>.getFirstArg(keys: Iterable<String>,
                                              default: T,
-                                             transform: (String) -> T?): T {
-    return transform(this[key]?.let { it.firstOrNull() ?: return default } ?: return default) ?: default
+                                             transform: (List<String>) -> T?): T {
+    return transform(keys.mapNotNull { this[it] }.
+        firstOrNull() ?: return default) ?: default
 }
 
 fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
@@ -420,15 +422,63 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
         }
     }
     return ConsoleInfo(
-        map.getFirstArg("-s", System.`in`) { File(it).inputStream() },
-        map.getFirstArg("-vd", defaultVertexDegree) { it.toInt() },
-        map.getFirstArg("-mte", defaultMaxTotalEdges) { it.toInt() },
-        map.getFirstArg("-atn", defaultAdditionalTimersNumber) { it.toInt() },
-        map.getFirstArg("-n", 1..Int.MAX_VALUE) { val n = it.toInt(); n..n })
+        map.getFirstArg(listOf("-s", "--source"), System.`in`) { File(it[0]).inputStream() },
+        map.getFirstArg(listOf("-vd", "--vertexDegree"), defaultVertexDegree) { it[0].toInt() },
+        map.getFirstArg(listOf("-mte", "--maxTotalEdges"), defaultMaxTotalEdges) { it[0].toInt() },
+        map.getFirstArg(listOf("-tn", "--timersNumber"), defaultTimersNumber) { it[0].toInt() },
+        map.getFirstArg(listOf("-n", "--number"), 1..Int.MAX_VALUE) { val n = it[0].toInt(); n..n },
+        map.getFirstArg(listOf("-h", "--help"), "") { help })
 }
+
+const val help = """Hay everyone who want to use this DTA builder!
+You should give samples to the program in following format (TAB symbols aren't necessary):
+<P = POSITIVE SAMPLES NUMBER>
+    <LP_1 = POSITIVE SAMPLE_1 LENGTH>
+        <POSITIVE LABEL_1_1> <POSITIVE DELAY_1_1>
+        <POSITIVE LABEL_1_2> <POSITIVE DELAY_1_2>
+        ...
+        <POSITIVE LABEL_1_<LP_1>> <POSITIVE DELAY_1_<LP_1>>
+    <LP_2 = POSITIVE SAMPLE_2 LENGTH>
+        <POSITIVE LABEL_2_1> <POSITIVE DELAY_2_1>
+        <POSITIVE LABEL_2_2> <POSITIVE DELAY_2_2>
+        ...
+        <POSITIVE LABEL_2_<LP_2>> <POSITIVE DELAY_2_<LP_2>>
+    ...
+    <LP_P = POSITIVE SAMPLE_P LENGTH>
+        <POSITIVE LABEL_P_1> <POSITIVE DELAY_P_1>
+        <POSITIVE LABEL_P_2> <POSITIVE DELAY_P_2>
+        ...
+        <POSITIVE LABEL_P_<LP_P>> <POSITIVE DELAY_P_<LP_P>>
+<N = NEGATIVE SAMPLES NUMBER>
+    <LN_1 = NEGATIVE SAMPLE_1 LENGTH>
+        <NEGATIVE LABEL_1_1> <NEGATIVE DELAY_1_1>
+        <NEGATIVE LABEL_1_2> <NEGATIVE DELAY_1_2>
+        ...
+        <NEGATIVE LABEL_1_<LN_1>> <NEGATIVE DELAY_1_<LN_1>>
+    <LN_2 = NEGATIVE SAMPLE_2 LENGTH>
+        <NEGATIVE LABEL_2_1> <NEGATIVE DELAY_2_1>
+        <NEGATIVE LABEL_2_2> <NEGATIVE DELAY_2_2>
+        ...
+        <NEGATIVE LABEL_2_<LN_2>> <NEGATIVE DELAY_2_<LN_2>>
+    ...
+    <LN_N = NEGATIVE SAMPLE_N LENGTH>
+        <NEGATIVE LABEL_N_1> <NEGATIVE DELAY_N_1>
+        <NEGATIVE LABEL_N_2> <NEGATIVE DELAY_N_2>
+        ...
+        <NEGATIVE LABEL_N_<LN_N>> <NEGATIVE DELAY_N_<LN_N>>
+We provide you usage of following flags:
+    (-s | --source) <PATH> - use your own <PATH> to samples.
+    (-vd | --vertexDegree) <NUMBER> - computed automaton's vertex degree will be <NUMBER> at most. By default = $defaultVertexDegree
+    (-mte | --maxTotalEdges) <NUMBER> - computed automaton will have <NUMBER> edges at most. By default = $defaultMaxTotalEdges
+    (-tn | --timersNumber) <NUMBER> - computed automaton will use <NUMBER> timers at most. By default = $defaultTimersNumber
+    (-n | --number) <NUMBER> - program will check possibility to build automaton with <NUMBER> states.
+    (-h | --help) - program will print help message to you.
+"""
 
 fun main(args: Array<String>) {
     val consoleInfo = parseConsoleArguments(args)
+    print(consoleInfo.helpMessage)
+
     val traces = readTraces(consoleInfo)
     val prefixTree = buildPrefixTree(traces.validTraces + traces.invalidTraces)
     prefixTree.createDotFile("prefixTree")
