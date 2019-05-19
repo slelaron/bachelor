@@ -135,9 +135,6 @@ fun trainAutomaton(train: List<Trace>,
             automaton.edgesAndStates.first.size..Int.MAX_VALUE)
             ?: throw IllegalStateException("Can't generate automaton, strange")
     }
-    val verdict = automaton.checkAllTraces(train)
-    if (verdict.incorrect.isNotEmpty())
-        throw IllegalStateException("Not all traces are ")
     return automaton
 }
 
