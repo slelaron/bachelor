@@ -11,7 +11,7 @@ open class Tree(open val ways: Map<Record, Tree>, open val acceptable: Boolean?)
 class MutableTree(override val ways: MutableMap<Record, MutableTree> = mutableMapOf(),
                   override var acceptable: Boolean? = null): Tree(ways, acceptable) {
     fun addTrace(trace: Trace) {
-        val next = ways.getOrPut(trace.records.firstOrNull() ?: let {
+        val next = ways.getOrPut(trace.records.firstOrNull() ?: run {
             if (acceptable != null && acceptable != trace.acceptable) {
                 throw IllegalStateException("Inconsistent traces")
             }
@@ -40,10 +40,10 @@ open class Automaton(open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>
                   timerManager: TimerManager): Either<Pair<Set<Timer>, Automaton>, String> {
         val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
-            return ErrorContainer("There is more than one way to go: need={$label, $timerManager}, have=$ways")
+            return ErrorContainer("There is more than one way to go from $name: need={$label, $timerManager}")
         }
         val possibleAutomaton = possibleWays.firstOrNull()
-            ?: return ErrorContainer("There is no way to go: need={$label, $timerManager}, have=${ways.filterKeys { it.label == label }}")
+            ?: return ErrorContainer("There is no way to go from $name: need={$label, $timerManager}}")
         return AnswerContainer(possibleAutomaton)
     }
 }
@@ -62,7 +62,7 @@ fun normalize(rawTrace: Trace) =
             Record(b.name, b.time - a.time)
         }, rawTrace.acceptable) // plug until there are bad traces, after some time it doesn't need any more
 
-fun buildPrefixTree(traces: List<Trace>): Tree {
+fun buildPrefixTree(traces: Iterable<Trace>): Tree {
     val tree = MutableTree()
     for (trace in traces) {
         tree.addTrace(trace)
@@ -78,7 +78,7 @@ class TimerManager {
     private val timer2Time = mutableMapOf<Timer, Int>()
     var global = 0
         set(new) {
-            field = new.takeIf { it >= global } ?: throw IllegalStateException("New time must be more than previous")
+            field = new.takeIf { it >= global } ?: throw IllegalStateException("New time value must be bigger than previous one")
         }
 
     operator fun get(timer: Timer) = global - timer2Time.getOrPut(timer) { 0 }
@@ -90,7 +90,7 @@ class TimerManager {
     override fun toString() = "Manager(globalTime=$global, timer2time=$timer2Time)"
 }
 
-fun Automaton.checkAllTraces(traces: List<Trace>): Verdict {
+fun Automaton.checkAllTraces(traces: Iterable<Trace>): Verdict {
     val result = traces.map {
         val timerManager = TimerManager()
         var state = this
@@ -146,21 +146,27 @@ fun parseMinizincOutput(scanner: Scanner, statesNumber: Int): Automaton {
 
 data class AutomatonEdge(val from: String, val to: String, val conditions: Conditions, val resets: Set<Timer>)
 
-fun Automaton.createDotFile(name: String) {
-    val states = mutableListOf<Pair<String, Boolean>>()
-    val edges = mutableListOf<AutomatonEdge>()
-    fun visitAutomaton(visited: MutableSet<String>, state: Automaton) {
-        visited += state.name
-        states += Pair(state.name, state.final)
-        for ((key, value) in state.ways) {
-            val nextState = value.second
-            edges += AutomatonEdge(state.name, nextState.name, key, value.first)
-            if (nextState.name !in visited) {
-                visitAutomaton(visited, nextState)
+val Automaton.edgesAndStates: Pair<List<Pair<String, Boolean>>, List<AutomatonEdge>>
+    get() {
+        val states = mutableListOf<Pair<String, Boolean>>()
+        val edges = mutableListOf<AutomatonEdge>()
+        fun visitAutomaton(visited: MutableSet<String>, state: Automaton) {
+            visited += state.name
+            states += Pair(state.name, state.final)
+            for ((key, value) in state.ways) {
+                val nextState = value.second
+                edges += AutomatonEdge(state.name, nextState.name, key, value.first)
+                if (nextState.name !in visited) {
+                    visitAutomaton(visited, nextState)
+                }
             }
         }
+        visitAutomaton(mutableSetOf(), this)
+        return states to edges
     }
-    visitAutomaton(mutableSetOf(), this)
+
+fun Automaton.createDotFile(name: String) {
+    val (states, edges) = edgesAndStates
     PrintWriter("$name.dot").apply {
         println("digraph L {")
         for (state in states) {
@@ -295,7 +301,7 @@ fun writeDataIntoTmpDzn(scanner: Scanner,
 fun executeMinizinc(): Scanner? {
     val minizinc = ProcessBuilder(
         "minizinc",
-        "automaton_cbs.mzn",
+        "automaton_rti.mzn",
         "prefix_data.dzn",
         "--solver", "org.chuffed.chuffed",
         "-o", "tmp").start()
@@ -401,28 +407,27 @@ fun readTraces(consoleInfo: ConsoleInfo): ProgramTraces {
 data class ConsoleInfo(val inputStream: InputStream,
                        val vertexDegree: Int,
                        val maxTotalEdges: Int,
-                       val additionalTimersNumber: Int,
+                       val timersNumber: Int,
                        val range: IntRange,
                        val helpMessage: String)
 
 inline fun<T> Map<String, List<String>>.getFirstArg(keys: Iterable<String>,
-                                             default: T,
-                                             transform: (List<String>) -> T?): T {
+                                                    default: T,
+                                                    transform: (List<String>) -> T?): T {
     return transform(keys.mapNotNull { this[it] }.
         firstOrNull() ?: return default) ?: default
 }
 
 fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
-    val map = mutableMapOf<String, MutableList<String>>()
-    var lastList = mutableListOf<String>()
+    val arg2Val = mutableListOf<Pair<String, MutableList<String>>>()
     for (str in args) {
         if (str.startsWith("-")) {
-            lastList = mutableListOf()
-            map[str] = lastList
+            arg2Val += str to mutableListOf()
         } else {
-            lastList.add(str)
+            arg2Val.lastOrNull()?.second?.add(str)
         }
     }
+    val map = arg2Val.toMap()
     return ConsoleInfo(
         map.getFirstArg(listOf("-s", "--source"), System.`in`) { File(it[0]).inputStream() },
         map.getFirstArg(listOf("-vd", "--vertexDegree"), defaultVertexDegree) { it[0].toInt() },
@@ -432,8 +437,12 @@ fun parseConsoleArguments(args: Array<String>): ConsoleInfo {
         map.getFirstArg(listOf("-h", "--help"), "") { help })
 }
 
+fun Iterable<Trace>.infinity() = map { trace ->
+        trace.records.sumBy { it.time }
+    }.max() ?: 0
+
 const val help = """Hay everyone who want to use this DTA builder!
-You should give samples to the program in following format (TAB symbols aren't necessary):
+You should give samples to the program in following format (TAB symbols are unnecessary):
 <P = POSITIVE SAMPLES NUMBER>
     <LP_1 = POSITIVE SAMPLE_1 LENGTH>
         <POSITIVE LABEL_1_1> <POSITIVE DELAY_1_1>
@@ -485,14 +494,12 @@ fun main(args: Array<String>) {
     val prefixTree = buildPrefixTree(traces.validTraces + traces.invalidTraces)
     prefixTree.createDotFile("prefixTree")
 
-    val infinity = ((traces.invalidTraces + traces.validTraces).map {
-        it.records.sumBy { it.time }
-    }.max() ?: 0) + 2
+    val infinity = (traces.invalidTraces + traces.validTraces).infinity()
 
     val automaton = generateAutomaton(
         prefixTree,
         consoleInfo.vertexDegree,
-        consoleInfo.additionalTimersNumber,
+        consoleInfo.timersNumber,
         consoleInfo.maxTotalEdges,
         infinity,
         consoleInfo.range)
