@@ -1,5 +1,6 @@
 import java.io.File
 import java.io.InputStream
+import kotlin.random.Random
 
 data class Environment(
     val solution: String,
@@ -57,13 +58,15 @@ fun mainStrategy(prefixTree: Tree,
                  vertexDegree: Int? = null,
                  maxTotalEdges: Int? = null,
                  maxActiveTimersCount: Int? = null,
-                 infinity: Int = prefixTree.infinity()): Automaton? {
+                 infinity: Int = prefixTree.infinity(),
+                 needMinimize: Boolean = false): Automaton? {
     val labels = prefixTree.labels().count()
     var automaton: Automaton?
+    System.err.println("$timersNumber, $range, $solution, $solver, $vertexDegree, $maxTotalEdges, $maxActiveTimersCount, $infinity, $needMinimize")
     for (statesNumber in range) {
         val theVertexDegree = vertexDegree ?: statesNumber * labels
-        val theMaxTotalEdges = maxTotalEdges ?: theVertexDegree * statesNumber 
-        val theMaxActiveTimersCount = maxActiveTimersCount ?: theMaxTotalEdges * timersNumber
+        val theMaxTotalEdges = maxTotalEdges ?: (theVertexDegree * statesNumber)
+        val theMaxActiveTimersCount = maxActiveTimersCount ?: (theMaxTotalEdges * timersNumber)
         val environment = Environment(
             solution,
             solver,
@@ -76,19 +79,22 @@ fun mainStrategy(prefixTree: Tree,
             theMaxActiveTimersCount)
         automaton = environment.generateAutomaton()
         if (automaton != null) {
-            val (env0, aut0) = decrease(environment, automaton, { this.vertexDegree > 1 }) {
-                copy(vertexDegree = it.vertexDegree() - 1)
+            return if (needMinimize) {
+                val (env0, aut0) = decrease(environment, automaton, { this.vertexDegree > 1 }) {
+                    copy(vertexDegree = it.vertexDegree() - 1)
+                }
+                val (env1, aut1) = decrease(env0, aut0, { this.maxTotalEdges > 1 }) {
+                    val (edges, _) = it.edgesAndStates
+                    copy(maxTotalEdges = edges.size - 1)
+                }
+                val (_, aut2) = decrease(env1, aut1, { this.maxActiveTimersCount > 1 }) {
+                    val (edges, _) = it.edgesAndStates
+                    val activeTimers = edges.sumBy { e -> e.conditions.timeGuards.size }
+                    copy(maxActiveTimersCount = activeTimers - 1)
+                }
+                aut2
             }
-            val (env1, aut1) = decrease(env0, aut0, { this.maxTotalEdges > 1 }) {
-                val (edges, _) = it.edgesAndStates
-                copy(maxTotalEdges = edges.size - 1)
-            }
-            val (_, aut2) = decrease(env1, aut1, { this.maxActiveTimersCount > 1 }) {
-                val (edges, _) = it.edgesAndStates
-                val activeTimers = edges.sumBy { e -> e.conditions.timeGuards.size }
-                copy(maxActiveTimersCount = activeTimers - 1)
-            }
-            return aut2
+            else automaton
         }
     }
     return null
@@ -120,20 +126,28 @@ fun trainAutomaton(train: List<Trace>,
                    infinity: Int = train.infinity()): Automaton {
     val trainSet = mutableSetOf<Trace>()
     var automaton: Automaton = MutableAutomaton(name = "q0")
+    var minimized = false
     while (true) {
         val verdict = automaton.checkAllTraces(train)
         val correct = verdict.correct.toSet()
         val incorrect = verdict.incorrect.map { it.trace }.toSet()
-        val trace = train.firstOrNull { if (it.acceptable) it !in correct else it !in incorrect } ?: break
-        trainSet += trace
+        val trace = train.firstOrNull { if (it.acceptable) it !in correct else it !in incorrect }
+        if (trace == null && minimized) {
+            break
+        }
+        if (trace != null) {
+	    trainSet += trace
+        }
         val prefixTree = buildPrefixTree(trainSet)
         prefixTree.createDotFile("init_prefix_tree")
+        minimized = trace == null
         automaton = mainStrategy(
             prefixTree = prefixTree,
             timersNumber = timersNumber,
             infinity = infinity,
             solution = "automaton_rti.mzn",
-            range = automaton.edgesAndStates.second.size..Int.MAX_VALUE)
+            range = automaton.edgesAndStates.second.size..Int.MAX_VALUE,
+            needMinimize = minimized)
             ?: throw IllegalStateException("Can't generate automaton, strange")
     }
     return automaton
@@ -142,13 +156,15 @@ fun trainAutomaton(train: List<Trace>,
 const val defaultTest = 1
 const val defaultTrainCount = 20
 const val defaultTestCount = 1000
+const val defaultSeed = 123
 
 const val helpTester = """Hay everyone who want to test solution!
 We provide you usage of following flags:
     (-s | --source) <NUMBER> - test number you want to run. By default: $defaultTest.
-    (-t | --train) <NUMBER> - training traces count. By default = $defaultTrainCount.
-    (-c | --check) <NUMBER> - testing traces count. By default = $defaultTestCount.
+    (-t | --train) <NUMBER> - training traces count. By default: $defaultTrainCount.
+    (-c | --check) <NUMBER> - testing traces count. By default: $defaultTestCount.
     (-i | --infinity) <NUMBER> - infinity you want to use in automaton.
+    (-sd | --seed) <NUMBER> - seed for random choosing. By default: $defaultSeed.
     (-h | --help) - program will print help message to you.
 """
 
@@ -158,6 +174,7 @@ data class TesterInfo(val test: Int,
                       val trainCount: Int,
                       val testCount: Int,
                       val infinity: Int?,
+                      val seed: Int,
                       val help: String)
 
 fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
@@ -169,6 +186,7 @@ fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
         map.getFirstArg(listOf("-t", "--train"), defaultTrainCount) { it[0].toInt() },
         map.getFirstArg(listOf("-c", "--check"), defaultTestCount) { it[0].toInt() },
         map.getFirstArg(listOf("-i", "--infinity"), null) { it[0].toInt() },
+        map.getFirstArg(listOf("-sd", "--seed"), defaultSeed) { it[0].toInt() },
         map.getFirstArg(listOf("-h", "--help"), "") { helpTester })
 }
 
@@ -177,10 +195,11 @@ fun main(args: Array<String>) {
     print(testerInfo.help)
     if (testerInfo.help != "") return
 
+    val random = Random(seed = testerInfo.seed)
     val trainProgramTraces = readTraces(testerInfo.trainStream)
-    val trainSet = (trainProgramTraces.validTraces + trainProgramTraces.invalidTraces).shuffled().take(testerInfo.trainCount) // need to fix
+    val trainSet = (trainProgramTraces.validTraces + trainProgramTraces.invalidTraces).shuffled(random).take(testerInfo.trainCount)
     val testProgramTraces = readTraces(testerInfo.testStream)
-    val testSet = (testProgramTraces.validTraces + testProgramTraces.invalidTraces).shuffled().take(testerInfo.testCount) // need to fix
+    val testSet = (testProgramTraces.validTraces + testProgramTraces.invalidTraces).shuffled(random).take(testerInfo.testCount)
 
     val infinity = testerInfo.infinity ?: trainSet.infinity()
 
