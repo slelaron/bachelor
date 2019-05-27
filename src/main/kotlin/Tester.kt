@@ -1,5 +1,8 @@
 import java.io.File
 import java.io.InputStream
+import java.io.PrintWriter
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlin.random.Random
 
 data class Environment(
@@ -62,7 +65,6 @@ fun mainStrategy(prefixTree: Tree,
                  needMinimize: Boolean = false): Automaton? {
     val labels = prefixTree.labels().count()
     var automaton: Automaton?
-    System.err.println("$timersNumber, $range, $solution, $solver, $vertexDegree, $maxTotalEdges, $maxActiveTimersCount, $infinity, $needMinimize")
     for (statesNumber in range) {
         val theVertexDegree = vertexDegree ?: statesNumber * labels
         val theMaxTotalEdges = maxTotalEdges ?: (theVertexDegree * statesNumber)
@@ -124,7 +126,7 @@ fun fMeasure(answers: List<List<Int>>): Double {
 fun trainAutomaton(train: List<Trace>,
                    timersNumber: Int,
                    infinity: Int = train.infinity()): Automaton {
-    val trainSet = mutableSetOf<Trace>()
+    /*val trainSet = mutableSetOf<Trace>()
     var automaton: Automaton = MutableAutomaton(name = "q0")
     var minimized = false
     while (true) {
@@ -150,7 +152,15 @@ fun trainAutomaton(train: List<Trace>,
             needMinimize = minimized)
             ?: throw IllegalStateException("Can't generate automaton, strange")
     }
-    return automaton
+    return automaton*/
+    
+    return mainStrategy(
+        prefixTree = buildPrefixTree(train),
+        timersNumber = timersNumber,
+        infinity = infinity,
+        solution = "automaton_rti.mzn",
+        needMinimize = false)
+        ?: throw IllegalStateException("Can't generate automaton, strange")
 }
 
 const val defaultTest = 1
@@ -171,6 +181,7 @@ We provide you usage of following flags:
 data class TesterInfo(val test: Int,
                       val trainStream: InputStream,
                       val testStream: InputStream,
+                      val solution: Int?,
                       val trainCount: Int,
                       val testCount: Int,
                       val infinity: Int?,
@@ -183,11 +194,21 @@ fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
         map.getFirstArg(listOf("-s", "--source"), defaultTest) { it[0].toInt() },
         map.getFirstArg(listOf("-s", "--source"), defaultTest) { it[0].toInt() }.let { File("$DIR/$PREFIX$it/train").inputStream() },
         map.getFirstArg(listOf("-s", "--source"), defaultTest) { it[0].toInt() }.let { File("$DIR/$PREFIX$it/test").inputStream() },
+        map.getFirstArg(listOf("-sn", "--solution"), null) { it[0].toInt() },
         map.getFirstArg(listOf("-t", "--train"), defaultTrainCount) { it[0].toInt() },
         map.getFirstArg(listOf("-c", "--check"), defaultTestCount) { it[0].toInt() },
         map.getFirstArg(listOf("-i", "--infinity"), null) { it[0].toInt() },
         map.getFirstArg(listOf("-sd", "--seed"), defaultSeed) { it[0].toInt() },
         map.getFirstArg(listOf("-h", "--help"), "") { helpTester })
+}
+
+data class TimeWrapper<T>(val result: T, val time: Double)
+
+inline fun <T> time(func: () -> T): TimeWrapper<T> {
+    val startTime = System.currentTimeMillis()
+    val result = func()
+    val stopTime = System.currentTimeMillis()
+    return TimeWrapper(result, (stopTime - startTime).toDouble() / 1000)
 }
 
 fun main(args: Array<String>) {
@@ -203,7 +224,51 @@ fun main(args: Array<String>) {
 
     val infinity = testerInfo.infinity ?: trainSet.infinity()
 
-    val automaton = trainAutomaton(trainSet, timersNumber = 1, infinity = infinity)
+    val curPrefix = "$DIR/$PREFIX${testerInfo.test}"
+    val directoryName = "$curPrefix/solution${ testerInfo.solution ?: takeEmpty(curPrefix,"solution") }"
+    val directory = Paths.get(directoryName)
+    if (Files.exists(directory)) {
+        directory.toFile().deleteRecursively()
+    }
+    Files.createDirectory(directory)
+
+    PrintWriter("$directoryName/info").apply {
+        println("train count = ${testerInfo.trainCount}")
+        println("test count = ${testerInfo.testCount}")
+        println("infinity = $infinity")
+        println("seed = ${testerInfo.seed}")
+        flush()
+    }.close()
+
+    PrintWriter("$directoryName/info_machine").apply {
+        println(testerInfo.trainCount)
+        println(testerInfo.testCount)
+        println(infinity)
+        println(testerInfo.seed)
+        flush()
+    }.close()
+
+    PrintWriter("$directoryName/result").apply {
+        println("total time = -1")
+        println("f-measure = -1")
+        println("positive examples correctness = -1")
+        println("negative examples correctness = -1")
+        println("examples correctness = -1")
+        flush()
+    }.close()
+
+    PrintWriter("$directoryName/result_machine").apply {
+        repeat(5) { println(-1) }
+        flush()
+    }.close()
+
+    val (automaton, time) = time { trainAutomaton(trainSet, timersNumber = 1, infinity = infinity) }
+
+    val (f, ann) = automaton.checkAllTraces(trainSet)
+    val s = ann.map { it.trace }
+    if (f.any { !it.acceptable } || s.any { it.acceptable }) {
+        throw Exception("Not all train traces is correct:\n$f\n$s")
+    }
 
     val (correct, annotated) = automaton.checkAllTraces(testSet)
     val incorrect = annotated.map { it.trace }
@@ -216,5 +281,27 @@ fun main(args: Array<String>) {
             listOf(incor2Cor.size, incor2Incor.size)))
     System.err.println("Current measure: $measure")
 
-    automaton.createDotFile("$DIR/$PREFIX${testerInfo.test}/solution", inf = infinity)
+    automaton.createDotFile("$directoryName/solution", inf = infinity)
+    PrintWriter("$directoryName/solution_machine").apply {
+        println(automaton)
+        flush()
+    }.close()
+
+    PrintWriter("$directoryName/result").apply {
+        println("total time = $time")
+        println("f-measure = $measure")
+        println("positive examples correctness = ${cor2Cor.size.toDouble() / correct.size}")
+        println("negative examples correctness = ${incor2Incor.size.toDouble() / incorrect.size}")
+        println("examples correctness = ${(cor2Cor.size + incor2Incor.size).toDouble() / (correct.size + incorrect.size)}")
+        flush()
+    }.close()
+
+    PrintWriter("$directoryName/result_machine").apply {
+        println(time)
+        println(measure)
+        println(cor2Cor.size.toDouble() / correct.size)
+        println(incor2Incor.size.toDouble() / incorrect.size)
+        println((cor2Cor.size + incor2Incor.size).toDouble() / (correct.size + incorrect.size))
+        flush()
+    }.close()
 }

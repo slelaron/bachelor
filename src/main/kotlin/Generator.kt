@@ -134,7 +134,7 @@ data class GenerateInfo(val test: Int,
 fun parseConsoleArgumentsGenerator(args: Array<String>): GenerateInfo {
     val map = parseConsoleArguments(args)
     return GenerateInfo(
-        map.getFirstArg(listOf("-t", "--test"), takeEmpty()) { it[0].toInt() },
+        map.getFirstArg(listOf("-t", "--test"), takeEmpty(DIR, PREFIX)) { it[0].toInt() },
         map.getFirstArg(listOf("-n", "--number"), defaultNumberOfStates) { it[0].toInt() },
         map.getFirstArg(listOf("-s", "--splits"), defaultSplitsNumber) { it[0].toInt() },
         map.getFirstArg(listOf("-l", "--labels"), defaultLabelsNumber) { it[0].toInt() }.let { ('a'..'z').take(it).map { c -> c.toString() } },
@@ -150,14 +150,14 @@ fun parseConsoleArgumentsGenerator(args: Array<String>): GenerateInfo {
 const val DIR = "tests"
 const val PREFIX = "test"
 
-fun takeEmpty(): Int {
-    val testsDir = Paths.get(DIR)
+fun takeEmpty(startDirectory: String, directory: String): Int {
+    val testsDir = Paths.get(startDirectory)
     if (Files.notExists(testsDir)) {
         Files.createDirectory(testsDir)
     }
     val usedNumbers = Files.walk(testsDir, 1).asSequence().mapNotNull {path ->
-        path.fileName.takeIf { path.nameCount == 2 }?.let {
-            "^$PREFIX(\\d+)\$".toRegex().find(it.toString())?.destructured?.let {(result) ->
+        path.let {
+            "^$startDirectory/$directory(\\d+)\$".toRegex().find(it.toString())?.destructured?.let {(result) ->
                 result.toIntOrNull()
             }
         }
@@ -220,6 +220,18 @@ fun main(args: Array<String>) {
         println("train trace number = ${generateInfo.trainNumber}")
         println("test trace number = ${generateInfo.testNumber}")
         println("stop probability = ${generateInfo.stopProbability}")
+        flush()
+    }.close()
+    PrintWriter("$testDirName/info_machine").apply {
+        println(generateInfo.statesNumber)
+        println(generateInfo.splitsNumber)
+        println("${generateInfo.labels.size} ${generateInfo.labels.joinToString(" ")}")
+        println(generateInfo.resetProbability)
+        println(generateInfo.automatonTimeUpperBound)
+        println(generateInfo.traceTimeUpperBound)
+        println(generateInfo.trainNumber)
+        println(generateInfo.testNumber)
+        println(generateInfo.stopProbability)
         flush()
     }.close()
 }
