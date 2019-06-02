@@ -50,6 +50,39 @@ task mainJar(dependsOn: 'classes', type: Jar) {
     destinationDir = file("${buildDir}/jars")
 }
 
+task verwerJar(dependsOn: 'classes', type: Jar) {
+    archiveName = 'verwer.jar'
+    manifest {
+        attributes 'Implementation-Title': 'Translator to verwer format',
+                'Main-Class': 'VerwerKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.main.output
+    destinationDir = file("${buildDir}/jars")
+}
+
+task rtaJar(dependsOn: 'classes', type: Jar) {
+    archiveName = 'rta.jar'
+    manifest {
+        attributes 'Implementation-Title': 'Translator from verwer rta to my format',
+                'Main-Class': 'RTAKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.main.output
+    destinationDir = file("${buildDir}/jars")
+}
+
+task estimatorJar(dependsOn: 'classes', type: Jar) {
+    archiveName = 'estimator.jar'
+    manifest {
+        attributes 'Implementation-Title': 'Estimator',
+                'Main-Class': 'EstimatorKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.main.output
+    destinationDir = file("${buildDir}/jars")
+}
+
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }

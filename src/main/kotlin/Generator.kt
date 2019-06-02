@@ -54,7 +54,7 @@ class AutomatonGeneratorOneTimer(val statesNumber: Int,
             while (true) {
                 val automaton = generate()
                 val (_, states) = automaton.edgesAndStates
-                if (states.any { it.second } && states.any { !it.second } && states.size == statesNumber) {
+                if (states.any { it.final == true } && states.any { it.final == false } && states.size == statesNumber) {
                     return automaton
                 }
             }
@@ -79,7 +79,7 @@ class PathGenerator(val automaton: Automaton,
                 val now = Record(labels.random(), (0..timeUpperBound).random())
                 timerManager.global += now.time
                 val (resets, next) =
-                    when (val result = state.nextState(now.name, timerManager)) {
+                    when (val result = state[now.name, timerManager]) {
                         is ErrorContainer -> throw IllegalStateException(result.error)
                         is AnswerContainer -> result.answer
                     }
@@ -89,7 +89,7 @@ class PathGenerator(val automaton: Automaton,
                 state = next
                 records += now
             }
-            return Trace(records, state.final)
+            return Trace(records, state.final == true)
         }
     }
 }
@@ -147,7 +147,7 @@ fun parseConsoleArgumentsGenerator(args: Array<String>): GenerateInfo {
         map.getFirstArg(listOf("-h", "--help"), "") { helpGenerator })
 }
 
-const val DIR = "tests"
+const val DIR = "tests_1"
 const val PREFIX = "test"
 
 fun takeEmpty(startDirectory: String, directory: String): Int {

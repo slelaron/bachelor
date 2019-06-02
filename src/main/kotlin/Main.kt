@@ -28,16 +28,22 @@ data class Conditions(val label: String, val timeGuards: Map<Timer, IntRange>) {
         label == this.label && timeGuards.all { timerManager[it.key] in it.value }
 }
 
-sealed class Either<T, E>
-data class ErrorContainer<T, E>(val error: E): Either<T, E>()
-data class AnswerContainer<T, E>(val answer: T): Either<T, E>()
+sealed class Either<out T, out E>
+data class ErrorContainer<out T, out E>(val error: E): Either<T, E>()
+data class AnswerContainer<out T, out E>(val answer: T): Either<T, E>()
 
-open class Automaton(open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>,
-                     open val final: Boolean,
-                     open val name: String) {
-    fun nextState(label: String,
-                  timerManager: TimerManager): Either<Pair<Set<Timer>, Automaton>, String> {
-        val possibleWays = ways.filterKeys { it.suit(label, timerManager) }.values.toList()
+fun<T, E, Q> Either<T, E>.map(f: (T) -> Q): Either<Q, E> =
+    when (this) {
+        is AnswerContainer -> AnswerContainer(f(answer))
+        is ErrorContainer -> ErrorContainer(error)
+    }
+
+open class Automaton(
+    open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>,
+    open val final: Boolean?, open val name: String) {
+
+    protected fun<T> Map<Conditions, Pair<Set<Timer>, T>>.nextState(label: String, timerManager: TimerManager): Either<Pair<Set<Timer>, T>, String> {
+        val possibleWays = filterKeys { it.suit(label, timerManager) }.values.toList()
         if (possibleWays.size > 1) {
             return ErrorContainer("There is more than one way to go from $name: need={$label, $timerManager}")
         }
@@ -46,18 +52,21 @@ open class Automaton(open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>
         return AnswerContainer(possibleAutomaton)
     }
 
+    open operator fun get(label: String, timerManager: TimerManager) = ways.nextState(label, timerManager)
+
     override fun toString(): String {
         val (edges, states) = edgesAndStates
-        val accStates = states.withIndex().filter { it.value.second }.map { it.index + 1 }
+        val accStates = states.filter { it.final == true }
         val builder = StringBuilder()
-        builder.appendln(states.size).
-            appendln(states.joinToString(" ") { it.first }).
+        builder.
+            appendln(states.size).
+            appendln(states.joinToString(" ") { it.name }).
             appendln(accStates.size).
-            appendln(accStates.joinToString(" ")).
+            appendln(accStates.joinToString(" ") { it.name }).
             appendln(edges.size)
 
         for (edge in edges) {
-            builder.append("${edge.from} ${edge.to} ${edge.conditions.label} ${edge.conditions.timeGuards.size} ")
+            builder.append("${edge.from.name} ${edge.to.name} ${edge.conditions.label} ${edge.conditions.timeGuards.size} ")
             for (guard in edge.conditions.timeGuards) {
                 builder.append("${guard.key} ${guard.value.start} ${guard.value.endInclusive} ")
             }
@@ -68,12 +77,47 @@ open class Automaton(open val ways: Map<Conditions, Pair<Set<Timer>, Automaton>>
     }
 }
 
+fun readAutomaton(scanner: Scanner): Automaton {
+    val statesNumber = scanner.nextInt()
+    val statesNames = List(statesNumber) { scanner.next() }
+    val finalCount = scanner.nextInt()
+    val finals = List(finalCount) { scanner.next() }.toSet()
+    val automatonStates = List(statesNumber) {
+        statesNames[it] to MutableAutomaton(name = statesNames[it], final = finals.contains(statesNames[it]))
+    }.toMap()
+    val edgeCount = scanner.nextInt()
+    for (edge in 0 until edgeCount) {
+        val from = automatonStates[scanner.next()] ?: throw Exception("No such state(from)")
+        val to   = automatonStates[scanner.next()] ?: throw Exception("No such state(to)")
+        val label = scanner.next()
+
+        val timerNumber = scanner.nextInt()
+        val conditions = Conditions(label, List(timerNumber) {
+            val timer = scanner.nextInt()
+            val leftBorder = scanner.nextInt()
+            val rightBorder = scanner.nextInt()
+            timer to leftBorder..rightBorder
+        }.toMap())
+        val resetNumber = scanner.nextInt()
+        from.ways[conditions] = Pair(
+            List(resetNumber) { scanner.nextInt() }.toSet(),
+            to)
+    }
+    return automatonStates["q1"] ?: throw Exception("No start state")
+}
+
 class MutableAutomaton(
     override val ways: MutableMap<Conditions, Pair<Set<Timer>, MutableAutomaton>> = mutableMapOf(),
-    override var final: Boolean = false,
-    override var name: String): Automaton(ways, final, name)
+    override var final: Boolean? = null,
+    override var name: String): Automaton(ways, final, name) {
 
-data class Trace(val records: List<Record>, val acceptable: Boolean)
+    override operator fun get(label: String, timerManager: TimerManager) = ways.nextState(label, timerManager)
+}
+
+data class Trace(val records: List<Record>, val acceptable: Boolean) {
+    override fun toString() =
+        "${if (acceptable) "Ok" else "No"}: ${records.joinToString(" ") { a -> "(${a.name} ${a.time})" }}"
+}
 
 data class Edge<T>(val from: Int, val to: Int, val data: T)
 
@@ -116,7 +160,7 @@ fun Automaton.checkAllTraces(traces: Iterable<Trace>): Verdict {
         var state = this
         for (record in it.records) {
             timerManager.global += record.time
-            val possibleNext = state.nextState(record.name, timerManager)
+            val possibleNext = state[record.name, timerManager]
             state = when (possibleNext) {
                 is ErrorContainer -> {
                     return@map AnnotatedTrace(it, possibleNext.error)
@@ -129,7 +173,7 @@ fun Automaton.checkAllTraces(traces: Iterable<Trace>): Verdict {
                 }
             }
         }
-        AnnotatedTrace(it, if (state.final) "" else "Nonterminal state")
+        AnnotatedTrace(it, if (state.final == true) "" else "Nonterminal state")
     }
     return Verdict(result.filter { it.reason == "" }.map { it.trace }, result.filter { it.reason != "" })
 }
@@ -137,64 +181,36 @@ fun Automaton.checkAllTraces(traces: Iterable<Trace>): Verdict {
 fun Automaton.checkAllTraces(traces: ProgramTraces): Pair<Verdict, Verdict> =
         Pair(checkAllTraces(traces.validTraces), checkAllTraces(traces.invalidTraces))
 
-fun readAutomaton(scanner: Scanner): Automaton {
-    val statesNumber = scanner.nextInt()
-    val statesNames = List(statesNumber) { scanner.next() }
-    val finalCount = scanner.nextInt()
-    val finals = List(finalCount) { scanner.nextInt() }.toSet()
-    val automatonStates = List(statesNumber) {
-        MutableAutomaton(name = statesNames[it], final = finals.contains(it + 1))
-    }
-    val edgeCount = scanner.nextInt()
-    for (edge in 0 until edgeCount) {
-        val from = scanner.nextInt()
-        val to   = scanner.nextInt()
-        val label = scanner.next()
+data class AutomatonEdge<T: Automaton>(val from: T, val to: T, val conditions: Conditions, val resets: Set<Timer>)
 
-        val timerNumber = scanner.nextInt()
-        val conditions = Conditions(label, List(timerNumber) {
-            val timer = scanner.nextInt()
-            val leftBorder = scanner.nextInt()
-            val rightBorder = scanner.nextInt()
-            timer to leftBorder..rightBorder
-        }.toMap())
-        val resetNumber = scanner.nextInt()
-        automatonStates[from - 1].ways[conditions] = Pair(
-            List(resetNumber) { scanner.nextInt() }.toSet(),
-            automatonStates[to - 1])
-    }
-    return automatonStates[0]
-}
-
-data class AutomatonEdge(val from: String, val to: String, val conditions: Conditions, val resets: Set<Timer>)
-
-val Automaton.edgesAndStates: Pair<List<AutomatonEdge>, List<Pair<String, Boolean>>>
+val Automaton.edgesAndStates: Pair<List<AutomatonEdge<Automaton>>, List<Automaton>>
     get() {
-        val states = mutableListOf<Pair<String, Boolean>>()
-        val edges = mutableListOf<AutomatonEdge>()
-        fun visitAutomaton(visited: MutableSet<String>, state: Automaton) {
-            visited += state.name
-            states += Pair(state.name, state.final)
-            for ((key, value) in state.ways) {
+        val visited = mutableSetOf<String>()
+        val states = mutableListOf<Automaton>()
+        val edges = mutableListOf<AutomatonEdge<Automaton>>()
+        fun Automaton.visitAutomaton() {
+            visited += name
+            states += this
+            for ((key, value) in ways) {
                 val nextState = value.second
-                edges += AutomatonEdge(state.name, nextState.name, key, value.first)
+                edges += AutomatonEdge(this, nextState, key, value.first)
                 if (nextState.name !in visited) {
-                    visitAutomaton(visited, nextState)
+                    nextState.visitAutomaton()
                 }
             }
         }
-        visitAutomaton(mutableSetOf(), this)
+        visitAutomaton()
         return edges to states
     }
 
-fun Automaton.createDotFile(name: String, inf: Int = Int.MAX_VALUE) {
+fun Automaton.createDotFile(fileName: String, inf: Int = Int.MAX_VALUE) {
     val (edges, states) = edgesAndStates
-    PrintWriter("$name.dot").apply {
-        println("digraph L {")
+    PrintWriter("$fileName.dot").apply {
+        println("digraph \"$fileName\" {")
         for (state in states) {
             with(state) {
-                println("\tq$first[label=$first${
-                    when (second) {
+                println("\t$name[label=$name${
+                    when (final) {
                         true -> " shape=doublecircle"
                         else -> ""
                     }
@@ -203,7 +219,7 @@ fun Automaton.createDotFile(name: String, inf: Int = Int.MAX_VALUE) {
         }
         for (edge in edges) {
             with(edge) {
-                println("\tq$from -> q$to[label=\"${conditions.label}\\n${
+                println("\t${from.name} -> ${to.name}[label=\"${conditions.label}\\n${
                     resets.joinToString("") { "r(t$it)\\n" }
                 }${
                     conditions.timeGuards.entries.
@@ -222,7 +238,7 @@ fun Automaton.createDotFile(name: String, inf: Int = Int.MAX_VALUE) {
         flush()
     }.close()
 
-    val dot = ProcessBuilder("dot", "-Tps", "$name.dot", "-o", "$name.ps").start()
+    val dot = ProcessBuilder("dot", "-Tps", "$fileName.dot", "-o", "$fileName.ps").start()
     dot.waitFor()
     System.err.println(dot.errorStream.readAllBytes().toString(Charsets.UTF_8))
     dot.destroy()
@@ -231,7 +247,7 @@ fun Automaton.createDotFile(name: String, inf: Int = Int.MAX_VALUE) {
 fun Tree.createDotFile(name: String) {
     val (edges, vertexes) = this.edgesAndVertexes
     PrintWriter("$name.dot").apply {
-        println("digraph L {")
+        println("digraph $name {")
         for ((i, acc) in vertexes.withIndex()) {
 	    println("\tq${i + 1}[label=${i + 1}${
                 when (acc) {
@@ -386,6 +402,21 @@ data class ProgramTraces(val validTraces: List<Trace>, val invalidTraces: List<T
         for ((records, _) in invalidTraces) {
             builder.appendln(records.size).
                 appendln(records.joinToString("\n") { "${it.name} ${it.time}" })
+        }
+        return builder.toString()
+    }
+
+    fun toVerwer(): String {
+        val traces = validTraces + invalidTraces
+        val labels = buildPrefixTree(traces).labels().sorted()
+        val label2Number = labels.mapIndexed { index, s -> s to index }.toMap()
+        val builder = StringBuilder()
+        builder.appendln("${traces.size} ${labels.size}")
+        for (trace in traces) {
+            builder.append("${if (trace.acceptable) 1 else 0} ${trace.records.size} ").
+                appendln(trace.records.joinToString("  ") { "${
+                    label2Number[it.name] ?: throw Exception("Verwer convert Error")
+                } ${it.time}" })
         }
         return builder.toString()
     }
