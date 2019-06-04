@@ -1,0 +1,14 @@
+digraph L {
+	qq1[label=q1 shape=doublecircle]
+	qq2[label=q2]
+	qq3[label=q3]
+	qq1 -> qq1[label="b\nr(t1)\n[9 <= t1]"]
+	qq1 -> qq1[label="b\nr(t1)\n[t1 <= 4]"]
+	qq1 -> qq2[label="b\nr(t1)\n[5 <= t1 <= 8]"]
+	qq2 -> qq3[label="a\nr(t1)\n"]
+	qq3 -> qq1[label="b\nr(t1)\n"]
+	qq3 -> qq3[label="a\nr(t1)\n"]
+	qq2 -> qq1[label="b\nr(t1)\n"]
+	qq1 -> qq1[label="a\nr(t1)\n[2 <= t1]"]
+	qq1 -> qq3[label="a\nr(t1)\n[t1 <= 1]"]
+}

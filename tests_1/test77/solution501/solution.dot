@@ -1,0 +1,18 @@
+digraph "tests_1/test77/solution501/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q4[label=q4 shape=doublecircle]
+	q3[label=q3]
+	q1 -> q2[label="b\nr(t1)\n"]
+	q2 -> q4[label="a\nr(t1)\n"]
+	q4 -> q3[label="a\nr(t1)\n[4 <= t1]"]
+	q3 -> q3[label="a\nr(t1)\n[10 <= t1 <= 183]"]
+	q3 -> q2[label="b\nr(t1)\n"]
+	q3 -> q1[label="a\nr(t1)\n[t1 <= 9]"]
+	q4 -> q4[label="b\nr(t1)\n"]
+	q4 -> q1[label="a\nr(t1)\n[t1 <= 3]"]
+	q2 -> q3[label="b\nr(t1)\n[4 <= t1]"]
+	q2 -> q4[label="b\nr(t1)\n[t1 <= 3]"]
+	q1 -> q3[label="a\nr(t1)\n[4 <= t1]"]
+	q1 -> q4[label="a\nr(t1)\n[t1 <= 3]"]
+}

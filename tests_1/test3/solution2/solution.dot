@@ -1,0 +1,9 @@
+digraph L {
+	qq1[label=q1 shape=doublecircle]
+	qq2[label=q2]
+	qq1 -> qq1[label="b\nr(t1)\n[t1 <= 3]"]
+	qq1 -> qq2[label="a\nr(t1)\n"]
+	qq2 -> qq1[label="b\nr(t1)\n"]
+	qq2 -> qq1[label="a\nr(t1)\n"]
+	qq1 -> qq2[label="b\nr(t1)\n[4 <= t1]"]
+}

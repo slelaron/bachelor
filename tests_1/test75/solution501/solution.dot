@@ -1,0 +1,17 @@
+digraph "tests_1/test75/solution501/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q3[label=q3]
+	q5[label=q5 shape=doublecircle]
+	q4[label=q4 shape=doublecircle]
+	q1 -> q2[label="b\nr(t1)\n"]
+	q2 -> q3[label="b\nr(t1)\n"]
+	q3 -> q5[label="b\nr(t1)\n"]
+	q5 -> q2[label="b\nr(t1)\n"]
+	q5 -> q2[label="a\nr(t1)\n"]
+	q3 -> q4[label="a\nr(t1)\n"]
+	q4 -> q5[label="a\nr(t1)\n"]
+	q4 -> q3[label="b\nr(t1)\n"]
+	q2 -> q4[label="a\nr(t1)\n"]
+	q1 -> q1[label="a\nr(t1)\n"]
+}

@@ -1,0 +1,3827 @@
+%!PS-Adobe-3.0
+%%Creator: graphviz version 2.40.1 (20161225.0304)
+%%Title: tests_1/test70/solution101/solution_verwer
+%%Pages: (atend)
+%%BoundingBox: (atend)
+%%EndComments
+save
+%%BeginProlog
+/DotDict 200 dict def
+DotDict begin
+
+/setupLatin1 {
+mark
+/EncodingVector 256 array def
+ EncodingVector 0
+
+ISOLatin1Encoding 0 255 getinterval putinterval
+EncodingVector 45 /hyphen put
+
+% Set up ISO Latin 1 character encoding
+/starnetISO {
+        dup dup findfont dup length dict begin
+        { 1 index /FID ne { def }{ pop pop } ifelse
+        } forall
+        /Encoding EncodingVector def
+        currentdict end definefont
+} def
+/Times-Roman starnetISO def
+/Times-Italic starnetISO def
+/Times-Bold starnetISO def
+/Times-BoldItalic starnetISO def
+/Helvetica starnetISO def
+/Helvetica-Oblique starnetISO def
+/Helvetica-Bold starnetISO def
+/Helvetica-BoldOblique starnetISO def
+/Courier starnetISO def
+/Courier-Oblique starnetISO def
+/Courier-Bold starnetISO def
+/Courier-BoldOblique starnetISO def
+cleartomark
+} bind def
+
+%%BeginResource: procset graphviz 0 0
+/coord-font-family /Times-Roman def
+/default-font-family /Times-Roman def
+/coordfont coord-font-family findfont 8 scalefont def
+
+/InvScaleFactor 1.0 def
+/set_scale {
+       dup 1 exch div /InvScaleFactor exch def
+       scale
+} bind def
+
+% styles
+/solid { [] 0 setdash } bind def
+/dashed { [9 InvScaleFactor mul dup ] 0 setdash } bind def
+/dotted { [1 InvScaleFactor mul 6 InvScaleFactor mul] 0 setdash } bind def
+/invis {/fill {newpath} def /stroke {newpath} def /show {pop newpath} def} bind def
+/bold { 2 setlinewidth } bind def
+/filled { } bind def
+/unfilled { } bind def
+/rounded { } bind def
+/diagonals { } bind def
+/tapered { } bind def
+
+% hooks for setting color 
+/nodecolor { sethsbcolor } bind def
+/edgecolor { sethsbcolor } bind def
+/graphcolor { sethsbcolor } bind def
+/nopcolor {pop pop pop} bind def
+
+/beginpage {	% i j npages
+	/npages exch def
+	/j exch def
+	/i exch def
+	/str 10 string def
+	npages 1 gt {
+		gsave
+			coordfont setfont
+			0 0 moveto
+			(\() show i str cvs show (,) show j str cvs show (\)) show
+		grestore
+	} if
+} bind def
+
+/set_font {
+	findfont exch
+	scalefont setfont
+} def
+
+% draw text fitted to its expected width
+/alignedtext {			% width text
+	/text exch def
+	/width exch def
+	gsave
+		width 0 gt {
+			[] 0 setdash
+			text stringwidth pop width exch sub text length div 0 text ashow
+		} if
+	grestore
+} def
+
+/boxprim {				% xcorner ycorner xsize ysize
+		4 2 roll
+		moveto
+		2 copy
+		exch 0 rlineto
+		0 exch rlineto
+		pop neg 0 rlineto
+		closepath
+} bind def
+
+/ellipse_path {
+	/ry exch def
+	/rx exch def
+	/y exch def
+	/x exch def
+	matrix currentmatrix
+	newpath
+	x y translate
+	rx ry scale
+	0 0 1 0 360 arc
+	setmatrix
+} bind def
+
+/endpage { showpage } bind def
+/showpage { } def
+
+/layercolorseq
+	[	% layer color sequence - darkest to lightest
+		[0 0 0]
+		[.2 .8 .8]
+		[.4 .8 .8]
+		[.6 .8 .8]
+		[.8 .8 .8]
+	]
+def
+
+/layerlen layercolorseq length def
+
+/setlayer {/maxlayer exch def /curlayer exch def
+	layercolorseq curlayer 1 sub layerlen mod get
+	aload pop sethsbcolor
+	/nodecolor {nopcolor} def
+	/edgecolor {nopcolor} def
+	/graphcolor {nopcolor} def
+} bind def
+
+/onlayer { curlayer ne {invis} if } def
+
+/onlayers {
+	/myupper exch def
+	/mylower exch def
+	curlayer mylower lt
+	curlayer myupper gt
+	or
+	{invis} if
+} def
+
+/curlayer 0 def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+14 default-font-family set_font
+% /arrowlength 10 def
+% /arrowwidth 5 def
+
+% make sure pdfmark is harmless for PS-interpreters other than Distiller
+/pdfmark where {pop} {userdict /pdfmark /cleartomark load put} ifelse
+% make '<<' and '>>' safe on PS Level 1 devices
+/languagelevel where {pop languagelevel}{1} ifelse
+2 lt {
+    userdict (<<) cvn ([) cvn load put
+    userdict (>>) cvn ([) cvn load put
+} if
+
+%%EndSetup
+setupLatin1
+%%Page: 1 1
+%%PageBoundingBox: 36 36 3187 1247
+%%PageOrientation: Portrait
+0 0 1 beginpage
+gsave
+36 36 3151 1211 boxprim clip newpath
+1 1 set_scale 0 rotate 40 40 translate
+% q1579082
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+1489 1180.9591 46.2923 18 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+1461.5 1177.2591 moveto 55 (q1579082) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1535.1291 1182.4224 moveto
+1545.5348 1182.2906 1553.1459 1181.8028 1553.1459 1180.9591 curveto
+1553.1459 1180.4317 1550.1728 1180.0434 1545.4026 1179.7942 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.2266 1176.2877 moveto
+1535.1291 1179.4957 lineto
+1545.0232 1183.2847 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.2266 1176.2877 moveto
+1535.1291 1179.4957 lineto
+1545.0232 1183.2847 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1562.1459 1184.7591 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1553.1459 1169.7591 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1534.794 1183.8858 moveto
+1557.5026 1184.2471 1578.1459 1183.2716 1578.1459 1180.9591 curveto
+1578.1459 1178.9988 1563.3133 1177.9992 1544.9631 1177.9602 curveto
+stroke
+0 0 0 edgecolor
+newpath 1544.7689 1174.4614 moveto
+1534.794 1178.0323 lineto
+1544.8186 1181.4613 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1544.7689 1174.4614 moveto
+1534.794 1178.0323 lineto
+1544.8186 1181.4613 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1587.1459 1184.7591 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1578.1459 1169.7591 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1534.1237 1184.986 moveto
+1567.7399 1186.274 1603.1459 1184.9317 1603.1459 1180.9591 curveto
+1603.1459 1177.3899 1574.5665 1175.9439 1544.3825 1176.621 curveto
+stroke
+0 0 0 edgecolor
+newpath 1544.013 1173.1305 moveto
+1534.1237 1176.9321 lineto
+1544.2252 1180.1273 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1544.013 1173.1305 moveto
+1534.1237 1176.9321 lineto
+1544.2252 1180.1273 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1625.1459 1192.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1616.1459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1603.1459 1162.2591 moveto 51 ([t1 <= 3]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1533.8685 1185.5964 moveto
+1585.5971 1188.4111 1654.1459 1186.8653 1654.1459 1180.9591 curveto
+1654.1459 1175.4335 1594.1487 1173.7244 1544.0575 1175.8318 curveto
+stroke
+0 0 0 edgecolor
+newpath 1543.6889 1172.3454 moveto
+1533.8685 1176.3217 lineto
+1544.0251 1179.3373 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1543.6889 1172.3454 moveto
+1533.8685 1176.3217 lineto
+1544.0251 1179.3373 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1676.1459 1192.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1667.1459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1654.1459 1162.2591 moveto 51 ([t1 <= 7]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1533.4292 1186.0695 moveto
+1600.6591 1190.4848 1705.1459 1188.7813 1705.1459 1180.9591 curveto
+1705.1459 1173.5187 1610.6138 1171.6143 1543.5273 1175.2456 curveto
+stroke
+0 0 0 edgecolor
+newpath 1543.2028 1171.7587 moveto
+1533.4292 1175.8486 lineto
+1543.6201 1178.7462 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1543.2028 1171.7587 moveto
+1533.4292 1175.8486 lineto
+1543.6201 1178.7462 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1742.6459 1192.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1733.6459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1705.1459 1162.2591 moveto 82 ([5 <= t1 <= 7]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1533.3729 1186.2879 moveto
+1621.4905 1192.5674 1787.1459 1190.7911 1787.1459 1180.9591 curveto
+1787.1459 1171.4919 1633.5571 1169.4937 1543.4908 1174.9644 curveto
+stroke
+0 0 0 edgecolor
+newpath 1543.1215 1171.481 moveto
+1533.3729 1175.6302 lineto
+1543.5812 1178.4659 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1543.1215 1171.481 moveto
+1533.3729 1175.6302 lineto
+1543.5812 1178.4659 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1824.6459 1192.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1815.6459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1787.1459 1162.2591 moveto 82 ([9 <= t1 <= 9]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1533.0914 1186.4962 moveto
+1639.3657 1194.6173 1869.1459 1192.7716 1869.1459 1180.9591 curveto
+1869.1459 1169.5042 1653.0676 1167.4217 1543.073 1174.7118 curveto
+stroke
+0 0 0 edgecolor
+newpath 1542.8177 1171.221 moveto
+1533.0914 1175.4219 lineto
+1543.3146 1178.2034 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1542.8177 1171.221 moveto
+1533.0914 1175.4219 lineto
+1543.3146 1178.2034 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1909.6459 1192.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1900.6459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1869.1459 1162.2591 moveto 88 ([9 <= t1 <= 10]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1533.0724 1186.6923 moveto
+1656.8572 1196.6514 1957.1459 1194.7403 1957.1459 1180.9591 curveto
+1957.1459 1167.5412 1672.4839 1165.3758 1543.2234 1174.4628 curveto
+stroke
+0 0 0 edgecolor
+newpath 1542.7819 1170.986 moveto
+1533.0724 1175.2258 lineto
+1543.3066 1177.9663 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1542.7819 1170.986 moveto
+1533.0724 1175.2258 lineto
+1543.3066 1177.9663 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2001.1459 1192.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1992.1459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1957.1459 1162.2591 moveto 95 ([15 <= t1 <= 17]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1532.6467 1186.8257 moveto
+1673.2636 1198.6822 2052.1459 1196.7266 2052.1459 1180.9591 curveto
+2052.1459 1165.561 1690.8156 1163.3352 1542.9185 1174.2815 curveto
+stroke
+0 0 0 edgecolor
+newpath 1542.3402 1170.8162 moveto
+1532.6467 1175.0924 lineto
+1542.8912 1177.7945 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1542.3402 1170.8162 moveto
+1532.6467 1175.0924 lineto
+1542.8912 1177.7945 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2096.1459 1192.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2087.1459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2052.1459 1162.2591 moveto 95 ([12 <= t1 <= 18]) alignedtext
+grestore
+% q1579082->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1532.5665 1186.986 moveto
+1688.936 1200.7024 2147.1459 1198.6934 2147.1459 1180.9591 curveto
+2147.1459 1163.5884 1707.5371 1161.3047 1542.5612 1174.1081 curveto
+stroke
+0 0 0 edgecolor
+newpath 1542.2451 1170.6222 moveto
+1532.5665 1174.9321 lineto
+1542.8203 1177.5985 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1542.2451 1170.6222 moveto
+1532.5665 1174.9321 lineto
+1542.8203 1177.5985 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2172.6459 1192.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2163.6459 1177.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2147.1459 1162.2591 moveto 58 ([20 <= t1]) alignedtext
+grestore
+% q1635065
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+892 1027.3131 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+892 1027.3131 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+864.5 1023.6131 moveto 55 (q1635065) alignedtext
+grestore
+% q1579082->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1442.7279 1180.0271 moveto
+1243.0559 1175.8983 464.5019 1158.6544 447 1140.4591 curveto
+433.1352 1126.0449 433.9721 1110.6339 447 1095.4591 curveto
+471.7717 1066.6051 716.084 1042.2363 831.8042 1032.2102 curveto
+stroke
+0 0 0 edgecolor
+newpath 832.2569 1035.6843 moveto
+841.9209 1031.3419 lineto
+831.6582 1028.7099 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 832.2569 1035.6843 moveto
+841.9209 1031.3419 lineto
+831.6582 1028.7099 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+484.5 1129.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+475.5 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+447 1099.2591 moveto 82 ([4 <= t1 <= 4]) alignedtext
+grestore
+% q1579082->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1442.6775 1180.7146 moveto
+1258.0464 1179.5172 583.0941 1172.9262 552 1140.4591 curveto
+538.1666 1126.0148 539.3234 1110.9285 552 1095.4591 curveto
+586.6856 1053.1316 743.5791 1036.5548 831.6124 1030.5014 curveto
+stroke
+0 0 0 edgecolor
+newpath 831.9867 1033.9844 moveto
+841.7334 1029.8309 lineto
+831.5239 1026.9997 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 831.9867 1033.9844 moveto
+841.7334 1029.8309 lineto
+831.5239 1026.9997 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+596 1129.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+587 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+552 1099.2591 moveto 95 ([18 <= t1 <= 18]) alignedtext
+grestore
+% q1579082->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1442.8628 1180.4158 moveto
+1273.8251 1178.2033 696.7911 1168.6077 670 1140.4591 curveto
+616.0334 1083.7578 749.2772 1050.6834 832.0369 1036.1645 curveto
+stroke
+0 0 0 edgecolor
+newpath 832.8434 1039.5775 moveto
+842.1116 1034.4443 lineto
+831.6652 1032.6774 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 832.8434 1039.5775 moveto
+842.1116 1034.4443 lineto
+831.6652 1032.6774 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+714 1129.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+705 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+670 1099.2591 moveto 95 ([19 <= t1 <= 19]) alignedtext
+grestore
+% q1579082->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1442.7484 1180.017 moveto
+1289.9188 1176.6815 809.5341 1164.3307 787 1140.4591 curveto
+773.2712 1125.9154 777.4544 1113.0341 787 1095.4591 curveto
+797.745 1075.6759 816.9877 1060.7447 836.0913 1049.9783 curveto
+stroke
+0 0 0 edgecolor
+newpath 837.9382 1052.9602 moveto
+845.1229 1045.1736 lineto
+834.6506 1046.7803 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 837.9382 1052.9602 moveto
+845.1229 1045.1736 lineto
+834.6506 1046.7803 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+831 1129.2591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+822 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+787 1099.2591 moveto 95 ([10 <= t1 <= 13]) alignedtext
+grestore
+% q1459223
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+1005 231.4377 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+1005 231.4377 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+977.5 227.7377 moveto 55 (q1459223) alignedtext
+grestore
+% q1579082->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1484.3661 1162.8539 moveto
+1469.2686 1104.1656 1421.9006 922.4773 1412 914.1672 curveto
+1383.2408 890.0283 1280.8803 903.2114 1244 896.1672 curveto
+1141.1568 876.5241 1080.3676 916.5166 1017 833.1672 curveto
+1004.8957 817.246 1008.4354 806.2406 1017 788.1672 curveto
+1022.41 776.7507 1033.59 781.5837 1039 770.1672 curveto
+1058.088 729.8869 1040.7244 714.4162 1039 669.8754 curveto
+1033.7546 534.3916 1019.4244 375.8858 1011.1384 291.5013 curveto
+stroke
+0 0 0 edgecolor
+newpath 1014.6005 290.9439 moveto
+1010.1342 281.3364 lineto
+1007.6344 291.6321 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1014.6005 290.9439 moveto
+1010.1342 281.3364 lineto
+1007.6344 291.6321 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1084.5 731.3213 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1075.5 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1047 701.3213 moveto 82 ([8 <= t1 <= 8]) alignedtext
+grestore
+% q1560585
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+2365 50.1459 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+2365 50.1459 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+2337.5 46.4459 moveto 55 (q1560585) alignedtext
+grestore
+% q1579082->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1442.7731 1180.5624 moveto
+1209.935 1178.443 174.2746 1167.5215 112 1140.4591 curveto
+47.1053 1112.258 0 1098.0706 0 1027.3131 curveto
+0 1027.3131 0 1027.3131 0 231.4377 curveto
+0 111.0942 128.8701 145.9172 246 118.2918 curveto
+450.7737 69.9954 1980.0671 53.6101 2304.5885 50.6596 curveto
+stroke
+0 0 0 edgecolor
+newpath 2304.7628 54.1583 moveto
+2314.7309 50.5682 lineto
+2304.6997 47.1586 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2304.7628 54.1583 moveto
+2314.7309 50.5682 lineto
+2304.6997 47.1586 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+37.5 640.6754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+28.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+0 610.6754 moveto 82 ([8 <= t1 <= 8]) alignedtext
+grestore
+% q1635066
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+1818 873.6672 46.2923 18 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+1790.5 869.9672 moveto 55 (q1635066) alignedtext
+grestore
+% q1579082->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1530.4513 1172.8362 moveto
+1606.3162 1157.0738 1762.7776 1120.1142 1796 1077.4591 curveto
+1816.7793 1050.7799 1818.831 951.3923 1818.5091 901.9583 curveto
+stroke
+0 0 0 edgecolor
+newpath 1822.0088 901.8955 moveto
+1818.4064 891.9319 lineto
+1815.0091 901.9673 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1822.0088 901.8955 moveto
+1818.4064 891.9319 lineto
+1815.0091 901.9673 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1860 1038.6131 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1851 1023.6131 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1816 1008.6131 moveto 95 ([11 <= t1 <= 11]) alignedtext
+grestore
+% q1635064
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+1207 412.7295 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+1207 412.7295 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+1179.5 409.0295 moveto 55 (q1635064) alignedtext
+grestore
+% q1579082->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1488.3814 1162.6488 moveto
+1486.134 1108.0482 1476.4974 948.0499 1440 914.1672 curveto
+1385.2896 863.3764 1331.1315 943.0039 1273 896.1672 curveto
+1233.6006 864.4231 1259.1146 833.6749 1237 788.1672 curveto
+1209.4751 731.5263 1209.2524 707.8295 1159 669.8754 curveto
+1137.8006 653.8641 1117.7042 673.3033 1102 651.8754 curveto
+1056.5176 589.8162 1088.2508 546.1403 1129 480.8754 curveto
+1136.5867 468.7243 1147.005 457.5367 1157.7579 447.8895 curveto
+stroke
+0 0 0 edgecolor
+newpath 1160.3049 450.3158 moveto
+1165.6111 441.1454 lineto
+1155.7443 445.0052 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1160.3049 450.3158 moveto
+1165.6111 441.1454 lineto
+1155.7443 445.0052 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1291 821.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1282 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1247 791.9672 moveto 95 ([14 <= t1 <= 14]) alignedtext
+grestore
+% q1635063
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+1738 720.0213 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+1738 720.0213 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+1710.5 716.3213 moveto 55 (q1635063) alignedtext
+grestore
+% q1579082->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1521.8314 1168.0733 moveto
+1533.9454 1161.6263 1546.5268 1152.5649 1554 1140.4591 curveto
+1607.0578 1054.5106 1528.0182 1003.5819 1575 914.1672 curveto
+1601.1247 864.4474 1635.7505 876.0687 1672 833.1672 curveto
+1687.0189 815.3923 1700.5763 793.7494 1711.4409 774.1707 curveto
+stroke
+0 0 0 edgecolor
+newpath 1714.5393 775.7993 moveto
+1716.2389 765.3417 lineto
+1708.3888 772.4569 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1714.5393 775.7993 moveto
+1716.2389 765.3417 lineto
+1708.3888 772.4569 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1619 947.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1610 932.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1575 917.9672 moveto 95 ([19 <= t1 <= 19]) alignedtext
+grestore
+% q1693179
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+2057 566.3754 46.2923 18 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+2029.5 562.6754 moveto 55 (q1693179) alignedtext
+grestore
+% q1579082->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1535.13 1179.2847 moveto
+1632.807 1175.3239 1857.4829 1163.901 1930 1140.4591 curveto
+1993.8586 1119.8161 2416.7389 891.4575 2450 833.1672 curveto
+2480.1978 780.2455 2525.9064 702.1094 2431 606.8754 curveto
+2409.0154 584.8149 2212.1493 573.1442 2113.2213 568.628 curveto
+stroke
+0 0 0 edgecolor
+newpath 2113.2448 565.1256 moveto
+2103.0984 568.1753 lineto
+2112.932 572.1186 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2113.2448 565.1256 moveto
+2103.0984 568.1753 lineto
+2112.932 572.1186 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2457.5 884.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2448.5 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2432 854.9672 moveto 58 ([20 <= t1]) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 885.0332 1077.0722 moveto
+884.8218 1099.5273 889.1907 1124.5298 906 1140.4591 curveto
+924.9271 1158.3952 1289.5099 1173.6448 1432.3174 1178.9538 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.4908 1182.4624 moveto
+1442.6131 1179.3335 lineto
+1432.7489 1175.4672 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.4908 1182.4624 moveto
+1442.6131 1179.3335 lineto
+1432.7489 1175.4672 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+915 1121.7591 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+906 1106.7591 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 917.2749 1070.7657 moveto
+921.909 1078.9319 926.6523 1087.4273 931 1095.4591 curveto
+941.6924 1115.2117 935.298 1128.0201 954 1140.4591 curveto
+993.1257 1166.4822 1302.9659 1176.6437 1432.4444 1179.7806 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.4778 1183.2822 moveto
+1442.5579 1180.0201 lineto
+1432.6437 1176.2842 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.4778 1183.2822 moveto
+1442.5579 1180.0201 lineto
+1432.6437 1176.2842 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+963 1121.7591 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+954 1106.7591 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 934.1676 1054.5732 moveto
+949.5697 1065.9289 966.3079 1080.0625 979 1095.4591 curveto
+993.2871 1112.7903 983.3442 1127.9508 1002 1140.4591 curveto
+1037.049 1163.9586 1311.7536 1175.3933 1432.4467 1179.3227 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.4908 1182.8258 moveto
+1442.5976 1179.6473 lineto
+1432.7146 1175.8294 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.4908 1182.8258 moveto
+1442.5976 1179.6473 lineto
+1432.7146 1175.8294 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1046 1129.2591 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1037 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1002 1099.2591 moveto 95 ([11 <= t1 <= 12]) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 941.956 1033.0783 moveto
+987.0505 1040.5907 1052.8995 1057.583 1097 1095.4591 curveto
+1114.0392 1110.0933 1101.5106 1127.7061 1120 1140.4591 curveto
+1145.1774 1157.825 1335.9186 1171.7059 1432.8364 1177.7213 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.8489 1181.2285 moveto
+1443.0444 1178.3473 lineto
+1433.2775 1174.2417 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.8489 1181.2285 moveto
+1443.0444 1178.3473 lineto
+1433.2775 1174.2417 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1164 1129.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1155 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1120 1099.2591 moveto 95 ([10 <= t1 <= 13]) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 942.0697 1032.5847 moveto
+1021.748 1041.8305 1172.727 1063.1147 1215 1095.4591 curveto
+1232.8384 1109.1077 1219.8395 1127.242 1238 1140.4591 curveto
+1268.3194 1162.5254 1368.9609 1173.1411 1433.2212 1177.7856 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.987 1181.2776 moveto
+1443.2059 1178.4805 lineto
+1433.4731 1174.2945 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.987 1181.2776 moveto
+1443.2059 1178.4805 lineto
+1433.4731 1174.2945 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1282 1129.2591 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1273 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1238 1099.2591 moveto 95 ([14 <= t1 <= 19]) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 942.3969 1029.4203 moveto
+1044.4967 1034.5842 1271.3091 1050.8744 1333 1095.4591 curveto
+1351.2044 1108.6156 1338.7768 1126.0419 1356 1140.4591 curveto
+1377.9767 1158.8553 1408.1792 1168.8991 1434.249 1174.3811 curveto
+stroke
+0 0 0 edgecolor
+newpath 1433.9021 1177.8785 moveto
+1444.3834 1176.3319 lineto
+1435.2253 1171.0047 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1433.9021 1177.8785 moveto
+1444.3834 1176.3319 lineto
+1435.2253 1171.0047 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1393.5 1129.2591 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1384.5 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1356 1099.2591 moveto 82 ([9 <= t1 <= 9]) alignedtext
+grestore
+% q1635065->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 841.7118 1030.2162 moveto
+717.6161 1037.8908 404.615 1060.5527 374 1095.4591 curveto
+360.8124 1110.4952 360.1169 1126.0625 374 1140.4591 curveto
+392.551 1159.6961 1208.1599 1175.8708 1432.444 1179.9609 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.6098 1183.4644 moveto
+1442.6717 1180.1465 lineto
+1432.7368 1176.4655 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.6098 1183.4644 moveto
+1442.6717 1180.1465 lineto
+1432.7368 1176.4655 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+399.5 1129.2591 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+390.5 1114.2591 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+374 1099.2591 moveto 58 ([16 <= t1]) alignedtext
+grestore
+% q1635065->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 941.6167 1035.5014 moveto
+952.3569 1034.7008 960.1459 1031.9714 960.1459 1027.3131 curveto
+960.1459 1024.329 956.9493 1022.1364 951.828 1020.7354 curveto
+stroke
+0 0 0 edgecolor
+newpath 952.0399 1017.2256 moveto
+941.6167 1019.1249 lineto
+950.9493 1024.1402 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 952.0399 1017.2256 moveto
+941.6167 1019.1249 lineto
+950.9493 1024.1402 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+982.1459 1038.6131 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+973.1459 1023.6131 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+960.1459 1008.6131 moveto 51 ([t1 <= 8]) alignedtext
+grestore
+% q1635065->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 939.8087 1042.8533 moveto
+974.0332 1046.9073 1011.1459 1041.7272 1011.1459 1027.3131 curveto
+1011.1459 1014.3067 980.9278 1008.8188 949.8808 1010.8495 curveto
+stroke
+0 0 0 edgecolor
+newpath 949.4474 1007.3745 moveto
+939.8087 1011.773 lineto
+950.0866 1014.3452 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 949.4474 1007.3745 moveto
+939.8087 1011.773 lineto
+950.0866 1014.3452 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1033.1459 1038.6131 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1024.1459 1023.6131 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1011.1459 1008.6131 moveto 51 ([t1 <= 6]) alignedtext
+grestore
+% q1635065->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 854.0519 993.8893 moveto
+844.1185 983.5761 834.1907 971.6293 827 959.1672 curveto
+786.6171 889.1809 684.9643 668.6909 737 606.8754 curveto
+767.2094 570.9883 807.9456 622.1605 841 588.8754 curveto
+932.8376 496.3969 815.1903 407.0013 889 299.5836 curveto
+903.3518 278.6969 926.3754 263.2739 948.1419 252.4351 curveto
+stroke
+0 0 0 edgecolor
+newpath 949.8245 255.511 moveto
+957.3646 248.068 lineto
+946.8287 249.1844 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 949.8245 255.511 moveto
+957.3646 248.068 lineto
+946.8287 249.1844 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+774.5 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+765.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+737 610.6754 moveto 82 ([8 <= t1 <= 8]) alignedtext
+grestore
+% q1635065->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 878.4629 978.7833 moveto
+852.6574 882.0826 802.0628 669.2983 838 606.8754 curveto
+845.9489 593.0681 858.6859 601.0182 869 588.8754 curveto
+879.2046 576.8617 949.1235 385.9364 984.5363 288.1797 curveto
+stroke
+0 0 0 edgecolor
+newpath 987.8428 289.3281 moveto
+987.9558 278.7339 lineto
+981.2608 286.9454 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 987.8428 289.3281 moveto
+987.9558 278.7339 lineto
+981.2608 286.9454 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+882 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+873 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+838 610.6754 moveto 95 ([13 <= t1 <= 13]) alignedtext
+grestore
+% q1635065->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 841.8684 1024.8241 moveto
+707.7863 1017.7021 348.4622 995.3945 310 959.1672 curveto
+272.571 923.9131 230 554.7931 230 503.3754 curveto
+230 503.3754 230 503.3754 230 231.4377 curveto
+230 169.8505 255.7833 147.5071 310 118.2918 curveto
+399.9583 69.8168 1973.5382 53.5359 2304.3035 50.642 curveto
+stroke
+0 0 0 edgecolor
+newpath 2304.6663 54.1391 moveto
+2314.6355 50.5525 lineto
+2304.6055 47.1394 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2304.6663 54.1391 moveto
+2314.6355 50.5525 lineto
+2304.6055 47.1394 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+262.5 577.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+253.5 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+237 547.6754 moveto 58 ([20 <= t1]) alignedtext
+grestore
+% q1635065->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 841.5938 1024.4729 moveto
+702.5829 1015.2733 324 980.4194 324 873.6672 curveto
+324 873.6672 324 873.6672 324 231.4377 curveto
+324 159.0997 374.4296 146.5967 441 118.2918 curveto
+528.6761 81.0131 1986.765 56.0765 2304.2773 51.0733 curveto
+stroke
+0 0 0 edgecolor
+newpath 2304.7073 54.567 moveto
+2314.6512 50.9105 lineto
+2304.5975 47.5679 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2304.7073 54.567 moveto
+2314.6512 50.9105 lineto
+2304.5975 47.5679 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+368 577.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+359 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+324 547.6754 moveto 95 ([10 <= t1 <= 10]) alignedtext
+grestore
+% q1635065->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 841.6561 1024.5593 moveto
+774.2911 1019.2287 652.4791 1003.7441 559 959.1672 curveto
+504.9895 933.4116 455 933.5045 455 873.6672 curveto
+455 873.6672 455 873.6672 455 231.4377 curveto
+455 163.1348 496.9894 146.9268 559 118.2918 curveto
+639.8495 80.9574 1998.0059 56.2418 2304.0685 51.1304 curveto
+stroke
+0 0 0 edgecolor
+newpath 2304.568 54.6227 moveto
+2314.5084 50.9569 lineto
+2304.4516 47.6237 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2304.568 54.6227 moveto
+2314.5084 50.9569 lineto
+2304.4516 47.6237 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+492.5 577.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+483.5 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+455 547.6754 moveto 82 ([7 <= t1 <= 7]) alignedtext
+grestore
+% q1635065->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 843.2035 1014.6596 moveto
+753.8421 990.0438 573 932.91 573 873.6672 curveto
+573 873.6672 573 873.6672 573 231.4377 curveto
+573 152.1246 636.8825 146.526 711 118.2918 curveto
+861.9755 60.7794 2023.8018 51.7245 2304.2306 50.3726 curveto
+stroke
+0 0 0 edgecolor
+newpath 2304.6236 53.8709 moveto
+2314.6071 50.3242 lineto
+2304.5909 46.871 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2304.6236 53.8709 moveto
+2314.6071 50.3242 lineto
+2304.5909 46.871 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+617 577.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+608 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+573 547.6754 moveto 95 ([14 <= t1 <= 15]) alignedtext
+grestore
+% q1635065->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 942.2097 1025.7392 moveto
+1105.335 1020.2434 1613.3818 999.9842 1674 959.1672 curveto
+1692.631 946.6222 1679.9759 928.819 1697 914.1672 curveto
+1715.9405 897.8661 1741.6837 888.0672 1764.5566 882.2053 curveto
+stroke
+0 0 0 edgecolor
+newpath 1765.5664 885.563 moveto
+1774.491 879.8532 lineto
+1763.9536 878.7513 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1765.5664 885.563 moveto
+1774.491 879.8532 lineto
+1763.9536 878.7513 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1734.5 947.9672 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1725.5 932.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1697 917.9672 moveto 82 ([9 <= t1 <= 9]) alignedtext
+grestore
+% q1459223->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1055.1971 233.6591 moveto
+1260.0928 243.1864 2033.0891 283.7387 2263 362.5836 curveto
+2357.0939 394.8519 2382.6712 410.528 2453 480.8754 curveto
+2469.6541 497.5339 2465.3244 508.293 2481 525.8754 curveto
+2519.5234 569.0849 2547.9174 560.8285 2583 606.8754 curveto
+2654.5143 700.7399 2663.4129 735.5451 2687 851.1672 curveto
+2716.6748 996.6308 2658.6423 1087.369 2520 1140.4591 curveto
+2474.2718 1157.9697 1754.3363 1175.1174 1545.4199 1179.7445 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.2022 1176.2483 moveto
+1535.2818 1179.9681 lineto
+1545.3566 1183.2466 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.2022 1176.2483 moveto
+1535.2818 1179.9681 lineto
+1545.3566 1183.2466 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2677 723.8213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2668 708.8213 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1459223->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 954.8886 236.0633 moveto
+764.5364 254.2947 97 324.5178 97 412.7295 curveto
+97 1027.3131 97 1027.3131 97 1027.3131 curveto
+97 1087.1582 117.8953 1111.0221 170 1140.4591 curveto
+225.675 1171.9131 1187.7186 1179.3087 1432.6366 1180.685 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.7224 1184.1854 moveto
+1442.7416 1180.7406 lineto
+1432.761 1177.1855 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.7224 1184.1854 moveto
+1442.7416 1180.7406 lineto
+1432.761 1177.1855 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+119 731.3213 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+110 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+97 701.3213 moveto 51 ([t1 <= 4]) alignedtext
+grestore
+% q1459223->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 954.8422 235.9276 moveto
+814.7801 251.2028 416.144 313.8147 208 543.8754 curveto
+181.5204 573.1433 184 589.9067 184 629.3754 curveto
+184 1027.3131 184 1027.3131 184 1027.3131 curveto
+184 1119.9316 270.653 1112.6565 359 1140.4591 curveto
+461.7115 1172.782 1218.4025 1179.4489 1432.6304 1180.6944 curveto
+stroke
+0 0 0 edgecolor
+newpath 1432.6944 1184.1947 moveto
+1442.714 1180.7513 lineto
+1432.7339 1177.1948 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1432.6944 1184.1947 moveto
+1442.714 1180.7513 lineto
+1432.7339 1177.1948 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+209.5 731.3213 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+200.5 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+184 701.3213 moveto 58 ([14 <= t1]) alignedtext
+grestore
+% q1459223->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 994.6092 280.5139 moveto
+993.3437 286.9193 992.1081 293.4016 991 299.5836 curveto
+977.0263 377.5426 980.6491 585.7875 937 651.8754 curveto
+928.6397 664.5336 915.8084 656.8696 908 669.8754 curveto
+866.4349 739.1068 900.5873 770.5472 896 851.1672 curveto
+894.4076 879.1537 893.7907 886.1467 893 914.1672 curveto
+892.5205 931.1603 892.2509 949.5942 892.1041 966.5529 curveto
+stroke
+0 0 0 edgecolor
+newpath 888.6018 966.8697 moveto
+892.0278 976.8953 lineto
+895.6016 966.9214 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 888.6018 966.8697 moveto
+892.0278 976.8953 lineto
+895.6016 966.9214 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+964 633.1754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+955 618.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1459223->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 956.0973 242.9052 moveto
+924.8446 252.7649 886.0006 270.187 863 299.5836 curveto
+782.0843 403.0006 897.7936 498.0096 803 588.8754 curveto
+767.2375 623.1561 725.0766 569.1234 693 606.8754 curveto
+640.0643 669.1774 747.2819 895.8508 799 959.1672 curveto
+810.4319 973.1628 825.367 985.7623 839.9127 996.2098 curveto
+stroke
+0 0 0 edgecolor
+newpath 838.1926 999.2765 moveto
+848.4025 1002.1067 lineto
+842.186 993.5273 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 838.1926 999.2765 moveto
+848.4025 1002.1067 lineto
+842.186 993.5273 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+702 633.1754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+693 618.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1459223->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1054.9499 225.7064 moveto
+1153.0014 214.3813 1377.5317 188.0806 1566 163.2918 curveto
+1842.5056 126.9237 2172.11 78.7009 2305.0451 59.0498 curveto
+stroke
+0 0 0 edgecolor
+newpath 2305.6497 62.4985 moveto
+2315.0299 57.5728 lineto
+2304.6254 55.5738 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2305.6497 62.4985 moveto
+2315.0299 57.5728 lineto
+2304.6254 55.5738 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1913.5 152.0918 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1904.5 137.0918 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1873 122.0918 moveto 88 ([5 <= t1 <= 13]) alignedtext
+grestore
+% q1560585->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2414.1879 59.9582 moveto
+2454.0232 69.7294 2510.0525 87.7719 2551 118.2918 curveto
+2579.0092 139.1683 2580.6562 150.9679 2598 181.2918 curveto
+2721.4564 397.1429 2749 471.3585 2749 720.0213 curveto
+2749 1027.3131 2749 1027.3131 2749 1027.3131 curveto
+2749 1119.1864 2663.5437 1112.5882 2576 1140.4591 curveto
+2477.6216 1171.7793 1754.1229 1179.1434 1545.2865 1180.6248 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.1309 1177.1257 moveto
+1535.1554 1180.6949 lineto
+1545.1794 1184.1255 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.1309 1177.1257 moveto
+1535.1554 1180.6949 lineto
+1545.1794 1184.1255 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2757 633.1754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2748 618.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1560585->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2414.5559 59.9767 moveto
+2528.0283 83.9049 2797 149.2878 2797 231.4377 curveto
+2797 1027.3131 2797 1027.3131 2797 1027.3131 curveto
+2797 1106.2831 2735.3183 1116.7229 2660 1140.4591 curveto
+2553.2819 1174.0907 1765.02 1179.8284 1545.5626 1180.7769 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.2289 1177.2782 moveto
+1535.2435 1180.8198 lineto
+1545.258 1184.2781 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.2289 1177.2782 moveto
+1535.2435 1180.8198 lineto
+1545.258 1184.2781 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2806 633.1754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2797 618.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1560585->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2415.1182 55.0424 moveto
+2482.3953 62.773 2604.8084 80.9381 2703 118.2918 curveto
+2778.4226 146.9838 2845 150.742 2845 231.4377 curveto
+2845 1027.3131 2845 1027.3131 2845 1027.3131 curveto
+2845 1099.9713 2795.1009 1115.1317 2727 1140.4591 curveto
+2671.0493 1161.2676 1780.5592 1176.4511 1545.5176 1180.1101 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.4191 1176.6111 moveto
+1535.4745 1180.2656 lineto
+1545.5275 1183.6102 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.4191 1176.6111 moveto
+1535.4745 1180.2656 lineto
+1545.5275 1183.6102 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2882.5 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2873.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2845 610.6754 moveto 82 ([2 <= t1 <= 3]) alignedtext
+grestore
+% q1560585->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2415.1297 54.8146 moveto
+2556.8146 69.3822 2950 119.8601 2950 231.4377 curveto
+2950 1027.3131 2950 1027.3131 2950 1027.3131 curveto
+2950 1115.8658 2870.1248 1112.8077 2786 1140.4591 curveto
+2726.3925 1160.0518 1788.0292 1176.2189 1545.7355 1180.0814 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.3394 1176.5872 moveto
+1535.3962 1180.2455 lineto
+1545.4505 1183.5863 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.3394 1176.5872 moveto
+1535.3962 1180.2455 lineto
+1545.4505 1183.5863 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2987.5 640.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2978.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2950 610.6754 moveto 82 ([9 <= t1 <= 9]) alignedtext
+grestore
+% q1560585->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2415.1789 52.5133 moveto
+2573.9598 61.355 3055 99.065 3055 231.4377 curveto
+3055 1027.3131 3055 1027.3131 3055 1027.3131 curveto
+3055 1125.5967 2959.3667 1112.9895 2865 1140.4591 curveto
+2800.8105 1159.1442 1797.3604 1176.1101 1545.8339 1180.0841 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.4096 1176.5903 moveto
+1535.4659 1180.2473 lineto
+1545.5198 1183.5894 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.4096 1176.5903 moveto
+1535.4659 1180.2473 lineto
+1545.5198 1183.5894 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+3095.5 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+3086.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+3055 610.6754 moveto 88 ([5 <= t1 <= 10]) alignedtext
+grestore
+% q1560585->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2314.6226 52.1274 moveto
+2123.2237 59.816 1441.1404 88.7183 1226 118.2918 curveto
+990.8241 150.6195 704 -5.9497 704 231.4377 curveto
+704 503.3754 704 503.3754 704 503.3754 curveto
+704 551.2688 680.7335 559.4577 674 606.8754 curveto
+663.7963 678.7301 659.634 699.2371 675 770.1672 curveto
+687.9748 830.0597 703.9834 841.1622 731 896.1672 curveto
+745.027 924.7258 742.4747 936.696 765 959.1672 curveto
+784.8611 978.9807 811.6851 994.5101 835.5635 1005.7076 curveto
+stroke
+0 0 0 edgecolor
+newpath 834.3408 1008.9961 moveto
+844.8937 1009.9376 lineto
+837.2313 1002.6207 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 834.3408 1008.9961 moveto
+844.8937 1009.9376 lineto
+837.2313 1002.6207 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+740 577.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+731 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+696 547.6754 moveto 95 ([10 <= t1 <= 16]) alignedtext
+grestore
+% q1560585->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2314.6544 52.5755 moveto
+2146.2572 60.8971 1603.5691 89.3403 1431 118.2918 curveto
+1296.8382 140.7998 1143.5779 186.6098 1062.4409 212.5046 curveto
+stroke
+0 0 0 edgecolor
+newpath 1061.3635 209.1745 moveto
+1052.9099 215.5609 lineto
+1063.501 215.8402 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1061.3635 209.1745 moveto
+1052.9099 215.5609 lineto
+1063.501 215.8402 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1453 152.0918 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1444 137.0918 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1431 122.0918 moveto 51 ([t1 <= 1]) alignedtext
+grestore
+% q1560585->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2314.623 51.2512 moveto
+2140.5045 55.4625 1571.0961 72.6318 1504 118.2918 curveto
+1485.5952 130.8166 1500.0017 150.1943 1482 163.2918 curveto
+1416.7319 210.7789 1178.8173 225.396 1065.6292 229.715 curveto
+stroke
+0 0 0 edgecolor
+newpath 1065.2671 226.2259 moveto
+1055.4022 230.0901 lineto
+1065.5238 233.2212 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1065.2671 226.2259 moveto
+1055.4022 230.0901 lineto
+1065.5238 233.2212 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1529.5 152.0918 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1520.5 137.0918 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1504 122.0918 moveto 58 ([12 <= t1]) alignedtext
+grestore
+% q1560585->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2414.6167 58.3342 moveto
+2425.3569 57.5335 2433.1459 54.8041 2433.1459 50.1459 curveto
+2433.1459 47.1617 2429.9493 44.9692 2424.828 43.5681 curveto
+stroke
+0 0 0 edgecolor
+newpath 2425.0399 40.0584 moveto
+2414.6167 41.9577 lineto
+2423.9493 46.9729 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2425.0399 40.0584 moveto
+2414.6167 41.9577 lineto
+2423.9493 46.9729 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2470.6459 61.4459 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2461.6459 46.4459 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2433.1459 31.4459 moveto 82 ([1 <= t1 <= 8]) alignedtext
+grestore
+% q1560585->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2413.3197 64.7457 moveto
+2458.4013 70.3934 2515.1459 65.5268 2515.1459 50.1459 curveto
+2515.1459 35.9066 2466.5118 30.6787 2423.5222 34.4624 curveto
+stroke
+0 0 0 edgecolor
+newpath 2422.8941 31.0093 moveto
+2413.3197 35.5461 lineto
+2423.6335 37.9702 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2422.8941 31.0093 moveto
+2413.3197 35.5461 lineto
+2423.6335 37.9702 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2552.6459 61.4459 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2543.6459 46.4459 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2515.1459 31.4459 moveto 82 ([4 <= t1 <= 4]) alignedtext
+grestore
+% q1560585->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2411.8853 68.3616 moveto
+2434.5617 79.491 2460.2224 95.9376 2476 118.2918 curveto
+2505.6426 160.2904 2500 180.0318 2500 231.4377 curveto
+2500 566.3754 2500 566.3754 2500 566.3754 curveto
+2500 604.8815 2506.577 619.3285 2486 651.8754 curveto
+2478.4895 663.755 2468.2298 658.4824 2460 669.8754 curveto
+2415.7052 731.195 2470.986 785.8093 2412 833.1672 curveto
+2391.2359 849.8381 2018.9304 865.9154 1874.5568 871.5504 curveto
+stroke
+0 0 0 edgecolor
+newpath 1874.0121 868.0688 moveto
+1864.1553 871.9537 lineto
+1874.2834 875.0636 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1874.0121 868.0688 moveto
+1864.1553 871.9537 lineto
+1874.2834 875.0636 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2522 514.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2513 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2500 484.6754 moveto 51 ([t1 <= 0]) alignedtext
+grestore
+% q1560585->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2413.7011 63.1342 moveto
+2442.9627 73.4114 2478.5635 90.7281 2500 118.2918 curveto
+2517.6087 140.9336 2509.079 153.0341 2514 181.2918 curveto
+2564.1071 469.0186 2567.3918 437.0154 2552 525.8754 curveto
+2541.8511 584.4672 2527.3071 595.9861 2507 651.8754 curveto
+2492.3325 692.2436 2474.4269 807.4863 2440 833.1672 curveto
+2417.5262 849.9317 2023.6839 866.0992 1874.5776 871.6462 curveto
+stroke
+0 0 0 edgecolor
+newpath 1874.1372 868.16 moveto
+1864.2733 872.0271 lineto
+1874.3958 875.1552 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1874.1372 868.16 moveto
+1864.2733 872.0271 lineto
+1874.3958 875.1552 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2584.5 514.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2575.5 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2559 484.6754 moveto 58 ([17 <= t1]) alignedtext
+grestore
+% q1560585->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2414.2996 60.0846 moveto
+2448.5897 69.4794 2492.8534 86.9711 2520 118.2918 curveto
+2629.5635 244.7023 2598.3469 315.1328 2621 480.8754 curveto
+2644.1402 650.1818 2610.9458 741.0819 2467 833.1672 curveto
+2442.2197 849.0197 2027.4571 865.9097 1874.2669 871.636 curveto
+stroke
+0 0 0 edgecolor
+newpath 1873.9926 868.1437 moveto
+1864.1295 872.0129 lineto
+1874.2527 875.1389 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1873.9926 868.1437 moveto
+1864.1295 872.0129 lineto
+1874.2527 875.1389 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2669 514.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2660 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2625 484.6754 moveto 95 ([11 <= t1 <= 11]) alignedtext
+grestore
+% q1635066->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1841.284 889.4973 moveto
+1865.4554 907.4889 1901.814 939.3211 1917 977.1672 curveto
+1933.5992 1018.5353 1937.0471 1037.6474 1917 1077.4591 curveto
+1895.8515 1119.4579 1875.7089 1123.1186 1832 1140.4591 curveto
+1781.1037 1160.6509 1628.2567 1172.6452 1544.8277 1177.8617 curveto
+stroke
+0 0 0 edgecolor
+newpath 1544.5301 1174.3733 moveto
+1534.7632 1178.4792 lineto
+1544.9588 1181.3602 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1544.5301 1174.3733 moveto
+1534.7632 1178.4792 lineto
+1544.9588 1181.3602 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1939 1031.1131 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1930 1016.1131 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635066->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1852.0332 885.8504 moveto
+1887.7667 900.8755 1941.1939 930.3337 1959 977.1672 curveto
+1974.8408 1018.8317 1977.9587 1037.1177 1959 1077.4591 curveto
+1940.339 1117.1668 1923.4569 1123.4833 1883 1140.4591 curveto
+1823.4879 1165.4303 1639.412 1175.5563 1545.4436 1179.1817 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.129 1175.6909 moveto
+1535.2669 1179.5624 lineto
+1545.3908 1182.686 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.129 1175.6909 moveto
+1535.2669 1179.5624 lineto
+1545.3908 1182.686 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1994 1038.6131 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1985 1023.6131 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1972 1008.6131 moveto 51 ([t1 <= 0]) alignedtext
+grestore
+% q1635066->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1811.8824 891.5282 moveto
+1803.9336 913.7654 1789.7966 949.9528 1779 959.1672 curveto
+1756.199 978.627 1738.7464 960.2503 1714 977.1672 curveto
+1639.2123 1028.2932 1664.016 1085.4977 1592 1140.4591 curveto
+1576.0745 1152.6131 1556.0364 1161.5849 1537.8771 1167.9505 curveto
+stroke
+0 0 0 edgecolor
+newpath 1536.6881 1164.6574 moveto
+1528.303 1171.1335 lineto
+1538.8965 1171.2999 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1536.6881 1164.6574 moveto
+1528.303 1171.1335 lineto
+1538.8965 1171.2999 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1751.5 1038.6131 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1742.5 1023.6131 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1714 1008.6131 moveto 82 ([3 <= t1 <= 4]) alignedtext
+grestore
+% q1635066->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1772.9667 878.2866 moveto
+1716.2037 884.5061 1615.7959 896.8282 1531 914.1672 curveto
+1455.6887 929.5669 1439.2866 943.6472 1364 959.1672 curveto
+1217.2098 989.4274 1042.0063 1010.9668 951.9713 1020.9879 curveto
+stroke
+0 0 0 edgecolor
+newpath 951.5029 1017.5183 moveto
+941.9476 1022.0951 lineto
+952.2714 1024.476 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 951.5029 1017.5183 moveto
+941.9476 1022.0951 lineto
+952.2714 1024.476 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1540 940.4672 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1531 925.4672 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635066->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1863.7129 870.6305 moveto
+1982.5886 861.9073 2297.7433 833.2514 2378 770.1672 curveto
+2423.2928 734.5657 2418.9561 708.2124 2431 651.8754 curveto
+2434.6976 634.5793 2427.3441 539.8184 2427 525.8754 curveto
+2426.5066 505.8815 2425.7599 500.8369 2427 480.8754 curveto
+2430.7851 419.9494 2440.2149 405.5097 2444 344.5836 curveto
+2445.2401 324.6221 2447.0552 319.3489 2444 299.5836 curveto
+2433.4287 231.1934 2407.4625 155.8655 2388.1679 106.0765 curveto
+stroke
+0 0 0 edgecolor
+newpath 2391.3107 104.5034 moveto
+2384.4045 96.4688 lineto
+2384.7929 107.0565 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2391.3107 104.5034 moveto
+2384.4045 96.4688 lineto
+2384.7929 107.0565 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2449 514.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2440 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2427 484.6754 moveto 51 ([t1 <= 1]) alignedtext
+grestore
+% q1635066->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1863.2556 877.4739 moveto
+1874.1061 877.1764 1882.1459 875.9075 1882.1459 873.6672 curveto
+1882.1459 872.1971 1878.6835 871.1453 1873.2364 870.5118 curveto
+stroke
+0 0 0 edgecolor
+newpath 1873.4623 867.0191 moveto
+1863.2556 869.8606 lineto
+1873.0065 874.0043 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1873.4623 867.0191 moveto
+1863.2556 869.8606 lineto
+1873.0065 874.0043 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1919.6459 884.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1910.6459 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1882.1459 854.9672 moveto 82 ([1 <= t1 <= 2]) alignedtext
+grestore
+% q1635066->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1861.4205 880.1627 moveto
+1905.7566 883.0778 1964.1459 880.9127 1964.1459 873.6672 curveto
+1964.1459 866.9595 1914.1021 864.606 1871.4949 866.6067 curveto
+stroke
+0 0 0 edgecolor
+newpath 1871.2088 863.1171 moveto
+1861.4205 867.1718 lineto
+1871.6009 870.1062 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1871.2088 863.1171 moveto
+1861.4205 867.1718 lineto
+1871.6009 870.1062 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1986.1459 884.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1977.1459 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1964.1459 854.9672 moveto 51 ([6 <= t1]) alignedtext
+grestore
+% q1635066->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1859.171 882.0114 moveto
+1919.1505 888.3158 2015.1459 885.5344 2015.1459 873.6672 curveto
+2015.1459 862.449 1929.3629 859.3501 1869.3129 864.3703 curveto
+stroke
+0 0 0 edgecolor
+newpath 1868.7997 860.903 moveto
+1859.171 865.3231 lineto
+1869.4545 867.8723 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1868.7997 860.903 moveto
+1859.171 865.3231 lineto
+1869.4545 867.8723 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2055.6459 884.9672 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2046.6459 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2015.1459 854.9672 moveto 88 ([5 <= t1 <= 10]) alignedtext
+grestore
+% q1635066->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1781.4693 862.6456 moveto
+1761.9948 855.8277 1738.1685 845.9269 1719 833.1672 curveto
+1633.6389 776.3457 1647.0108 717.122 1556 669.8754 curveto
+1514.3664 648.2621 1485.6568 684.5513 1452 651.8754 curveto
+1416.8534 617.7533 1454.4671 586.3132 1430 543.8754 curveto
+1408.9286 507.3275 1394.4348 503.7692 1359 480.8754 curveto
+1329.3001 461.6869 1293.2975 445.2829 1263.7873 433.3806 curveto
+stroke
+0 0 0 edgecolor
+newpath 1265.0364 430.1108 moveto
+1254.4505 429.6766 lineto
+1262.4551 436.6175 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1265.0364 430.1108 moveto
+1254.4505 429.6766 lineto
+1262.4551 436.6175 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1489.5 640.6754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1480.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1452 610.6754 moveto 82 ([5 <= t1 <= 5]) alignedtext
+grestore
+% q1635066->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1772.3652 870.5325 moveto
+1711.1692 865.5826 1606.5476 854.2752 1575 833.1672 curveto
+1555.4224 820.0683 1561.894 806.4164 1547 788.1672 curveto
+1539.645 779.1554 1535.9196 778.6871 1528 770.1672 curveto
+1488.7998 727.9962 1497.0582 696.4859 1446 669.8754 curveto
+1398.9648 645.3617 1244.1442 690.6934 1208 651.8754 curveto
+1184.6831 626.8337 1190.9766 534.9034 1198.4172 472.5969 curveto
+stroke
+0 0 0 edgecolor
+newpath 1201.9141 472.8366 moveto
+1199.6656 462.4831 lineto
+1194.9668 471.979 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1201.9141 472.8366 moveto
+1199.6656 462.4831 lineto
+1194.9668 471.979 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1252 640.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1243 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1208 610.6754 moveto 95 ([11 <= t1 <= 16]) alignedtext
+grestore
+% q1635066->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1776.1528 865.8712 moveto
+1744.6027 859.2333 1700.6523 848.3457 1664 833.1672 curveto
+1612.6585 811.9057 1594.7705 809.9774 1556 770.1672 curveto
+1520.5316 733.7477 1543.3916 697.9349 1501 669.8754 curveto
+1434.3259 625.7432 1386.3353 699.3523 1322 651.8754 curveto
+1304.5319 638.9846 1312.0376 626.6145 1303 606.8754 curveto
+1281.0454 558.9243 1254.3316 505.2395 1234.6634 466.497 curveto
+stroke
+0 0 0 edgecolor
+newpath 1237.729 464.8038 moveto
+1230.0751 457.4779 lineto
+1231.49 467.9779 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1237.729 464.8038 moveto
+1230.0751 457.4779 lineto
+1231.49 467.9779 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1359.5 640.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1350.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1322 610.6754 moveto 82 ([2 <= t1 <= 4]) alignedtext
+grestore
+% q1635066->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1778.1972 864.5351 moveto
+1761.5469 858.5378 1743.8158 848.797 1734 833.1672 curveto
+1723.989 817.2267 1722.0277 797.3789 1723.4945 778.7777 curveto
+stroke
+0 0 0 edgecolor
+newpath 1726.999 778.9319 moveto
+1724.6327 768.6047 lineto
+1720.0424 778.1535 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1726.999 778.9319 moveto
+1724.6327 768.6047 lineto
+1720.0424 778.1535 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1759.5 821.9672 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1750.5 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1734 791.9672 moveto 58 ([17 <= t1]) alignedtext
+grestore
+% q1635064->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1174.416 450.8714 moveto
+1167.3785 460.282 1160.43 470.6159 1155 480.8754 curveto
+1127.3871 533.048 1122.4554 548.6085 1113 606.8754 curveto
+1109.7964 626.6172 1099.6718 636.9637 1113 651.8754 curveto
+1136.8441 678.5524 1242.2808 651.5307 1273 669.8754 curveto
+1327.9227 702.6738 1322.1476 733.2768 1355 788.1672 curveto
+1366.5349 807.44 1359.8542 819.93 1378 833.1672 curveto
+1418.0217 862.3629 1455.8662 813.4639 1488 851.1672 curveto
+1526.1518 895.9318 1503.7101 1081.2598 1493.3606 1152.7001 curveto
+stroke
+0 0 0 edgecolor
+newpath 1489.8725 1152.3631 moveto
+1491.8722 1162.7675 lineto
+1496.7972 1153.3869 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1489.8725 1152.3631 moveto
+1491.8722 1162.7675 lineto
+1496.7972 1153.3869 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1418.5 821.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1409.5 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1378 791.9672 moveto 88 ([7 <= t1 <= 12]) alignedtext
+grestore
+% q1635064->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1185.8454 458.7142 moveto
+1164.8084 512.1435 1141.8664 599.6299 1189 651.8754 curveto
+1208.9782 674.0204 1294.6601 657.9566 1322 669.8754 curveto
+1326.7453 671.9441 1462.9031 784.0192 1466 788.1672 curveto
+1478.9877 805.5635 1471.4652 816.1932 1485 833.1672 curveto
+1493.5359 843.8721 1502.6405 839.6219 1510 851.1672 curveto
+1564.1037 936.0433 1526.6254 977.0947 1519 1077.4591 curveto
+1516.8617 1105.6028 1519.6629 1113.5965 1511 1140.4591 curveto
+1509.4835 1145.1616 1507.4185 1149.9519 1505.158 1154.5141 curveto
+stroke
+0 0 0 edgecolor
+newpath 1502.0033 1152.9909 moveto
+1500.3562 1163.4569 lineto
+1508.1705 1156.3023 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1502.0033 1152.9909 moveto
+1500.3562 1163.4569 lineto
+1508.1705 1156.3023 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1510.5 821.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1501.5 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1485 791.9672 moveto 58 ([14 <= t1]) alignedtext
+grestore
+% q1635064->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1158.8861 427.8063 moveto
+1131.8424 438.5807 1099.5006 455.6876 1079 480.8754 curveto
+1009.0911 566.7683 986.5984 859.1711 939 959.1672 curveto
+935.8575 965.7692 932.1078 972.4384 928.1163 978.8875 curveto
+stroke
+0 0 0 edgecolor
+newpath 925.0299 977.2158 moveto
+922.5579 987.5183 lineto
+930.915 981.006 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 925.0299 977.2158 moveto
+922.5579 987.5183 lineto
+930.915 981.006 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1019 723.8213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1010 708.8213 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635064->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1157.9332 423.2846 moveto
+1123.6213 432.9777 1078.9322 450.5729 1050 480.8754 curveto
+993.8535 539.6814 1043.1761 595.0766 985 651.8754 curveto
+967.8009 668.6674 949.0063 651.0981 934 669.8754 curveto
+915.8641 692.5689 901.9129 870.926 895.6376 966.8037 curveto
+stroke
+0 0 0 edgecolor
+newpath 892.1345 966.7394 moveto
+894.9823 976.9443 lineto
+899.12 967.1908 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 892.1345 966.7394 moveto
+894.9823 976.9443 lineto
+899.12 967.1908 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+956 731.3213 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+947 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+934 701.3213 moveto 51 ([t1 <= 8]) alignedtext
+grestore
+% q1635064->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1162.7109 388.6777 moveto
+1142.5726 376.7263 1119.0459 361.279 1100 344.5836 curveto
+1078.2793 325.5436 1057.285 301.3602 1040.5812 280.2429 curveto
+stroke
+0 0 0 edgecolor
+newpath 1043.3078 278.0477 moveto
+1034.3967 272.3167 lineto
+1037.7889 282.3538 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1043.3078 278.0477 moveto
+1034.3967 272.3167 lineto
+1037.7889 282.3538 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1109 325.8836 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1100 310.8836 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635064->q1459223
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1181.7802 369.2327 moveto
+1167.1933 346.6 1147.3245 319.565 1125 299.5836 curveto
+1105.8649 282.4569 1081.7163 267.7255 1060.1071 256.386 curveto
+stroke
+0 0 0 edgecolor
+newpath 1061.52 253.1773 moveto
+1051.0235 251.7368 lineto
+1058.3306 259.4086 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1061.52 253.1773 moveto
+1051.0235 251.7368 lineto
+1058.3306 259.4086 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1200.5 333.3836 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1191.5 318.3836 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1163 303.3836 moveto 82 ([1 <= t1 <= 6]) alignedtext
+grestore
+% q1635064->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1254.4517 429.3728 moveto
+1266.2942 428.2089 1275.1459 422.6612 1275.1459 412.7295 curveto
+1275.1459 405.9015 1270.9621 401.1456 1264.499 398.4617 curveto
+stroke
+0 0 0 edgecolor
+newpath 1264.9887 394.9811 moveto
+1254.4517 396.0863 lineto
+1263.378 401.7933 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1264.9887 394.9811 moveto
+1254.4517 396.0863 lineto
+1263.378 401.7933 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1300.6459 424.0295 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1291.6459 409.0295 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1275.1459 394.0295 moveto 58 ([19 <= t1]) alignedtext
+grestore
+% q1635064->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1256.7114 420.9373 moveto
+1320.9423 432.4171 1428.081 454.8126 1458 480.8754 curveto
+1497.3395 515.1446 1468.6947 550.4631 1504 588.8754 curveto
+1515.5704 601.464 1525.4959 595.2138 1538 606.8754 curveto
+1555.2265 622.9413 1547.9188 636.7779 1566 651.8754 curveto
+1584.0126 666.9156 1637.4976 686.9875 1680.0934 701.4473 curveto
+stroke
+0 0 0 edgecolor
+newpath 1679.2332 704.8505 moveto
+1689.8272 704.7191 lineto
+1681.4636 698.2153 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1679.2332 704.8505 moveto
+1689.8272 704.7191 lineto
+1681.4636 698.2153 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1526 577.6754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1517 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1504 547.6754 moveto 51 ([t1 <= 0]) alignedtext
+grestore
+% q1635064->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1257.1211 417.8656 moveto
+1314.4404 425.3363 1409.798 442.7241 1483 480.8754 curveto
+1520.7068 500.5274 1531.4543 508.4692 1555 543.8754 curveto
+1583.0177 586.0063 1557.2878 614.1463 1591 651.8754 curveto
+1614.2545 677.9008 1649.4973 694.7064 1679.6457 705.1159 curveto
+stroke
+0 0 0 edgecolor
+newpath 1678.6404 708.4697 moveto
+1689.2334 708.2744 lineto
+1680.8307 701.8212 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1678.6404 708.4697 moveto
+1689.2334 708.2744 lineto
+1680.8307 701.8212 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1609.5 577.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1600.5 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1569 547.6754 moveto 88 ([9 <= t1 <= 18]) alignedtext
+grestore
+% q1635064->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1257.1575 418.9872 moveto
+1365.8796 433.7611 1617.0392 474.8483 1661 543.8754 curveto
+1671.7435 560.7448 1671.695 571.9752 1661 588.8754 curveto
+1651.0067 604.6668 1632.9933 591.084 1623 606.8754 curveto
+1612.305 623.7756 1613.0984 634.4985 1623 651.8754 curveto
+1635.6169 674.0176 1658.57 689.7028 1680.6701 700.3963 curveto
+stroke
+0 0 0 edgecolor
+newpath 1679.506 703.7122 moveto
+1690.0567 704.6779 lineto
+1682.411 697.3435 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1679.506 703.7122 moveto
+1690.0567 704.6779 lineto
+1682.411 697.3435 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1713 577.6754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1704 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1669 547.6754 moveto 95 ([13 <= t1 <= 13]) alignedtext
+grestore
+% q1635063->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1702.6665 755.685 moveto
+1693.2674 765.8419 1683.401 777.1481 1675 788.1672 curveto
+1660.7185 806.8996 1666.202 819.5237 1647 833.1672 curveto
+1617.2912 854.2761 1602.189 841.6841 1567 851.1672 curveto
+1477.0157 875.4172 1447.4487 867.1221 1367 914.1672 curveto
+1341.7571 928.9289 1345.2581 946.2979 1319 959.1672 curveto
+1255.4582 990.3097 1053.9314 1012.5411 952.1117 1022.0968 curveto
+stroke
+0 0 0 edgecolor
+newpath 951.6176 1018.6275 moveto
+941.9837 1023.0363 lineto
+952.2642 1025.5976 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 951.6176 1018.6275 moveto
+941.9837 1023.0363 lineto
+952.2642 1025.5976 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1589 884.9672 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1580 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1567 854.9672 moveto 51 ([t1 <= 2]) alignedtext
+grestore
+% q1635063->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1698.5079 751.3572 moveto
+1662.1978 778.243 1605.703 815.3787 1550 833.1672 curveto
+1450.2143 865.0333 1413.2174 814.7531 1315 851.1672 curveto
+1238.9855 879.3496 1241.4229 924.794 1168 959.1672 curveto
+1097.5796 992.1349 1009.3078 1010.3339 951.8248 1019.4561 curveto
+stroke
+0 0 0 edgecolor
+newpath 951.1628 1016.0168 moveto
+941.8142 1021.0023 lineto
+952.2313 1022.9348 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 951.1628 1016.0168 moveto
+941.8142 1021.0023 lineto
+952.2313 1022.9348 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1352.5 884.9672 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1343.5 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1315 854.9672 moveto 82 ([2 <= t1 <= 4]) alignedtext
+grestore
+% q1635063->q1635066
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1773.5286 755.6399 moveto
+1781.8785 765.5332 1790.0627 776.7207 1796 788.1672 curveto
+1805.2925 806.0823 1810.846 828.1873 1814.0485 845.4327 curveto
+stroke
+0 0 0 edgecolor
+newpath 1810.6266 846.1884 moveto
+1815.751 855.4616 lineto
+1817.5278 845.0168 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1810.6266 846.1884 moveto
+1815.751 855.4616 lineto
+1817.5278 845.0168 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1848.5 821.9672 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1839.5 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1811 791.9672 moveto 82 ([5 <= t1 <= 5]) alignedtext
+grestore
+% q1635063->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1690.1044 705.1305 moveto
+1653.6247 694.2033 1602.0094 679.6278 1556 669.8754 curveto
+1503.2422 658.6926 1480.8494 681.825 1436 651.8754 curveto
+1431.3885 648.796 1337.0108 484.7045 1333 480.8754 curveto
+1312.991 461.7731 1286.5816 446.4052 1263.1116 435.133 curveto
+stroke
+0 0 0 edgecolor
+newpath 1264.485 431.9117 moveto
+1253.9423 430.8614 lineto
+1261.5289 438.2569 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1264.485 431.9117 moveto
+1253.9423 430.8614 lineto
+1261.5289 438.2569 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1419 577.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1410 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1397 547.6754 moveto 51 ([t1 <= 0]) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1788.2214 722.3473 moveto
+1798.6481 722.1025 1806.1459 721.3271 1806.1459 720.0213 curveto
+1806.1459 719.2052 1803.2171 718.5963 1798.4749 718.1946 curveto
+stroke
+0 0 0 edgecolor
+newpath 1798.3798 714.6859 moveto
+1788.2214 717.6954 lineto
+1798.0393 721.6777 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1798.3798 714.6859 moveto
+1788.2214 717.6954 lineto
+1798.0393 721.6777 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1815.1459 723.8213 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1806.1459 708.8213 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1788.2887 724.7766 moveto
+1811.0418 725.1974 1831.1459 723.6123 1831.1459 720.0213 curveto
+1831.1459 716.9774 1816.7007 715.3748 1798.4414 715.2135 curveto
+stroke
+0 0 0 edgecolor
+newpath 1798.2704 711.7142 moveto
+1788.2887 715.2661 lineto
+1798.3068 718.7141 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1798.2704 711.7142 moveto
+1788.2887 715.2661 lineto
+1798.3068 718.7141 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1840.1459 723.8213 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1831.1459 708.8213 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.8603 726.6654 moveto
+1821.6969 728.4323 1856.1459 726.2176 1856.1459 720.0213 curveto
+1856.1459 714.4544 1828.339 712.1013 1798.1521 712.9621 curveto
+stroke
+0 0 0 edgecolor
+newpath 1797.7111 709.477 moveto
+1787.8603 713.3773 lineto
+1797.9933 716.4713 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1797.7111 709.477 moveto
+1787.8603 713.3773 lineto
+1797.9933 716.4713 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1893.6459 731.3213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1884.6459 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1856.1459 701.3213 moveto 82 ([1 <= t1 <= 1]) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.9081 727.3652 moveto
+1849.862 732.0368 1938.1459 729.5889 1938.1459 720.0213 curveto
+1938.1459 710.9584 1858.9276 708.2839 1797.9122 711.9978 curveto
+stroke
+0 0 0 edgecolor
+newpath 1797.6478 708.5076 moveto
+1787.9081 712.6775 lineto
+1798.1224 715.4915 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1797.6478 708.5076 moveto
+1787.9081 712.6775 lineto
+1798.1224 715.4915 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1960.1459 731.3213 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1951.1459 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1938.1459 701.3213 moveto 51 ([3 <= t1]) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.5069 728.2611 moveto
+1864.3714 735.3237 1989.1459 732.5771 1989.1459 720.0213 curveto
+1989.1459 708.005 1874.8638 704.9731 1797.6669 710.9255 curveto
+stroke
+0 0 0 edgecolor
+newpath 1797.1777 707.4542 moveto
+1787.5069 711.7816 lineto
+1797.7655 714.4295 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1797.1777 707.4542 moveto
+1787.5069 711.7816 lineto
+1797.7655 714.4295 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2026.6459 731.3213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2017.6459 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1989.1459 701.3213 moveto 82 ([6 <= t1 <= 6]) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.6166 728.7647 moveto
+1885.1268 738.6431 2071.1459 735.7286 2071.1459 720.0213 curveto
+2071.1459 704.8356 1897.2745 701.6072 1797.6122 710.3363 curveto
+stroke
+0 0 0 edgecolor
+newpath 1797.2442 706.8554 moveto
+1787.6166 711.278 lineto
+1797.9008 713.8246 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1797.2442 706.8554 moveto
+1787.6166 711.278 lineto
+1797.9008 713.8246 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2115.1459 731.3213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2106.1459 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2071.1459 701.3213 moveto 95 ([10 <= t1 <= 10]) alignedtext
+grestore
+% q1635063->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.3264 729.1005 moveto
+1905.5726 741.9442 2166.1459 738.9178 2166.1459 720.0213 curveto
+2166.1459 701.6416 1919.6279 698.2758 1797.3373 709.9242 curveto
+stroke
+0 0 0 edgecolor
+newpath 1796.921 706.4484 moveto
+1787.3264 710.9422 lineto
+1797.6292 713.4125 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1796.921 706.4484 moveto
+1787.3264 710.9422 lineto
+1797.6292 713.4125 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2210.1459 731.3213 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2201.1459 716.3213 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2166.1459 701.3213 moveto 95 ([13 <= t1 <= 16]) alignedtext
+grestore
+% q1635063->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.5285 711.3207 moveto
+1826.6246 702.2552 1880.4851 684.6211 1917 651.8754 curveto
+1933.7219 636.8797 1923.0513 621.6143 1940 606.8754 curveto
+1958.0041 591.2188 1982.3916 581.5253 2004.2422 575.5672 curveto
+stroke
+0 0 0 edgecolor
+newpath 2005.2327 578.927 moveto
+2014.0711 573.0846 lineto
+2003.5184 572.1402 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2005.2327 578.927 moveto
+2014.0711 573.0846 lineto
+2003.5184 572.1402 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1984 640.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1975 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1940 610.6754 moveto 95 ([11 <= t1 <= 12]) alignedtext
+grestore
+% q1635063->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1787.9109 714.8332 moveto
+1863.0827 706.0158 2000.2775 685.6965 2035 651.8754 curveto
+2050.2149 637.0556 2055.4042 613.2273 2056.9637 594.4857 curveto
+stroke
+0 0 0 edgecolor
+newpath 2060.463 594.5897 moveto
+2057.5041 584.4164 lineto
+2053.4731 594.2144 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2060.463 594.5897 moveto
+2057.5041 584.4164 lineto
+2053.4731 594.2144 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2092.5 640.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2083.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2055 610.6754 moveto 82 ([7 <= t1 <= 9]) alignedtext
+grestore
+% q1635063->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 1788.2393 715.1148 moveto
+1891.0006 704.5717 2117.4739 678.5414 2140 651.8754 curveto
+2152.9063 636.5971 2150.5969 623.8373 2140 606.8754 curveto
+2132.2752 594.5107 2119.5665 585.8202 2106.389 579.7537 curveto
+stroke
+0 0 0 edgecolor
+newpath 2107.3543 576.3657 moveto
+2096.7754 575.7851 lineto
+2104.6832 582.8361 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2107.3543 576.3657 moveto
+2096.7754 575.7851 lineto
+2104.6832 582.8361 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2173.5 640.6754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2164.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2148 610.6754 moveto 58 ([17 <= t1]) alignedtext
+grestore
+% q1693179->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2103.4303 566.8132 moveto
+2218.0157 568.3743 2507.0934 575.4216 2536 606.8754 curveto
+2549.5333 621.6013 2536.551 631.883 2536 651.8754 curveto
+2533.7769 732.5414 2549.9883 756.1185 2526 833.1672 curveto
+2523.213 842.119 2518.92 842.6505 2515 851.1672 curveto
+2458.4757 973.9748 2528.6214 1058.6402 2421 1140.4591 curveto
+2386.0686 1167.0155 1742.1877 1177.6353 1545.553 1180.2676 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.3865 1176.7694 moveto
+1535.4337 1180.4013 lineto
+1545.4791 1183.7688 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.3865 1176.7694 moveto
+1535.4337 1180.4013 lineto
+1545.4791 1183.7688 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2537 884.9672 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2528 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2515 854.9672 moveto 51 ([t1 <= 0]) alignedtext
+grestore
+% q1693179->q1579082
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2103.4659 566.9835 moveto
+2220.4671 568.9557 2520.2544 576.9102 2553 606.8754 curveto
+2620.7977 668.9167 2588 718.767 2588 810.6672 curveto
+2588 1027.3131 2588 1027.3131 2588 1027.3131 curveto
+2588 1104.5826 2527.8928 1112.1395 2456 1140.4591 curveto
+2371.4721 1173.7558 1739.6153 1179.6987 1545.533 1180.7413 curveto
+stroke
+0 0 0 edgecolor
+newpath 1545.2529 1177.2426 moveto
+1535.2711 1180.7941 lineto
+1545.289 1184.2425 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1545.2529 1177.2426 moveto
+1535.2711 1180.7941 lineto
+1545.289 1184.2425 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2632 884.9672 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2623 869.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2588 854.9672 moveto 95 ([12 <= t1 <= 14]) alignedtext
+grestore
+% q1693179->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.9842 570.4235 moveto
+1955.1675 575.4076 1854.4126 583.8302 1768 588.8754 curveto
+1716.7151 591.8697 1350.4132 581.0573 1306 606.8754 curveto
+1285.6354 618.7138 1290.8796 632.1528 1278 651.8754 curveto
+1243.1604 705.2256 1246.2383 729.7244 1197 770.1672 curveto
+1181.3065 783.0574 1169.8376 774.3003 1155 788.1672 curveto
+1138.59 803.5037 1143.2522 813.728 1132 833.1672 curveto
+1098.5281 890.9931 1101.0798 916.097 1050 959.1672 curveto
+1021.1277 983.5122 982.2398 1000.4313 950.2695 1011.3218 curveto
+stroke
+0 0 0 edgecolor
+newpath 948.9921 1008.0575 moveto
+940.5885 1014.5096 lineto
+951.1815 1014.7063 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 948.9921 1008.0575 moveto
+940.5885 1014.5096 lineto
+951.1815 1014.7063 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1192.5 821.9672 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1183.5 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1155 791.9672 moveto 82 ([6 <= t1 <= 7]) alignedtext
+grestore
+% q1693179->q1635065
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.9858 570.4514 moveto
+1955.1708 575.4642 1854.4176 583.9165 1768 588.8754 curveto
+1740.9704 590.4265 1304.4201 593.2922 1281 606.8754 curveto
+1260.6236 618.6934 1271.5711 637.3848 1253 651.8754 curveto
+1232.3889 667.9577 1215.9529 651.8686 1197 669.8754 curveto
+1162.4433 702.7072 1196.2059 740.3711 1159 770.1672 curveto
+1114.8456 805.5281 1074.8242 750.0787 1033 788.1672 curveto
+975.2165 840.7896 1036.385 894.8398 992 959.1672 curveto
+980.4172 975.9542 963.239 989.809 946.3746 1000.5415 curveto
+stroke
+0 0 0 edgecolor
+newpath 944.341 997.6818 moveto
+937.6155 1005.8683 lineto
+947.9782 1003.6626 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 944.341 997.6818 moveto
+937.6155 1005.8683 lineto
+947.9782 1003.6626 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1077 821.9672 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1068 806.9672 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1033 791.9672 moveto 95 ([11 <= t1 <= 11]) alignedtext
+grestore
+% q1693179->q1560585
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2102.2682 562.6399 moveto
+2175.1491 556.1814 2311.9025 542.0552 2327 525.8754 curveto
+2354.7373 496.1497 2362.2797 232.3471 2364.2893 110.883 curveto
+stroke
+0 0 0 edgecolor
+newpath 2367.7927 110.6887 moveto
+2364.4513 100.6346 lineto
+2360.7936 110.578 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2367.7927 110.6887 moveto
+2364.4513 100.6346 lineto
+2360.7936 110.578 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2395.5 333.3836 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2386.5 318.3836 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2358 303.3836 moveto 82 ([7 <= t1 <= 9]) alignedtext
+grestore
+% q1693179->q1635064
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.6315 562.9865 moveto
+1926.0333 556.2861 1747.0946 540.7054 1723 525.8754 curveto
+1702.5296 513.2761 1713.352 493.665 1693 480.8754 curveto
+1623.3074 437.0795 1381.9624 420.5743 1267.778 415.1127 curveto
+stroke
+0 0 0 edgecolor
+newpath 1267.6168 411.6016 moveto
+1257.4649 414.633 lineto
+1267.2914 418.594 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1267.6168 411.6016 moveto
+1257.4649 414.633 lineto
+1267.2914 418.594 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1748.5 514.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1739.5 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1723 484.6754 moveto 58 ([20 <= t1]) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2101.5748 571.2351 moveto
+2144.9511 576.9916 2206.399 588.2301 2221 606.8754 curveto
+2233.3309 622.6219 2234.1171 636.7777 2221 651.8754 curveto
+2193.6175 683.3925 1921.8017 706.7911 1798.3934 715.8763 curveto
+stroke
+0 0 0 edgecolor
+newpath 1798.0652 712.3909 moveto
+1788.3461 716.6085 lineto
+1798.5741 719.3724 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1798.0652 712.3909 moveto
+1788.3461 716.6085 lineto
+1798.5741 719.3724 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2239 633.1754 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2230 618.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2103.0787 569.0182 moveto
+2156.4885 573.1565 2239.6742 583.2903 2259 606.8754 curveto
+2271.6761 622.3453 2272.1932 636.8442 2259 651.8754 curveto
+2228.9732 686.0854 1929.0625 708.3752 1798.3597 716.5368 curveto
+stroke
+0 0 0 edgecolor
+newpath 1797.8872 713.0592 moveto
+1788.1219 717.1687 lineto
+1798.3186 720.0459 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1797.8872 713.0592 moveto
+1788.1219 717.1687 lineto
+1798.3186 720.0459 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2290 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2281 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2268 610.6754 moveto 51 ([t1 <= 5]) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2102.3223 570.0827 moveto
+2174.4783 576.4487 2308.8247 590.3785 2323 606.8754 curveto
+2336.0344 622.0446 2336.2988 636.9375 2323 651.8754 curveto
+2288.5085 690.6181 1941.1327 710.7581 1798.5681 717.4441 curveto
+stroke
+0 0 0 edgecolor
+newpath 1798.0856 713.9626 moveto
+1788.258 717.9209 lineto
+1798.409 720.9551 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1798.0856 713.9626 moveto
+1788.258 717.9209 lineto
+1798.409 720.9551 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2376 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2367 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2332 610.6754 moveto 95 ([12 <= t1 <= 14]) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.9385 570.3156 moveto
+1903.9675 579.8079 1639.1437 603.4148 1636 606.8754 curveto
+1622.552 621.6792 1626.5716 634.2373 1636 651.8754 curveto
+1646.181 670.9214 1664.301 685.5712 1682.473 696.3192 curveto
+stroke
+0 0 0 edgecolor
+newpath 1680.926 699.464 moveto
+1691.3634 701.2841 lineto
+1684.3391 693.3525 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1680.926 699.464 moveto
+1691.3634 701.2841 lineto
+1684.3391 693.3525 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1680 640.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1671 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1636 610.6754 moveto 95 ([11 <= t1 <= 11]) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.4821 569.4529 moveto
+1931.3828 575.3018 1771.9639 589.0476 1754 606.8754 curveto
+1740.0902 620.6798 1734.5328 640.6774 1732.9529 660.0334 curveto
+stroke
+0 0 0 edgecolor
+newpath 1729.4553 659.9027 moveto
+1732.4662 670.0606 lineto
+1736.447 660.2421 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1729.4553 659.9027 moveto
+1732.4662 670.0606 lineto
+1736.447 660.2421 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1779.5 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1770.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1754 610.6754 moveto 58 ([16 <= t1]) alignedtext
+grestore
+% q1693179->q1635063
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.1278 569.4738 moveto
+1953.3052 574.2319 1858.1673 585.1612 1831 606.8754 curveto
+1814.0417 620.4299 1824.4907 634.119 1812 651.8754 curveto
+1804.393 662.6893 1794.8139 673.0667 1785.0942 682.3202 curveto
+stroke
+0 0 0 edgecolor
+newpath 1782.6471 679.8157 moveto
+1777.6645 689.1658 lineto
+1787.3904 684.9637 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1782.6471 679.8157 moveto
+1777.6645 689.1658 lineto
+1787.3904 684.9637 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1868.5 640.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1859.5 625.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1831 610.6754 moveto 82 ([9 <= t1 <= 9]) alignedtext
+grestore
+% q1693179->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2100.7727 572.1368 moveto
+2112.3655 571.8076 2121.1459 569.8872 2121.1459 566.3754 curveto
+2121.1459 564.016 2117.1823 562.3749 2111.0651 561.4521 curveto
+stroke
+0 0 0 edgecolor
+newpath 2111.0237 557.9372 moveto
+2100.7727 560.614 lineto
+2110.4556 564.9141 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2111.0237 557.9372 moveto
+2100.7727 560.614 lineto
+2110.4556 564.9141 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2130.1459 570.1754 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2121.1459 555.1754 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1693179->q1693179
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2094.4501 576.9759 moveto
+2120.1759 579.9597 2146.1459 576.4262 2146.1459 566.3754 curveto
+2146.1459 557.6595 2126.6161 553.8447 2104.6518 554.931 curveto
+stroke
+0 0 0 edgecolor
+newpath 2104.1275 551.4623 moveto
+2094.4501 555.775 lineto
+2104.7047 558.4385 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2104.1275 551.4623 moveto
+2094.4501 555.775 lineto
+2104.7047 558.4385 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2183.6459 577.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2174.6459 562.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2146.1459 547.6754 moveto 82 ([1 <= t1 <= 6]) alignedtext
+grestore
+% q1711428
+gsave
+1 setlinewidth
+0 0 0 nodecolor
+2032 412.7295 46.2806 46.2806 ellipse_path stroke
+1 setlinewidth
+0 0 0 nodecolor
+2032 412.7295 50.2922 50.2922 ellipse_path stroke
+0 0 0 nodecolor
+14 /Times-Roman set_font
+2004.5 409.0295 moveto 55 (q1711428) alignedtext
+grestore
+% q1693179->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2043.8246 548.7583 moveto
+2039.5037 541.9664 2035.2389 533.9057 2033 525.8754 curveto
+2028.3033 509.0292 2026.7523 490.2162 2026.7271 472.8418 curveto
+stroke
+0 0 0 edgecolor
+newpath 2030.2272 472.8549 moveto
+2026.8764 462.8039 lineto
+2023.228 472.7507 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2030.2272 472.8549 moveto
+2026.8764 462.8039 lineto
+2023.228 472.7507 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2070.5 514.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2061.5 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2033 484.6754 moveto 82 ([8 <= t1 <= 8]) alignedtext
+grestore
+% q1693179->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2087.5096 552.6609 moveto
+2098.2096 546.1778 2109.0381 537.31 2115 525.8754 curveto
+2124.2465 508.1412 2123.5492 498.9561 2115 480.8754 curveto
+2108.1355 466.3577 2096.4944 453.8948 2084.0679 443.7475 curveto
+stroke
+0 0 0 edgecolor
+newpath 2085.8922 440.7352 moveto
+2075.8309 437.4153 lineto
+2081.6259 446.2849 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2085.8922 440.7352 moveto
+2075.8309 437.4153 lineto
+2081.6259 446.2849 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2165 514.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2156 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2121 484.6754 moveto 95 ([10 <= t1 <= 10]) alignedtext
+grestore
+% q1693179->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2101.7073 561.4223 moveto
+2144.7985 555.618 2205.5411 544.3666 2220 525.8754 curveto
+2232.3196 510.1202 2231.4823 497.2509 2220 480.8754 curveto
+2204.7095 459.069 2140.2173 438.9231 2090.9923 426.2802 curveto
+stroke
+0 0 0 edgecolor
+newpath 2091.6091 422.8263 moveto
+2081.0569 423.776 lineto
+2089.8982 429.614 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2091.6091 422.8263 moveto
+2081.0569 423.776 lineto
+2089.8982 429.614 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2272 514.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2263 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2228 484.6754 moveto 95 ([15 <= t1 <= 15]) alignedtext
+grestore
+% q1693179->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2011.8404 562.5139 moveto
+1941.1048 556.0035 1810.7795 541.9675 1797 525.8754 curveto
+1743.173 463.0147 1885.9778 432.2406 1972.0901 419.7775 curveto
+stroke
+0 0 0 edgecolor
+newpath 1972.6195 423.2376 moveto
+1982.0363 418.3824 lineto
+1971.6471 416.3055 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1972.6195 423.2376 moveto
+1982.0363 418.3824 lineto
+1971.6471 416.3055 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1841 514.6754 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1832 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1797 484.6754 moveto 95 ([10 <= t1 <= 10]) alignedtext
+grestore
+% q1693179->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2015.0047 558.8492 moveto
+1981.1937 551.8343 1937.6132 540.2981 1927 525.8754 curveto
+1915.1462 509.7668 1917.4544 498.4504 1927 480.8754 curveto
+1937.745 461.0923 1956.9877 446.1611 1976.0913 435.3946 curveto
+stroke
+0 0 0 edgecolor
+newpath 1977.9382 438.3766 moveto
+1985.1229 430.59 lineto
+1974.6506 432.1967 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 1977.9382 438.3766 moveto
+1985.1229 430.59 lineto
+1974.6506 432.1967 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1971 514.6754 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1962 499.6754 moveto 25 (r\(t1\)) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+1927 484.6754 moveto 95 ([15 <= t1 <= 19]) alignedtext
+grestore
+% q1711428->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2082.2214 416.8 moveto
+2092.6481 416.3715 2100.1459 415.0147 2100.1459 412.7295 curveto
+2100.1459 411.3013 2097.2171 410.2357 2092.4749 409.5328 curveto
+stroke
+0 0 0 edgecolor
+newpath 2092.4825 406.0208 moveto
+2082.2214 408.6591 lineto
+2091.8881 412.9955 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2092.4825 406.0208 moveto
+2082.2214 408.6591 lineto
+2091.8881 412.9955 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2109.1459 416.5295 moveto 7 (c) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2100.1459 401.5295 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1711428->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2081.811 421.0352 moveto
+2104.7597 421.8262 2125.1459 419.0577 2125.1459 412.7295 curveto
+2125.1459 407.3655 2110.498 404.559 2092.0578 404.3102 curveto
+stroke
+0 0 0 edgecolor
+newpath 2091.7715 400.813 moveto
+2081.811 404.4239 lineto
+2091.8492 407.8126 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2091.7715 400.813 moveto
+2081.811 404.4239 lineto
+2091.8492 407.8126 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2134.1459 416.5295 moveto 7 (a) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2125.1459 401.5295 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1711428->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2080.9349 424.2703 moveto
+2115.0657 427.5188 2150.1459 423.6719 2150.1459 412.7295 curveto
+2150.1459 402.8557 2121.5828 398.7592 2090.9278 400.44 curveto
+stroke
+0 0 0 edgecolor
+newpath 2090.6454 396.9513 moveto
+2080.9349 401.1887 lineto
+2091.1685 403.9317 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2090.6454 396.9513 moveto
+2080.9349 401.1887 lineto
+2091.1685 403.9317 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2159.1459 416.5295 moveto 7 (b) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2150.1459 401.5295 moveto 25 (r\(t1\)) alignedtext
+grestore
+% q1711428->q1711428
+gsave
+1 setlinewidth
+0 0 0 edgecolor
+newpath 2080.285 426.8195 moveto
+2124.5058 433.2465 2175.1459 428.5498 2175.1459 412.7295 curveto
+2175.1459 398.0834 2131.7437 392.971 2090.2138 397.3924 curveto
+stroke
+0 0 0 edgecolor
+newpath 2089.7708 393.9204 moveto
+2080.285 398.6396 lineto
+2090.6433 400.8658 lineto
+closepath fill
+1 setlinewidth
+solid
+0 0 0 edgecolor
+newpath 2089.7708 393.9204 moveto
+2080.285 398.6396 lineto
+2090.6433 400.8658 lineto
+closepath stroke
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2184.1459 416.5295 moveto 7 (d) alignedtext
+0 0 0 edgecolor
+14 /Times-Roman set_font
+2175.1459 401.5295 moveto 25 (r\(t1\)) alignedtext
+grestore
+endpage
+showpage
+grestore
+%%PageTrailer
+%%EndPage: 1
+%%Trailer
+%%Pages: 1
+%%BoundingBox: 36 36 3187 1247
+end
+restore
+%%EOF

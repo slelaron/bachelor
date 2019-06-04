@@ -1,0 +1,16 @@
+digraph "tests_1/test26/solution202/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q1 -> q2[label="b\nr(t1)\n[t1 <= 10]"]
+	q2 -> q1[label="c\nr(t1)\n[9 <= t1 <= 14]"]
+	q2 -> q1[label="a\nr(t1)\n"]
+	q2 -> q2[label="c\nr(t1)\n[16 <= t1]"]
+	q2 -> q2[label="c\nr(t1)\n[1 <= t1 <= 8]"]
+	q2 -> q2[label="b\nr(t1)\n[t1 <= 19]"]
+	q2 -> q2[label="b\nr(t1)\n[20 <= t1]"]
+	q1 -> q1[label="b\nr(t1)\n[11 <= t1]"]
+	q1 -> q1[label="a\nr(t1)\n[t1 <= 17]"]
+	q1 -> q2[label="c\nr(t1)\n[2 <= t1]"]
+	q1 -> q2[label="a\nr(t1)\n[18 <= t1]"]
+	q1 -> q1[label="c\nr(t1)\n[t1 <= 1]"]
+}

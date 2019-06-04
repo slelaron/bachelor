@@ -1,0 +1,11 @@
+digraph "tests_1/test26/solution500/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q1 -> q1[label="a\nr(t1)\n"]
+	q1 -> q2[label="c\nr(t1)\n[1 <= t1 <= 8]"]
+	q2 -> q1[label="a\nr(t1)\n"]
+	q2 -> q2[label="b\nr(t1)\n"]
+	q2 -> q2[label="c\nr(t1)\n"]
+	q1 -> q1[label="c\nr(t1)\n[9 <= t1]"]
+	q1 -> q2[label="b\nr(t1)\n"]
+}

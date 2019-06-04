@@ -1,4 +1,3 @@
-import jdk.jfr.Percentage
 import java.io.File
 import java.io.InputStream
 import java.io.PrintWriter
@@ -9,18 +8,28 @@ import kotlin.random.Random
 data class Environment(
     val solution: String = "automaton_cbs.mzn",
     val solver: String = "org.chuffed.chuffed",
-    val prefixTree: Tree,
+    val traces: List<Trace>,
     val statesNumber: Int = 0,
-    val vertexDegree: Int = statesNumber * prefixTree.labels().size,
+    val vertexDegree: Int = statesNumber * traces.labels().size,
     val maxTotalEdges: Int = vertexDegree * statesNumber,
     val timersNumber: Int,
     val infinity: Int,
+    val samplingDegree: Int? = null,
     val maxActiveTimersCount: Int = maxTotalEdges * timersNumber
 ) {
     override fun toString() =
-            "{ solution: $solution, solver: $solver, states: $statesNumber, infinity: $infinity, " +
-                    "vertex degree: $vertexDegree, edges: $maxTotalEdges, timers: $timersNumber, " +
-                    "active timers: $maxActiveTimersCount }"
+            "{ solution: $solution, solver: $solver, states: $statesNumber, samplingDegree: $samplingDegree, " +
+                    "infinity: $infinity, vertex degree: $vertexDegree, edges: $maxTotalEdges, " +
+                    "timers: $timersNumber, active timers: $maxActiveTimersCount }"
+
+    val prefixTree: Tree?
+        get() = try {
+            buildPrefixTree(traces.sample())
+        } catch (ex: Exception) {
+            null
+        }
+
+    fun Iterable<Trace>.sample() = if (samplingDegree != null) traces.map { it.sample(samplingDegree, infinity) } else traces
 }
 
 fun decrease(start: Environment, startAutomaton: Automaton, until: Environment.() -> Boolean,
@@ -117,7 +126,7 @@ class DecVertexDegree(var nxt: Strategy? = null, var nxt2: Strategy? = null): St
 class IncStates(var nxt: Strategy? = null, var nxt2: Strategy? = null): Strategy {
     override fun next(env: Environment, prev: Automaton?): StrategyStep {
         val statesNumber = env.statesNumber + 1
-        val vertexDegree = statesNumber * env.prefixTree.labels().size
+        val vertexDegree = statesNumber * (env.prefixTree?.labels()?.size ?: 0)
         val maxTotalEdges = vertexDegree * statesNumber
         val maxActiveTimersCount = maxTotalEdges * env.timersNumber
         val environment = env.copy(
@@ -132,7 +141,7 @@ class IncStates(var nxt: Strategy? = null, var nxt2: Strategy? = null): Strategy
     }
 }
 
-class CGAR(val set: MutableSet<Trace>,
+class CGAR(val list: MutableList<Trace>,
            private val train: Iterable<Trace>,
            val restore: (Environment) -> Environment,
            var nxt: Strategy? = null,
@@ -140,30 +149,35 @@ class CGAR(val set: MutableSet<Trace>,
     override fun next(env: Environment, prev: Automaton?): StrategyStep {
         if (prev == null) throw Exception("null prev")
 
-        val verdict = prev.checkAllTraces(train)
+        //prev.createDotFile("debug")	
+        val verdict = prev.checkAllTraces(train, env.samplingDegree, env.infinity)
         val correct = verdict.correct.toSet()
         val incorrect = verdict.incorrect.map { it.trace }.toSet()
+        //System.err.println("Correct:\n${correct.joinToString("\n")}\n")
+        //System.err.println("Incorrect:\n${verdict.incorrect.joinToString("\n") { "${it.trace} | ${it.reason}" }}\n")
         val trace = train.sortedBy { it.records.size }.firstOrNull { if (it.acceptable) it !in correct else it !in incorrect }
+        //System.err.println("Added: $trace")
         return when (trace) {
             null -> StrategyStep(env, null, nxt)
             else -> {
-                set += trace
-                val prefixTree = buildPrefixTree(set)
+                //System.err.println(trace)
+                list += trace
+                val prefixTree = buildPrefixTree(with(env) { list.sample() })
                 prefixTree.createDotFile("init_prefix_tree")
-                System.err.println("Prefix tree traces number: ${set.size}")
-                StrategyStep(restore(env).copy(prefixTree = prefixTree), null, nxt2)
+                System.err.println("Prefix tree traces number: ${list.size}")
+                StrategyStep(restore(env).copy(traces = list.toList()), null, nxt2)
             }
         }
     }
 }
 
 fun strategyBuilder(train: Iterable<Trace>,
-                    set: MutableSet<Trace>): Strategy {
+                    list: MutableList<Trace>): Strategy {
     val decVertexDegree = DecVertexDegree()
     val decEdges = DecEdges()
     val incStates = IncStates()
     val decActiveTimers = DecActiveTimers()
-    val cgar1 = CGAR(set, train, {
+    val cgar1 = CGAR(list, train, {
         val vertexDegree = it.vertexDegree + 1
         val maxTotalEdges = vertexDegree * it.statesNumber
         val maxActiveTimersCount = maxTotalEdges * it.timersNumber
@@ -172,20 +186,20 @@ fun strategyBuilder(train: Iterable<Trace>,
             maxTotalEdges = maxTotalEdges,
             maxActiveTimersCount = maxActiveTimersCount)
     })
-    val cgar2 = CGAR(set, train, {
+    val cgar2 = CGAR(list, train, {
         val maxTotalEdges = it.maxTotalEdges + 1
         val maxActiveTimersCount = maxTotalEdges * it.timersNumber
         it.copy(
             maxTotalEdges = maxTotalEdges,
             maxActiveTimersCount = maxActiveTimersCount)
     })
-    val cgar3 = CGAR(set, train, {
+    val cgar3 = CGAR(list, train, {
         it.copy(maxActiveTimersCount = it.maxActiveTimersCount + 1)
     })
-    val cgar0 = CGAR(set, train, { 
+    val cgar0 = CGAR(list, train, {
         val statesNumber = it.statesNumber - 1
-        val vertexDegree = statesNumber * it.prefixTree.labels().size
-        val maxTotalEdges = vertexDegree * it.statesNumber
+        val vertexDegree = statesNumber * (it.prefixTree?.labels()?.size ?: 0)
+        val maxTotalEdges = vertexDegree * statesNumber
         val maxActiveTimersCount = maxTotalEdges * it.timersNumber
         it.copy(
             statesNumber = statesNumber,
@@ -228,17 +242,218 @@ fun strategyBuilder(train: Iterable<Trace>,
     return incStates
 }
 
+class IncStatesAndSampling(var nxt: Strategy? = null, var nxt2: Strategy? = null): Strategy {
+    override fun next(env: Environment, prev: Automaton?): StrategyStep {
+        val index = order.withIndex().find { env.statesNumber to (env.samplingDegree ?: 1) == it.value }?.index
+            ?: throw Exception("No such pair in order: (${env.statesNumber} ${env.samplingDegree ?: 1}")
+        val statesNumber = order[index + 1].first
+        val samplingDegree = order[index + 1].second
+        val vertexDegree = samplingDegree * (env.prefixTree?.labels()?.size ?: 0)
+        val maxTotalEdges = vertexDegree * statesNumber
+        val maxActiveTimersCount = maxTotalEdges * env.timersNumber
+        val environment = env.copy(
+            statesNumber = statesNumber,
+            samplingDegree = samplingDegree,
+            vertexDegree = vertexDegree,
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+        return when (val automaton = environment.generateAutomaton()) {
+            null -> StrategyStep(environment, prev, nxt)
+            else -> StrategyStep(update(environment, automaton), automaton, nxt2)
+        }
+    }
+
+    companion object {
+        val order = (List(100) { states ->
+            List(100) { (states + 1) to (it + 1) }
+        }.flatten() + (0 to 1)).sortedBy { it.first * it.second }
+    }
+}
+
+data class Counter(var now: Int = 0)
+
+class IncStatesAndDegree(val counter: Counter, var nxt: Strategy? = null, var nxt2: Strategy? = null): Strategy {
+    override fun next(env: Environment, prev: Automaton?): StrategyStep {
+        val index = ++counter.now
+        val statesNumber = order[index].first
+        val vertexDegree = order[index].second
+        val maxTotalEdges = vertexDegree * statesNumber
+        val maxActiveTimersCount = maxTotalEdges * env.timersNumber
+        val environment = env.copy(
+            statesNumber = statesNumber,
+            vertexDegree = vertexDegree,
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+        //System.err.println("New environment: $environment")
+        return when (val automaton = environment.generateAutomaton()) {
+            null -> StrategyStep(environment, prev, nxt)
+            else -> StrategyStep(update(environment, automaton), automaton, nxt2)
+        }
+    }
+
+    companion object {
+        val order = (List(100) { states ->
+            List(100) { (states + 1) to (it + 1) }
+        }.flatten() + (0 to 0)).sortedBy {
+            1000 * it.first * it.second + 2 * maxOf(it.first, it.second) + if (it.first > it.second) 0 else 1
+        }
+    }
+}
+
+fun strategyBuilderNew(train: Iterable<Trace>,
+                       list: MutableList<Trace>): Strategy {
+    val decVertexDegree = DecVertexDegree()
+    val decEdges = DecEdges()
+    val incStatesAndSampling = IncStatesAndSampling()
+    val decActiveTimers = DecActiveTimers()
+    val cgar0 = CGAR(list, train, { env ->
+        val index = IncStatesAndSampling.
+            order.withIndex().find { env.statesNumber to env.samplingDegree == it.value }?.index
+            ?: throw Exception("No such pair in order")
+        val statesNumber = IncStatesAndSampling.order[index - 1].first
+        val samplingDegree = IncStatesAndSampling.order[index - 1].second
+        val vertexDegree = samplingDegree * (env.prefixTree?.labels()?.size ?: 0)
+        val maxTotalEdges = vertexDegree * statesNumber
+        val maxActiveTimersCount = maxTotalEdges * env.timersNumber
+        env.copy(
+            statesNumber = statesNumber,
+            samplingDegree = samplingDegree,
+            vertexDegree = vertexDegree,
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+    })
+    val cgar1 = CGAR(list, train, {
+        val vertexDegree = it.vertexDegree + 1
+        val maxTotalEdges = vertexDegree * it.statesNumber
+        val maxActiveTimersCount = maxTotalEdges * it.timersNumber
+        it.copy(
+            vertexDegree = vertexDegree,
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+    })
+    val cgar2 = CGAR(list, train, {
+        val maxTotalEdges = it.maxTotalEdges + 1
+        val maxActiveTimersCount = maxTotalEdges * it.timersNumber
+        it.copy(
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+    })
+    val cgar3 = CGAR(list, train, {
+        it.copy(maxActiveTimersCount = it.maxActiveTimersCount + 1)
+    })
+    incStatesAndSampling.apply {
+        nxt = this
+        nxt2 = cgar0
+    }
+    decVertexDegree.apply {
+        nxt = decEdges
+        nxt2 = cgar1
+    }
+    decEdges.apply {
+        nxt = decActiveTimers
+        nxt2 = cgar2
+    }
+    decActiveTimers.apply {
+        nxt = null
+        nxt2 = cgar3
+    }
+    cgar0.apply {
+        nxt = decVertexDegree
+        nxt2 = incStatesAndSampling
+    }
+    cgar1.apply {
+        nxt = decVertexDegree
+        nxt2 = decVertexDegree
+    }
+    cgar2.apply {
+        nxt = decEdges
+        nxt2 = decEdges
+    }
+    cgar3.apply {
+        nxt = decActiveTimers
+        nxt2 = decActiveTimers
+    }
+    return incStatesAndSampling
+}
+
+fun strategyBuilderNew2(train: Iterable<Trace>,
+                       list: MutableList<Trace>): Strategy {
+    val decEdges = DecEdges()
+    val counter = Counter()
+    val incStatesAndDegree = IncStatesAndDegree(counter)
+    val decActiveTimers = DecActiveTimers()
+    val cgar0 = CGAR(list, train, { env ->
+        val index = --counter.now
+        val statesNumber = IncStatesAndDegree.order[index].first
+        val vertexDegree = IncStatesAndDegree.order[index].second
+        val maxTotalEdges = vertexDegree * statesNumber
+        val maxActiveTimersCount = maxTotalEdges * env.timersNumber
+        env.copy(
+            statesNumber = statesNumber,
+            vertexDegree = vertexDegree,
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+    })
+    val cgar2 = CGAR(list, train, {
+        val maxTotalEdges = it.maxTotalEdges + 1
+        val maxActiveTimersCount = maxTotalEdges * it.timersNumber
+        it.copy(
+            maxTotalEdges = maxTotalEdges,
+            maxActiveTimersCount = maxActiveTimersCount)
+    })
+    val cgar3 = CGAR(list, train, {
+        it.copy(maxActiveTimersCount = it.maxActiveTimersCount + 1)
+    })
+    incStatesAndDegree.apply {
+        nxt = this
+        nxt2 = cgar0
+    }
+    decEdges.apply {
+        nxt = decActiveTimers
+        nxt2 = cgar2
+    }
+    decActiveTimers.apply {
+        nxt = null
+        nxt2 = cgar3
+    }
+    cgar0.apply {
+        nxt = decEdges
+        nxt2 = incStatesAndDegree
+    }
+    cgar2.apply {
+        nxt = decEdges
+        nxt2 = decEdges
+    }
+    cgar3.apply {
+        nxt = decActiveTimers
+        nxt2 = decActiveTimers
+    }
+    return incStatesAndDegree
+}
+
+fun Trace.sample(degree: Int, inf: Int) = Trace(run {
+    val infinity = inf.toLong() + 1
+    val degrees = List(degree) {
+        (infinity * it / degree).toInt()..((infinity * (it + 1) / degree) - 1).toInt()
+    }
+    records.map { (name, time) ->
+        Record(name, degrees.withIndex().find { time in it.value }?.index
+            ?: throw Exception("Wrong time=$time value with infinity=$inf. List: $degrees"))
+    }
+}, acceptable)
+
 fun runStrategies(train: Iterable<Trace>,
                   timersNumber: Int,
                   infinity: Int?,
-                  checker: (Automaton) -> Unit): Automaton {
-    val set = mutableSetOf(train.sortedBy { it.records.size }.first())
+                  checker: Environment?.(Automaton) -> Unit): Automaton {
+    val list = mutableListOf(train.sortedBy { it.records.size }.first())
     var env = Environment(
         solution = "automaton_rti.mzn",
-        prefixTree = buildPrefixTree(set),
+        /*samplingDegree = 1,*/
+        traces = list,
         timersNumber = timersNumber,
-        infinity = infinity ?: train.infinity())
-    var now: Strategy? = strategyBuilder(train, set)
+        infinity = infinity ?: /*train.infinity()*/ (train.mapNotNull { t ->  t.records.map { it.time }.max() }.max() ?: 0))
+    var now: Strategy? = strategyBuilderNew2(train, list)
     var automaton: Automaton? = null
     var counter = 0
     while (now != null) {
@@ -247,17 +462,17 @@ fun runStrategies(train: Iterable<Trace>,
         now = next.strategy
         if (next.automaton != null) {
             automaton = next.automaton
-            val (f, ann) = automaton.checkAllTraces(train)
+            val (f, ann) = automaton.checkAllTraces(train, env.samplingDegree, env.infinity)
             val s = ann.map { it.trace }
             if (f.all { it.acceptable } && s.all { !it.acceptable }) {
-                checker(automaton)
+                env.checker(automaton)
             }
         }
     }
     return automaton ?: throw Exception("No automaton")
 }
 
-fun mainStrategy(prefixTree: Tree,
+fun mainStrategy(traces: List<Trace>,
                  timersNumber: Int,
                  range: IntRange = 1..Int.MAX_VALUE,
                  solution: String = "automaton_cbs.mzn",
@@ -265,9 +480,9 @@ fun mainStrategy(prefixTree: Tree,
                  vertexDegree: Int? = null,
                  maxTotalEdges: Int? = null,
                  maxActiveTimersCount: Int? = null,
-                 infinity: Int = prefixTree.infinity(),
+                 infinity: Int = traces.infinity(),
                  needMinimize: Boolean = false): Automaton? {
-    val labels = prefixTree.labels().count()
+    val labels = traces.labels().count()
     var automaton: Automaton?
     for (statesNumber in range) {
         val theVertexDegree = vertexDegree ?: statesNumber * labels
@@ -276,7 +491,7 @@ fun mainStrategy(prefixTree: Tree,
         val environment = Environment(
             solution,
             solver,
-            prefixTree,
+            traces,
             statesNumber,
             theVertexDegree,
             theMaxTotalEdges,
@@ -352,7 +567,7 @@ fun trainAutomaton(train: List<Trace>,
         prefixTree.createDotFile("init_prefix_tree")
         minimized = trace == null
         automaton = mainStrategy(
-            prefixTree = prefixTree,
+            traces = trainSet.toList(),
             timersNumber = timersNumber,
             infinity = infinity,
             solution = "automaton_rti.mzn",
@@ -399,7 +614,7 @@ data class TesterInfo(val test: Int,
                       val seed: Int,
                       val realTrain: Boolean,
                       val realTest: Boolean,
-                      val algorithm: (Iterable<Trace>, Int, Int, (Automaton) -> Unit) -> Automaton,
+                      val algorithm: (Iterable<Trace>, Int, Int, Environment?.(Automaton) -> Unit) -> Automaton,
                       val postfix: String,
                       val help: String)
 
@@ -419,8 +634,8 @@ fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
         map.getFirstArg(listOf("-v", "--verwer"), { train, timersNumber, infinity, func ->
             runStrategies(train, timersNumber, infinity, func) }
         ) {
-            { train: Iterable<Trace>, _: Int, infinity: Int, func: (Automaton) -> Unit ->
-                rti(train, infinity).also { func(it) } as Automaton
+            { train: Iterable<Trace>, _: Int, infinity: Int, func: Environment?.(Automaton) -> Unit ->
+                rti(train, infinity).also { null.func(it) } as Automaton
             }
         },
         map.getFirstArg(listOf("-v", "--verwer"), "") { "_verwer" },
@@ -501,7 +716,8 @@ fun main(args: Array<String>) {
         //val automaton = rti(trainSet, infinity)
         //runStrategies(trainSet, timersNumber = 1, infinity = infinity) { automaton ->
         testerInfo.algorithm(trainSet, 1, infinity) { automaton ->
-            val (measure, posPercentage, negPercentage, percentage) = estimate(automaton, trainSet, testSet)
+            val train = if (this != null) trainSet.sample() else trainSet
+            val (measure, posPercentage, negPercentage, percentage) = estimate(automaton, train, testSet)
             System.err.println("Current measure: $measure")
 
             if (testerInfo.postfix != "_verwer") {

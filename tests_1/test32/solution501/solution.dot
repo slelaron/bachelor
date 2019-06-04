@@ -1,0 +1,17 @@
+digraph "tests_1/test32/solution501/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q3[label=q3]
+	q1 -> q2[label="d\nr(t1)\n[2 <= t1 <= 67]"]
+	q2 -> q1[label="b\nr(t1)\n"]
+	q2 -> q2[label="c\nr(t1)\n[6 <= t1 <= 406]"]
+	q2 -> q3[label="a\nr(t1)\n[3 <= t1 <= 406]"]
+	q3 -> q3[label="d\nr(t1)\n[4 <= t1]"]
+	q3 -> q1[label="a\nr(t1)\n[1 <= t1 <= 18]"]
+	q3 -> q3[label="c\nr(t1)\n"]
+	q3 -> q1[label="b\nr(t1)\n[1 <= t1 <= 18]"]
+	q2 -> q3[label="d\nr(t1)\n[4 <= t1]"]
+	q1 -> q2[label="b\nr(t1)\n[4 <= t1 <= 334]"]
+	q1 -> q3[label="a\nr(t1)\n[6 <= t1]"]
+	q1 -> q3[label="c\nr(t1)\n"]
+}

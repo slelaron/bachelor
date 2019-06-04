@@ -28,6 +28,17 @@ task testerJar(dependsOn: 'classes', type: Jar) {
     destinationDir = file("${buildDir}/jars")
 }
 
+task collectorJar(dependsOn: 'classes', type: Jar) {
+    archiveName = 'collector.jar'
+    manifest {
+        attributes 'Implementation-Title': 'Collector',
+                'Main-Class': 'CollectorKt'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from sourceSets.main.output
+    destinationDir = file("${buildDir}/jars")
+}
+
 task generatorJar(dependsOn: 'classes', type: Jar) {
     archiveName = 'generator.jar'
     manifest {

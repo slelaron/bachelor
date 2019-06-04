@@ -1,0 +1,12 @@
+digraph "tests_1/test10/solution500/solution" {
+	q1[label=q1]
+	q2[label=q2 shape=doublecircle]
+	q1 -> q2[label="a\nr(t1)\n[1 <= t1]"]
+	q2 -> q2[label="a\nr(t1)\n"]
+	q2 -> q2[label="b\nr(t1)\n"]
+	q2 -> q2[label="c\nr(t1)\n[1 <= t1]"]
+	q2 -> q1[label="c\nr(t1)\n[t1 <= 0]"]
+	q1 -> q2[label="c\nr(t1)\n[3 <= t1 <= 462]"]
+	q1 -> q2[label="b\nr(t1)\n[6 <= t1]"]
+	q1 -> q2[label="c\nr(t1)\n[463 <= t1]"]
+}

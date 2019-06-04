@@ -154,11 +154,12 @@ class TimerManager {
     override fun toString() = "Manager(globalTime=$global, timer2time=$timer2Time)"
 }
 
-fun Automaton.checkAllTraces(traces: Iterable<Trace>): Verdict {
+fun Automaton.checkAllTraces(traces: Iterable<Trace>, samplingDegree: Int? = null, inf: Int? = null): Verdict {
     val result = traces.map {
+        val trace = if (samplingDegree != null) it.sample(samplingDegree, inf ?: traces.infinity()) else it
         val timerManager = TimerManager()
         var state = this
-        for (record in it.records) {
+        for (record in trace.records) {
             timerManager.global += record.time
             val possibleNext = state[record.name, timerManager]
             state = when (possibleNext) {
@@ -288,8 +289,8 @@ val Tree.edgesAndVertexes: Pair<List<Edge<Record>>, List<Boolean?>>
         return edges to vertexes
     }
 
-fun Environment.writeDataIntoDzn() {
-    val (edges, vertexes) = prefixTree.edgesAndVertexes
+fun Environment.writeDataIntoDzn(): Boolean {
+    val (edges, vertexes) = prefixTree?.edgesAndVertexes ?: return false
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("prefix_data.dzn").apply {
         println("V = $statesNumber;")
@@ -310,13 +311,14 @@ fun Environment.writeDataIntoDzn() {
             }
         }};")
         println("TE = $maxTotalEdges;")
-        println("inf = $infinity;")
+        println("inf = ${if (samplingDegree != null) samplingDegree - 1 else infinity};")
         flush()
     }.close()
+    return true
 }
 
-fun Environment.writeDataIntoTmpDzn(scanner: Scanner) {
-    val (edges, _) = prefixTree.edgesAndVertexes
+fun Environment.writeDataIntoTmpDzn(scanner: Scanner): Boolean {
+    val (edges, _) = prefixTree?.edgesAndVertexes ?: return false
     val symbols = edges.map { it.data.name }.toSet()
     PrintWriter("tmp.dzn").apply {
         println("V = $statesNumber;")
@@ -333,6 +335,7 @@ fun Environment.writeDataIntoTmpDzn(scanner: Scanner) {
         }
         flush()
     }.close()
+    return true
 }
 
 fun Environment.executeMinizinc(): Scanner? {
@@ -357,8 +360,8 @@ fun Environment.executeMinizinc(): Scanner? {
     }.also { minizinc.destroy() }
 }
 
-fun Environment.getAutomaton(scanner: Scanner): Automaton {
-    writeDataIntoTmpDzn(scanner)
+fun Environment.getAutomaton(scanner: Scanner): Automaton? {
+    if (!writeDataIntoTmpDzn(scanner)) return null
     scanner.close()
 
     val automatonPrinter = ProcessBuilder(
@@ -374,7 +377,7 @@ fun Environment.getAutomaton(scanner: Scanner): Automaton {
 }
 
 fun Environment.generateAutomaton(): Automaton? {
-    writeDataIntoDzn()
+    if (!writeDataIntoDzn()) return null
 
     return when (val scanner = executeMinizinc()) {
         null -> {
@@ -481,6 +484,10 @@ fun Iterable<Trace>.infinity() = map { trace ->
     trace.records.sumBy { it.time }
 }.max() ?: 0
 
+fun Iterable<Trace>.labels() = flatMap { trace ->
+    trace.records.map { it.name }
+}.distinct()
+
 fun Tree.infinity(start: Int = 0): Int = ways.map { (record, to) ->
     to.infinity(start + record.time)
 }.max() ?: start
@@ -543,7 +550,7 @@ fun main(args: Array<String>) {
     prefixTree.createDotFile("prefixTree")
 
     val automaton = mainStrategy(
-        prefixTree = prefixTree,
+        traces = traces.validTraces + traces.invalidTraces,
         vertexDegree = consoleInfo.vertexDegree,
         timersNumber = consoleInfo.timersNumber,
         maxTotalEdges = consoleInfo.maxTotalEdges,

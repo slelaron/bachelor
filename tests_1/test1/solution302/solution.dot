@@ -1,0 +1,14 @@
+digraph "tests_1/test1/solution302/solution" {
+	q1[label=q1 shape=doublecircle]
+	q2[label=q2]
+	q3[label=q3]
+	q1 -> q2[label="a\nr(t1)\n"]
+	q2 -> q3[label="b\nr(t1)\n[1 <= t1 <= 1]"]
+	q3 -> q3[label="a\nr(t1)\n"]
+	q3 -> q3[label="b\nr(t1)\n[1 <= t1 <= 1]"]
+	q3 -> q1[label="b\nr(t1)\n[t1 <= 0]"]
+	q2 -> q1[label="b\nr(t1)\n[t1 <= 0]"]
+	q2 -> q1[label="a\nr(t1)\n[1 <= t1 <= 1]"]
+	q2 -> q3[label="a\nr(t1)\n[t1 <= 0]"]
+	q1 -> q1[label="b\nr(t1)\n"]
+}

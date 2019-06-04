@@ -1,0 +1,10 @@
+digraph L {
+	qq1[label=q1]
+	qq2[label=q2 shape=doublecircle]
+	qq1 -> qq2[label="a\nr(t1)\n"]
+	qq2 -> qq1[label="a\nr(t1)\n[11 <= t1 <= 16]"]
+	qq2 -> qq2[label="b\nr(t1)\n"]
+	qq2 -> qq2[label="a\nr(t1)\n[t1 <= 10]"]
+	qq2 -> qq2[label="a\nr(t1)\n[17 <= t1]"]
+	qq1 -> qq2[label="b\nr(t1)\n"]
+}

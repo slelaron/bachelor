@@ -1,0 +1,16 @@
+digraph L {
+	qq1[label=q1 shape=doublecircle]
+	qq2[label=q2]
+	qq1 -> qq2[label="d\nr(t1)\n[2 <= t1]"]
+	qq2 -> qq2[label="b\nr(t1)\n[4 <= t1]"]
+	qq2 -> qq1[label="a\nr(t1)\n[t1 <= 8]"]
+	qq2 -> qq1[label="d\nr(t1)\n[t1 <= 18]"]
+	qq2 -> qq2[label="c\nr(t1)\n"]
+	qq2 -> qq1[label="a\nr(t1)\n[17 <= t1]"]
+	qq2 -> qq2[label="a\nr(t1)\n[9 <= t1 <= 16]"]
+	qq1 -> qq2[label="a\nr(t1)\n[t1 <= 7]"]
+	qq1 -> qq1[label="b\nr(t1)\n[6 <= t1 <= 19]"]
+	qq1 -> qq1[label="a\nr(t1)\n[8 <= t1 <= 18]"]
+	qq1 -> qq1[label="c\nr(t1)\n[t1 <= 19]"]
+	qq1 -> qq2[label="b\nr(t1)\n[3 <= t1 <= 5]"]
+}

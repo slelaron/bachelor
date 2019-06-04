@@ -1,0 +1,14 @@
+digraph "tests_1/test58/solution501/solution" {
+	q1[label=q1]
+	q2[label=q2]
+	q3[label=q3 shape=doublecircle]
+	q1 -> q2[label="a\nr(t1)\n[10 <= t1]"]
+	q2 -> q1[label="b\nr(t1)\n[t1 <= 6]"]
+	q2 -> q3[label="b\nr(t1)\n[7 <= t1]"]
+	q3 -> q2[label="a\nr(t1)\n[t1 <= 10]"]
+	q3 -> q1[label="a\nr(t1)\n[11 <= t1]"]
+	q3 -> q2[label="b\nr(t1)\n"]
+	q2 -> q1[label="a\nr(t1)\n"]
+	q1 -> q3[label="b\nr(t1)\n"]
+	q1 -> q3[label="a\nr(t1)\n[t1 <= 9]"]
+}
