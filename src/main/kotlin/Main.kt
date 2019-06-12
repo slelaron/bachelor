@@ -1,6 +1,7 @@
+import java.io.File
 import java.io.InputStream
 import java.io.PrintWriter
-import java.nio.file.Paths
+import java.nio.file.*
 import java.util.*
 
 data class Record(val name: String, val time: Int)
@@ -241,7 +242,7 @@ fun Automaton.createDotFile(fileName: String, inf: Int = Int.MAX_VALUE) {
 
     val dot = ProcessBuilder("dot", "-Tps", "$fileName.dot", "-o", "$fileName.ps").start()
     dot.waitFor()
-    System.err.println(dot.errorStream.readAllBytes().toString(Charsets.UTF_8))
+    System.err.println(dot.errorStream.readBytes().toString(Charsets.UTF_8))
     dot.destroy()
 }
 
@@ -269,7 +270,7 @@ fun Tree.createDotFile(name: String) {
 
     val dot = ProcessBuilder("dot", "-Tps", "$name.dot", "-o", "$name.ps").start()
     dot.waitFor()
-    System.err.println(dot.errorStream.readAllBytes().toString(Charsets.UTF_8))
+    System.err.println(dot.errorStream.readBytes().toString(Charsets.UTF_8))
     dot.destroy()
 }
 
@@ -292,7 +293,7 @@ val Tree.edgesAndVertexes: Pair<List<Edge<Record>>, List<Boolean?>>
 fun Environment.writeDataIntoDzn(): Boolean {
     val (edges, vertexes) = prefixTree?.edgesAndVertexes ?: return false
     val symbols = edges.map { it.data.name }.toSet()
-    PrintWriter("prefix_data.dzn").apply {
+    PrintWriter("prefix_data$index.dzn").apply {
         println("V = $statesNumber;")
         println("E = $vertexDegree;")
         println("M = ${edges.size};")
@@ -320,7 +321,7 @@ fun Environment.writeDataIntoDzn(): Boolean {
 fun Environment.writeDataIntoTmpDzn(scanner: Scanner): Boolean {
     val (edges, _) = prefixTree?.edgesAndVertexes ?: return false
     val symbols = edges.map { it.data.name }.toSet()
-    PrintWriter("tmp.dzn").apply {
+    PrintWriter("tmp$index.dzn").apply {
         println("V = $statesNumber;")
         println("E = $vertexDegree;")
         println("T = $timersNumber;")
@@ -338,18 +339,37 @@ fun Environment.writeDataIntoTmpDzn(scanner: Scanner): Boolean {
     return true
 }
 
+class TimerException(message: String?) : Exception(message)
+
 fun Environment.executeMinizinc(): Scanner? {
-    val minizinc = ProcessBuilder(
-        "minizinc",
-        solution,
-        "prefix_data.dzn",
-        "--solver",
-        solver,
-        "-o", "tmp").start()
+    val lst = last
+    val minizinc = if (lst != null) {
+        ProcessBuilder(
+            "minizinc",
+            solution,
+            "prefix_data$index.dzn",
+            "--time-limit",
+            "${lst + 100}",
+            "--solver",
+            solver,
+            "-o", "tmp$index").start()
+    } else {
+        ProcessBuilder(
+            "minizinc",
+            solution,
+            "prefix_data$index.dzn",
+            "--solver",
+            solver,
+            "-o", "tmp$index").start()
+    }
     minizinc.waitFor()
-    val output = minizinc.inputStream.readAllBytes().toString(Charsets.UTF_8)
-    System.err.println(minizinc.errorStream.readAllBytes().toString(Charsets.UTF_8))
-    val scanner = Scanner(Paths.get("tmp").toFile())
+    System.err.println("Last: $last")
+    if (last == 0L) {
+        throw TimerException("End of time")
+    }
+    val output = minizinc.inputStream.readBytes().toString(Charsets.UTF_8)
+    System.err.println(minizinc.errorStream.readBytes().toString(Charsets.UTF_8))
+    val scanner = Scanner(Paths.get("tmp$index").toFile())
     return when (scanner.hasNext("=====UNSATISFIABLE=====") ||
             output.startsWith("=====UNSATISFIABLE=====")) {
         false -> scanner
@@ -367,13 +387,13 @@ fun Environment.getAutomaton(scanner: Scanner): Automaton? {
     val automatonPrinter = ProcessBuilder(
         "minizinc",
         "automaton_printer.mzn",
-        "tmp.dzn",
-        "-o", "tmp1").start()
+        "tmp$index.dzn",
+        "-o", "out$index").start()
     automatonPrinter.waitFor()
-    System.err.println(automatonPrinter.errorStream.readAllBytes().toString(Charsets.UTF_8))
+    System.err.println(automatonPrinter.errorStream.readBytes().toString(Charsets.UTF_8))
     automatonPrinter.destroy()
 
-    return readAutomaton(Scanner(Paths.get("tmp1").toFile()))
+    return readAutomaton(Scanner(Paths.get("out$index").toFile()))
 }
 
 fun Environment.generateAutomaton(): Automaton? {

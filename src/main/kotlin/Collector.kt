@@ -2,139 +2,130 @@ import java.util.*
 import java.io.*
 import kotlin.math.roundToInt
 
-data class Q(val states: Int,
-			 val symbols: Int,
-			 val splits: Int,
-			 val edges: Int,
-			 val inf: Int,
-			 val time20: Double?,
-			 val states20: Int?,
-			 val edges20: Int?,
-			 val percent20: Double?,
-			 val f20: Double?,
-			 val time30: Double?,
-			 val states30: Int?,
-			 val edges30: Int?,
-			 val percent30: Double?,
-			 val f30: Double?,
-			 val timeRTI: Double?,
-			 val statesRTI: Int?,
-			 val edgesRTI: Int?,
-			 val percentRTI: Double?,
-			 val fRTI: Double?) {
+data class Q(           val testIndex: Int,
+			val solutionIndex: Int,
+			val states: Int,
+			val symbols: Int,
+			val splits: Int,
+			val inf: Int,
+			val edges: Int,
+			val timeGet: Double?,
+			val statesGet: Int?, val edgesGet: Int?,
+			val percentGet: Double?,
+			val fGet: Double?)
 
-	private fun Double.p(digits: Int) = String.format("%.${digits}f", this)
-
-	private fun Double.mul() = this * 100
-
-	override fun toString() =
-	listOf(states, symbols, splits, edges, inf, time20?.roundToInt(), states20, edges20, percent20?.mul()?.p(1),
-		f20?.p(2), time30?.roundToInt(), states30, edges30, percent30?.mul()?.p(1), f30?.p(2), timeRTI?.roundToInt(), statesRTI,
-		edgesRTI, percentRTI?.mul()?.p(1), fRTI?.p(2)).joinToString(" & ", postfix = """ \\\hline""")
-		{ if (it == null) "--" else "$it" }
+data class R(val states: Int, val symbols: Int, val splits: Int, val edges: Int, val inf: Int): Comparable<R> {
+	override fun compareTo(other: R) =
+		compareValuesBy(this, other, { it.edges }, { it.states }, { it.splits }, { it.symbols }, { it.inf})
 }
+
+data class E(val time: Double, val states: Double, val edges: Double, val percent: Double, val f: Double, val noSol: Double, val fMax: Double)
+
+data class T(val item20: E, val item30: E, val itemRTI: E, val itemRTI30: E)
+
+fun Double.p(digits: Int) = String.format("%.${digits}f", this)
+fun Double.mul() = this * 100
+
+fun stringify(r: R, s: T) = listOf(r.edges, r.states, r.symbols, r.splits, r.inf, 
+					s.item20.percent.p(1), s.item30.percent.p(1), s.itemRTI.percent.p(1), s.itemRTI30.percent.p(1),
+					s.item20.f.p(2), s.item30.f.p(2), s.itemRTI.f.p(2), s.itemRTI30.f.p(2),
+					s.item20.fMax.p(2), s.item30.fMax.p(2), s.itemRTI30.fMax.p(2)).joinToString(" & ", postfix = """ \\\hline""")
+
+fun stringify1(r: R, s: T) = listOf(r.edges, r.states, r.symbols, r.splits, r.inf, 
+					s.item20.noSol.p(1), s.item30.noSol.p(1), 
+					s.item20.time.p(1), s.item30.time.p(1), s.itemRTI.time.p(1), s.itemRTI30.time.p(1),
+					s.item20.states.p(1), s.item30.states.p(1), s.itemRTI.states.p(1), s.itemRTI30.states.p(1),
+					s.item20.edges.p(2), s.item30.edges.p(2), s.itemRTI.edges.p(2), s.itemRTI30.edges.p(2)).joinToString(" & ", postfix = """ \\\hline""")
 
 fun q(a: Double): Double? {
 	if (a < 0) return null
 	return a
 }
 
+const val total = 19
+const val totalSolutions = 20
 
-fun main() {
-	val start = "bachelor/tests_1/test"	
-	val start1 = "another/$start"
-	val table = Array(125) { j ->
-		val i = if (j + 1 >= 108) j + 2 else j + 1
-		System.err.println("$start$i/info")
-		var info = Scanner(File("$start$i/info_machine"))
-		val states = info.nextInt()
-		val splits = info.nextInt()
-		val labels = List(info.nextInt()) { info.next() }
-		info.next().toDouble()
-		val inf = info.nextInt()
-		val edges = states * labels.size + splits
-		info.close()
-		
-		info = Scanner(File("$start1$i/solution500/result_machine"))
-		val time20 = q(info.next().toDouble())
-		val f20 = q(info.next().toDouble())
-		info.next().toDouble()
-		info.next().toDouble()
-		val percent20 = q(info.next().toDouble())
-		info.close()
-		var states20: Int? = null
-		var edges20: Int? = null
-		if (time20 != null) {
-			info = Scanner(File("$start1$i/solution500/solution_machine"))
-			states20 = info.nextInt()
-			(0 until states20).forEach { _ -> info.next() }
-			(0 until info.nextInt()).forEach { _ -> info.next() }
-			edges20 = info.nextInt()
-			info.close()
-		}
+fun process(list: List<Q>): E {
+	val ns = list.count { it.statesGet == null }
+	val states = list.mapNotNull { it.statesGet }.sum().toDouble() / (list.size - ns)
+	val edges = list.mapNotNull { it.edgesGet }.sum().toDouble() / (list.size - ns)
+        val goodTime = list.mapNotNull { it.timeGet }.count { it > 0.001 }
+	val time = list.mapNotNull { it.timeGet }.sum().toDouble() / goodTime
+	val percent = 100.0 * list.mapNotNull { it.percentGet }.sum() / (list.size - ns)
+	val f = list.mapNotNull { it.fGet }.sum().toDouble() / (list.size - ns)
+	val fMax = list.mapNotNull { it.fGet }.max() ?: 0.0
+	val noSol = 100.0 * ns / totalSolutions 
+	return E(time, states, edges, percent, f, noSol, fMax)
+}
 
-		info = Scanner(File("$start$i/solution501/result_machine"))
-		val time30 = q(info.next().toDouble())
-		val f30 = q(info.next().toDouble())
-		info.next().toDouble()
-		info.next().toDouble()
-		val percent30 = q(info.next().toDouble())
-		info.close()
-		var states30: Int? = null
-		var edges30: Int? = null
-		if (time30 != null) {
-			System.err.println("$time30")
-			info = Scanner(File("$start$i/solution501/solution_machine"))
-			states30 = info.nextInt()
-			(0 until states30).forEach { _ -> info.next() }
-			(0 until info.nextInt()).forEach { _ -> info.next() }
-			edges30 = info.nextInt()
+fun eval(list: Iterable<E>): E {
+	return E(list.sumByDouble { it.time } / total, list.sumByDouble { it.states } / total, list.sumByDouble { it.edges } / total, list.sumByDouble { it.percent } / total, list.sumByDouble { it.f } / total, list.sumByDouble { it.noSol } / total, list.sumByDouble { it.fMax } / total)
+}
+
+fun main(args: Array<String>) {
+	val start = "tests_1/test"
+	val mapArgs = parseConsoleArguments(args)
+	val count = mapArgs.getFirstArg(listOf("-cnt", "--count"), 126) { it[0].toInt() }
+	val table = getOrder().take(count).map { position ->
+		val test = position.number
+		(List(17) { 1003 + it } + List(3) { 10000 + it } + List(20) { 2000 + it } + listOf(20000) + List(20) { 3000 + it }).map { solution ->
+			val postfix = if (false/*solution == 20000*//* || (solution >= 3000 && solution < 4000)*/) "_verwer" else ""
+			System.err.println("$start$test/info $solution")
+			var info = Scanner(File("$start$test/info_machine"))
+			val states = info.nextInt()
+			val splits = info.nextInt()
+			val labels = List(info.nextInt()) { info.next() }
+			info.next().toDouble()
+			val inf = info.nextInt()
+			val edges = states * labels.size + splits
 			info.close()
-		}
-		
-		
-		info = Scanner(File("$start$i/solution100/result_machine_verwer"))
-		val timeRTI = q(info.next().toDouble())
-		val fRTI = q(info.next().toDouble())
-		info.next().toDouble()
-		info.next().toDouble()
-		val percentRTI = q(info.next().toDouble())
-		info.close()
-		var statesRTI: Int? = null
-		var edgesRTI: Int? = null
-		if (timeRTI != null) {
-			info = Scanner(File("$start$i/solution100/solution_machine_verwer"))
-			statesRTI = info.nextInt()
-			(0 until statesRTI).forEach { _ -> info.next() }
-			(0 until info.nextInt()).forEach { _ -> info.next() }
-			edgesRTI = info.nextInt()
+			
+			info = Scanner(File("$start$test/solution$solution/result_machine$postfix"))
+			val timeGet = q(info.next().toDouble())
+			val fGet = q(info.next().toDouble())
+			info.next().toDouble()
+			info.next().toDouble()
+			val percentGet = q(info.next().toDouble())
 			info.close()
+			var statesGet: Int? = null
+			var edgesGet: Int? = null
+			if (timeGet != null) {
+				info = Scanner(File("$start$test/solution$solution/solution_machine$postfix"))
+				statesGet = info.nextInt()
+				(0 until statesGet).forEach { _ -> info.next() }
+				(0 until info.nextInt()).forEach { _ -> info.next() }
+				edgesGet = info.nextInt()
+				info.close()
+			}
+			
+			Q(
+				states = states,
+				symbols = labels.size,
+				splits = splits,
+				edges = edges, 
+				inf = inf,
+				timeGet = timeGet,
+				fGet = fGet,
+				percentGet = percentGet,
+				statesGet = statesGet,
+				edgesGet = edgesGet,
+				testIndex = test,
+				solutionIndex = solution
+			)
 		}
-		
-		Q(
-			states = states,
-			symbols = labels.size,
-			splits = splits,
-			edges = edges, 
-			inf = inf,
-			time20 = time20,
-			f20 = f20,
-			percent20 = percent20,
-			states20 = states20,
-			edges20 = edges20,
-			time30 = time30,
-			f30 = f30,
-			percent30 = percent30,
-			states30 = states30,
-			edges30 = edges30,
-			timeRTI = timeRTI,
-			fRTI = fRTI,
-			percentRTI = percentRTI,
-			statesRTI = statesRTI,
-			edgesRTI = edgesRTI
-				
-		)
-				
-	}
-	print(table.joinToString("\n"))
+	}.flatten()
+	//System.err.println(table.sorted().joinToString(" ") { "${it.testIndex}" })
+	//System.err.println(generateSequence { (0..1000000).random() }.take(20).joinToString(" "))
+	//print(table.joinToString("\n"))
+	val result = table.groupBy { R(it.states, it.symbols, it.splits, it.edges, it.inf) }.mapValues { (_, list) ->
+		val inTest = list.groupBy { it.testIndex }
+		val inTest20 = inTest.mapValues { (_, value) -> value.filter { it.solutionIndex >= 2000 && it.solutionIndex < 3000 } }
+		val inTest30 = inTest.mapValues { (_, value) -> value.filter { (it.solutionIndex >= 1003 && it.solutionIndex < 2000) || (it.solutionIndex >= 10000 && it.solutionIndex < 10100) } }
+		val inTestRTI = inTest.mapValues { (_, value) -> value.filter { it.solutionIndex == 20000 } }
+		val inTestRTI30 = inTest.mapValues { (_, value) -> value.filter { it.solutionIndex >= 3000 && it.solutionIndex < 4000 } }
+		T(eval(inTest20.values.map(::process)), eval(inTest30.values.map(::process)), eval(inTestRTI.values.map(::process)), eval(inTestRTI30.values.map(::process)))
+	}.entries.sortedBy { it.key }
+	println(result.map { stringify(it.key, it.value) }.joinToString("\n"))
+	println()
+	println(result.map { stringify1(it.key, it.value) }.joinToString("\n"))
 }

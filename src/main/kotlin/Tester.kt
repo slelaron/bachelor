@@ -15,8 +15,17 @@ data class Environment(
     val timersNumber: Int,
     val infinity: Int,
     val samplingDegree: Int? = null,
-    val maxActiveTimersCount: Int = maxTotalEdges * timersNumber
-) {
+    val maxActiveTimersCount: Int = maxTotalEdges * timersNumber,
+    val startTime: Long = System.currentTimeMillis(),
+    val duration: Long? = 15 * 60000L,
+    val index: Int = 0
+): TimeEvaluator {
+    override val time
+        get() = System.currentTimeMillis() - startTime
+
+    override val last
+        get() = if (duration != null) maxOf(startTime + duration - System.currentTimeMillis(), 0) else null
+
     override fun toString() =
             "{ solution: $solution, solver: $solver, states: $statesNumber, samplingDegree: $samplingDegree, " +
                     "infinity: $infinity, vertex degree: $vertexDegree, edges: $maxTotalEdges, " +
@@ -24,12 +33,15 @@ data class Environment(
 
     val prefixTree: Tree?
         get() = try {
-            buildPrefixTree(traces.sample())
+            buildPrefixTree(sample())
         } catch (ex: Exception) {
             null
         }
 
-    fun Iterable<Trace>.sample() = if (samplingDegree != null) traces.map { it.sample(samplingDegree, infinity) } else traces
+    fun sample() = if (samplingDegree != null) traces.map { it.sample(
+        samplingDegree,
+        infinity
+    ) } else traces
 }
 
 fun decrease(start: Environment, startAutomaton: Automaton, until: Environment.() -> Boolean,
@@ -162,8 +174,8 @@ class CGAR(val list: MutableList<Trace>,
             else -> {
                 //System.err.println(trace)
                 list += trace
-                val prefixTree = buildPrefixTree(with(env) { list.sample() })
-                prefixTree.createDotFile("init_prefix_tree")
+                val prefixTree = buildPrefixTree(with(env) { sample() })
+                //prefixTree.createDotFile("init_prefix_tree")
                 System.err.println("Prefix tree traces number: ${list.size}")
                 StrategyStep(restore(env).copy(traces = list.toList()), null, nxt2)
             }
@@ -445,14 +457,18 @@ fun Trace.sample(degree: Int, inf: Int) = Trace(run {
 fun runStrategies(train: Iterable<Trace>,
                   timersNumber: Int,
                   infinity: Int?,
+                  index: Int = defaultSeed,
                   checker: Environment?.(Automaton) -> Unit): Automaton {
+    //val list = mutableListOf(*train.sortedBy { it.records.size }/*.first()*/.toTypedArray())
     val list = mutableListOf(train.sortedBy { it.records.size }.first())
     var env = Environment(
         solution = "automaton_rti.mzn",
+        index = index,
         /*samplingDegree = 1,*/
         traces = list,
         timersNumber = timersNumber,
         infinity = infinity ?: /*train.infinity()*/ (train.mapNotNull { t ->  t.records.map { it.time }.max() }.max() ?: 0))
+    //env.prefixTree!!.createDotFile("init_prefix_tree")
     var now: Strategy? = strategyBuilderNew2(train, list)
     var automaton: Automaton? = null
     var counter = 0
@@ -564,7 +580,7 @@ fun trainAutomaton(train: List<Trace>,
 	    trainSet += trace
         }
         val prefixTree = buildPrefixTree(trainSet)
-        prefixTree.createDotFile("init_prefix_tree")
+        //prefixTree.createDotFile("init_prefix_tree")
         minimized = trace == null
         automaton = mainStrategy(
             traces = trainSet.toList(),
@@ -605,18 +621,23 @@ We provide you usage of following flags:
 """
 
 data class TesterInfo(val test: Int,
-                      val trainStream: InputStream,
-                      val testStream: InputStream,
+                      val trainStream: InputStream = File("$DIR/$PREFIX$test/train").inputStream(),
+                      val testStream: InputStream = File("$DIR/$PREFIX$test/test").inputStream(),
                       val solution: Int?,
-                      val trainCount: Int,
-                      val testCount: Int,
+                      val trainCount: Int = defaultTrainCount,
+                      val testCount: Int = defaultTestCount,
                       val infinity: Int?,
                       val seed: Int,
-                      val realTrain: Boolean,
-                      val realTest: Boolean,
-                      val algorithm: (Iterable<Trace>, Int, Int, Environment?.(Automaton) -> Unit) -> Automaton,
-                      val postfix: String,
-                      val help: String)
+                      val index: Int = 0,
+                      val algorithm: (Iterable<Trace>, Int, Int, Int, Environment?.(Automaton) -> Unit) -> Automaton,
+                      val postfix: String = "",
+                      val help: String = "")
+
+fun usualAlgorithm() = { train: Iterable<Trace>, timersNumber: Int, infinity: Int, index: Int, func: Environment?.(Automaton) -> Unit ->
+    runStrategies(train, timersNumber, infinity, index, func) }
+
+fun rtiAlgorithm() = { train: Iterable<Trace>, _: Int, infinity: Int, index: Int, func: Environment?.(Automaton) -> Unit ->
+    rti(train, infinity).also { null.func(it) } as Automaton }
 
 fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
     val map = parseConsoleArguments(args)
@@ -629,36 +650,27 @@ fun parseConsoleArgumentsTester(args: Array<String>): TesterInfo {
         map.getFirstArg(listOf("-c", "--check"), defaultTestCount) { it[0].toInt() },
         map.getFirstArg(listOf("-i", "--infinity"), null) { it[0].toInt() },
         map.getFirstArg(listOf("-sd", "--seed"), defaultSeed) { it[0].toInt() },
-        map.getFirstArg(listOf("-rt", "--realTrain"), false) { true },
-        map.getFirstArg(listOf("-rc", "--realCheck"), false) { true },
-        map.getFirstArg(listOf("-v", "--verwer"), { train, timersNumber, infinity, func ->
-            runStrategies(train, timersNumber, infinity, func) }
-        ) {
-            { train: Iterable<Trace>, _: Int, infinity: Int, func: Environment?.(Automaton) -> Unit ->
-                rti(train, infinity).also { null.func(it) } as Automaton
-            }
-        },
+        map.getFirstArg(listOf("-id", "--index"), 0) { it[0].toInt() },
+        map.getFirstArg(listOf("-v", "--verwer"), usualAlgorithm()) { rtiAlgorithm() },
         map.getFirstArg(listOf("-v", "--verwer"), "") { "_verwer" },
         map.getFirstArg(listOf("-h", "--help"), "") { helpTester })
 }
 
 interface TimeEvaluator {
-    val time: Double
+    val time: Long
+    val last: Long?
+        get() = null
 }
 
 inline fun <T> time(func: TimeEvaluator.() -> T): T {
     val startTime = System.currentTimeMillis()
     return object: TimeEvaluator {
-        override val time
-            get() = (System.currentTimeMillis() - startTime).toDouble() / 1000
+        override val time 
+            get() = System.currentTimeMillis() - startTime
     }.func()
 }
 
-fun main(args: Array<String>) {
-    val testerInfo = parseConsoleArgumentsTester(args)
-    print(testerInfo.help)
-    if (testerInfo.help != "") return
-
+fun testIt(testerInfo: TesterInfo) {
     val random = Random(seed = testerInfo.seed)
     val trainProgramTraces = readTraces(testerInfo.trainStream)
     val trainSet = (trainProgramTraces.validTraces + trainProgramTraces.invalidTraces).shuffled(random).take(testerInfo.trainCount)
@@ -712,39 +724,52 @@ fun main(args: Array<String>) {
     //val correctAutomaton = readAutomaton(Scanner(File("$DIR/$PREFIX${testerInfo.test}/automaton")))
 
     time {
+	val timeEvaluator = this
         //val automaton = trainAutomaton(trainSet, timersNumber = 1, infinity = infinity)
         //val automaton = rti(trainSet, infinity)
         //runStrategies(trainSet, timersNumber = 1, infinity = infinity) { automaton ->
-        testerInfo.algorithm(trainSet, 1, infinity) { automaton ->
-            val train = if (this != null) trainSet.sample() else trainSet
-            val (measure, posPercentage, negPercentage, percentage) = estimate(automaton, train, testSet)
-            System.err.println("Current measure: $measure")
+        try {
+            testerInfo.algorithm(trainSet, 1, infinity, testerInfo.index) { automaton ->
+                val train = if (this != null) sample() else trainSet
+                val (measure, posPercentage, negPercentage, percentage) = estimate(automaton, train, testSet)
+                System.err.println("Current measure: $measure")
 
-            if (testerInfo.postfix != "_verwer") {
-                automaton.createDotFile("$directoryName/solution${testerInfo.postfix}", inf = infinity)
+                if (/*testerInfo.postfix != "_verwer"*/false) {
+                    automaton.createDotFile("$directoryName/solution${testerInfo.postfix}", inf = infinity)
+                }
+                PrintWriter("$directoryName/solution_machine${testerInfo.postfix}").apply {
+                    println(automaton)
+                    flush()
+                }.close()
+
+                PrintWriter("$directoryName/result${testerInfo.postfix}").apply {
+                    println("total time = ${timeEvaluator.time / 1000.0}")
+                    println("f-measure = $measure")
+                    println("positive examples correctness = $posPercentage")
+                    println("negative examples correctness = $negPercentage")
+                    println("examples correctness = $percentage")
+                    flush()
+                }.close()
+
+                PrintWriter("$directoryName/result_machine${testerInfo.postfix}").apply {
+                    println(timeEvaluator.time / 1000.0)
+                    println(measure)
+                    println(posPercentage)
+                    println(negPercentage)
+                    println(percentage)
+                    flush()
+                }.close()
             }
-            PrintWriter("$directoryName/solution_machine${testerInfo.postfix}").apply {
-                println(automaton)
-                flush()
-            }.close()
-
-            PrintWriter("$directoryName/result${testerInfo.postfix}").apply {
-                println("total time = $time")
-                println("f-measure = $measure")
-                println("positive examples correctness = $posPercentage")
-                println("negative examples correctness = $negPercentage")
-                println("examples correctness = $percentage")
-                flush()
-            }.close()
-
-            PrintWriter("$directoryName/result_machine${testerInfo.postfix}").apply {
-                println(time)
-                println(measure)
-                println(posPercentage)
-                println(negPercentage)
-                println(percentage)
-                flush()
-            }.close()
+        } catch (ex: TimerException) {
+            System.err.println("Time out :(")
         }
     }
+}
+
+fun main(args: Array<String>) {
+    val testerInfo = parseConsoleArgumentsTester(args)
+    print(testerInfo.help)
+    if (testerInfo.help != "") return
+
+    testIt(testerInfo)
 }

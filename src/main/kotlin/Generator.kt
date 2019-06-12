@@ -17,20 +17,21 @@ class AutomatonGeneratorOneTimer(val statesNumber: Int,
                                  val splitsNumber: Int,
                                  val timeUpperBound: Int,
                                  val labels: List<String>,
-                                 val resetProbability: Double = 0.0): AutomatonGenerator {
+                                 val resetProbability: Double = 0.0,
+                                 val random: Random): AutomatonGenerator {
     override fun iterator() = object: Iterator<Automaton> {
         fun generate(): Automaton {
             val timer = 0
             val garbage = MutableAutomaton(name = "q0")
             val states = List(statesNumber) {
-                MutableAutomaton(name = "q${it + 1}", final = Random.nextBoolean())
+                MutableAutomaton(name = "q${it + 1}", final = random.nextBoolean())
             }
             val possibleEdges = states.flatMap { i ->
                 labels.map { EdgeBuilder(i, garbage, it) }
             }
             for (i in 0 until splitsNumber) {
-                val edge = possibleEdges.random()
-                val time = (0 until timeUpperBound).random()
+                val edge = possibleEdges.random(random)
+                val time = (0 until timeUpperBound).random(random)
                 edge.splitAt += time
             }
             val dividedEdges = possibleEdges.flatMap { edge ->
@@ -39,8 +40,8 @@ class AutomatonGeneratorOneTimer(val statesNumber: Int,
                 }
             }
             for (edge in dividedEdges) {
-                edge.to = states.random()
-                if (Random.nextDouble() < resetProbability) {
+                edge.to = states.random(random)
+                if (random.nextDouble() < resetProbability) {
                     edge.resets += timer
                 }
             }
@@ -67,7 +68,8 @@ class AutomatonGeneratorOneTimer(val statesNumber: Int,
 class PathGenerator(val automaton: Automaton,
                     val timeUpperBound: Int,
                     val stopProbability: Double,
-                    val labels: List<String>): Iterable<Trace> {
+                    val labels: List<String>,
+                    val random: Random): Iterable<Trace> {
     override fun iterator() = object: Iterator<Trace> {
         override fun hasNext() = true
 
@@ -75,8 +77,8 @@ class PathGenerator(val automaton: Automaton,
             var state = automaton
             val records = mutableListOf<Record>()
             val timerManager = TimerManager()
-            while (Random.nextDouble() > stopProbability) {
-                val now = Record(labels.random(), (0..timeUpperBound).random())
+            while (random.nextDouble() > stopProbability) {
+                val now = Record(labels.random(random), (0..timeUpperBound).random(random))
                 timerManager.global += now.time
                 val (resets, next) =
                     when (val result = state[now.name, timerManager]) {
@@ -129,6 +131,8 @@ data class GenerateInfo(val test: Int,
                         val trainNumber: Int,
                         val testNumber: Int,
                         val stopProbability: Double,
+                        val seed: Int,
+                        val prefixTreeName: String = "prefix_tree",
                         val help: String)
 
 fun parseConsoleArgumentsGenerator(args: Array<String>): GenerateInfo {
@@ -144,6 +148,8 @@ fun parseConsoleArgumentsGenerator(args: Array<String>): GenerateInfo {
         map.getFirstArg(listOf("-tn", "--trainNumber"), defaultTrainTraceNumber) { it[0].toInt() },
         map.getFirstArg(listOf("-cn", "--checkNumber"), defaultTestTraceNumber) { it[0].toInt() },
         map.getFirstArg(listOf("-sp", "--stopProbability"), defaultStopProbability) { it[0].toDouble() },
+        map.getFirstArg(listOf("-sd", "--seed"), defaultSeed) { it[0].toInt() },
+        map.getFirstArg(listOf("-pt", "--prefixTree"), "prefix_tree") { it[0] },
         map.getFirstArg(listOf("-h", "--help"), "") { helpGenerator })
 }
 
@@ -166,12 +172,7 @@ fun takeEmpty(startDirectory: String, directory: String): Int {
     return (1..Int.MAX_VALUE).first {it !in usedNumbers }
 }
 
-
-fun main(args: Array<String>) {
-    val generateInfo = parseConsoleArgumentsGenerator(args)
-    print(generateInfo.help)
-    if (generateInfo.help != "") return
-
+fun generate(generateInfo: GenerateInfo) {
     val testDirName = "$DIR/$PREFIX${generateInfo.test}"
     val testDir = Paths.get(testDirName)
     if (Files.exists(testDir)) {
@@ -179,19 +180,23 @@ fun main(args: Array<String>) {
     }
     Files.createDirectory(testDir)
 
+    val random = Random(generateInfo.seed)
+
     val generator = AutomatonGeneratorOneTimer(
         statesNumber = generateInfo.statesNumber,
         splitsNumber = generateInfo.splitsNumber,
         timeUpperBound = generateInfo.automatonTimeUpperBound,
         labels = generateInfo.labels,
-        resetProbability = generateInfo.resetProbability)
+        resetProbability = generateInfo.resetProbability,
+        random = random)
 
     val automaton = generator.first()
     val pathGenerator = PathGenerator(
         automaton = automaton,
         timeUpperBound = generateInfo.traceTimeUpperBound,
         stopProbability = generateInfo.stopProbability,
-        labels = generateInfo.labels)
+        labels = generateInfo.labels,
+        random = random)
 
     val train = pathGenerator.take(generateInfo.trainNumber)
     val (trainCorrect, trainIncorrect) = train.partition { it.acceptable }
@@ -234,4 +239,13 @@ fun main(args: Array<String>) {
         println(generateInfo.stopProbability)
         flush()
     }.close()
+}
+
+
+fun main(args: Array<String>) {
+    val generateInfo = parseConsoleArgumentsGenerator(args)
+    print(generateInfo.help)
+    if (generateInfo.help != "") return
+
+    generate(generateInfo)
 }

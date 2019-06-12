@@ -107,7 +107,7 @@
 \newenvironment{nirtable}[5]{
 \begin{longtable}{#3}\caption{#2}\label{#1}
 \\\hline #4 \\\hline \endfirsthead
-\multicolumn{#5}{r}{\normalsizeПродолжение таблицы \thetable{}} \\\hline #4 \endhead
+\multicolumn{#5}{r}{\normalsize Продолжение таблицы \thetable{}} \\\hline #4 \endhead
 }{\end{longtable}}
                     
 %% Библиография по ГОСТу. Используем только бибер.
