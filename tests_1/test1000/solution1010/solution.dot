@@ -1,0 +1,9 @@
+digraph "tests_1/test1000/solution1010/solution" {
+	q1[label=q1]
+	q2[label=q2 shape=doublecircle]
+	q1 -> q2[label="a\nr(t1)\n[t1 <= 7]"]
+	q2 -> q2[label="b\nr(t1)\n"]
+	q2 -> q1[label="a\nr(t1)\n"]
+	q1 -> q1[label="a\nr(t1)\n[8 <= t1]"]
+	q1 -> q1[label="b\nr(t1)\n"]
+}

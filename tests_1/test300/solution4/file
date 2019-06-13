@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage[x11names, svgnames, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+%
+
+%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+\enlargethispage{100cm}
+% Start of code
+\begin{tikzpicture}[>=latex',line join=bevel,]
+%%
+\node (q1) at (93.0bp,272.0bp) [draw,ellipse] {q1};
+  \node (q3) at (101.0bp,23.498bp) [draw,circle, double] {q3};
+  \node (q2) at (27.0bp,150.5bp) [draw,ellipse] {q2};
+  \draw [->] (q2) ..controls (18.629bp,114.45bp) and (15.785bp,85.712bp)  .. (28.0bp,64.997bp) .. controls (36.868bp,49.957bp) and (53.416bp,39.907bp)  .. (q3);
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (53.5bp,98.8bp) node {b};
+  \draw (53.5bp,83.8bp) node {r(t1)};
+  \draw (53.5bp,68.8bp) node {[t1 <= 0]};
+  \draw [->] (q1) ..controls (72.579bp,234.4bp) and (53.912bp,200.04bp)  .. (q2);
+  \draw (97.5bp,224.8bp) node {a};
+  \draw (97.5bp,209.8bp) node {r(t1)};
+  \draw (97.5bp,194.8bp) node {[1 <= t1]};
+  \draw [->] (q3) ..controls (96.795bp,65.59bp) and (91.38bp,91.062bp)  .. (79.0bp,110.0bp) .. controls (73.129bp,118.98bp) and (64.585bp,126.81bp)  .. (q2);
+  \draw (109.5bp,91.3bp) node {b};
+  \draw (109.5bp,76.3bp) node {r(t1)};
+  \draw [->] (q1) ..controls (116.84bp,251.93bp) and (123.3bp,244.32bp)  .. (127.0bp,236.0bp) .. controls (138.4bp,210.33bp) and (130.89bp,201.06bp)  .. (132.0bp,173.0bp) .. controls (133.9bp,124.96bp) and (141.06bp,110.65bp)  .. (126.0bp,64.997bp) .. controls (124.54bp,60.563bp) and (122.53bp,56.102bp)  .. (q3);
+  \draw (159.5bp,161.8bp) node {a};
+  \draw (159.5bp,146.8bp) node {r(t1)};
+  \draw (159.5bp,131.8bp) node {[t1 <= 0]};
+  \draw [->] (q2) ..controls (60.86bp,163.63bp) and (72.0bp,159.94bp)  .. (72.0bp,150.5bp) .. controls (72.0bp,143.78bp) and (66.369bp,139.98bp)  .. (q2);
+  \draw (97.5bp,161.8bp) node {b};
+  \draw (97.5bp,146.8bp) node {r(t1)};
+  \draw (97.5bp,131.8bp) node {[1 <= t1]};
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+
+

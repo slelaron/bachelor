@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage[x11names, svgnames, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+%
+
+%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+\enlargethispage{100cm}
+% Start of code
+\begin{tikzpicture}[>=latex',line join=bevel,]
+%%
+\node (q1) at (105.44bp,140.5bp) [draw,circle, double] {q1};
+  \node (q2) at (105.44bp,18.0bp) [draw,ellipse] {q2};
+  \draw [->] (q2) ..controls (106.98bp,41.975bp) and (107.28bp,48.243bp)  .. (107.44bp,54.0bp) .. controls (107.99bp,73.992bp) and (107.92bp,79.006bp)  .. (107.44bp,99.0bp) .. controls (107.38bp,101.52bp) and (107.3bp,104.13bp)  .. (q1);
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (132.94bp,87.8bp) node {c};
+  \draw (132.94bp,72.8bp) node {r(t1)};
+  \draw (132.94bp,57.8bp) node {[4 <= t1]};
+  \draw [->] (q2) ..controls (141.62bp,32.304bp) and (155.38bp,41.187bp)  .. (162.44bp,54.0bp) .. controls (172.09bp,71.516bp) and (171.51bp,81.175bp)  .. (162.44bp,99.0bp) .. controls (156.73bp,110.22bp) and (146.4bp,119.13bp)  .. (q1);
+  \draw (181.94bp,80.3bp) node {a};
+  \draw (181.94bp,65.3bp) node {r(t1)};
+  \draw [->] (q1) ..controls (58.859bp,133.68bp) and (24.68bp,123.61bp)  .. (8.4384bp,99.0bp) .. controls (-2.5768bp,82.307bp) and (-2.9814bp,70.419bp)  .. (8.4384bp,54.0bp) .. controls (15.785bp,43.437bp) and (45.287bp,33.422bp)  .. (q2);
+  \draw (33.94bp,87.8bp) node {c};
+  \draw (33.94bp,72.8bp) node {r(t1)};
+  \draw (33.94bp,57.8bp) node {[t1 <= 2]};
+  \draw [->] (q1) ..controls (85.538bp,115.37bp) and (80.883bp,107.24bp)  .. (78.438bp,99.0bp) .. controls (72.75bp,79.826bp) and (72.114bp,72.974bp)  .. (78.438bp,54.0bp) .. controls (79.895bp,49.629bp) and (82.114bp,45.362bp)  .. (q2);
+  \draw (90.94bp,80.3bp) node {a};
+  \draw (90.94bp,65.3bp) node {r(t1)};
+  \draw [->] (q1) ..controls (138.42bp,146.71bp) and (146.94bp,144.8bp)  .. (146.94bp,140.5bp) .. controls (146.94bp,137.81bp) and (143.61bp,136.06bp)  .. (q1);
+  \draw (172.44bp,151.8bp) node {c};
+  \draw (172.44bp,136.8bp) node {r(t1)};
+  \draw (172.44bp,121.8bp) node {[3 <= t1]};
+  \draw [->] (q1) ..controls (156.21bp,155.09bp) and (197.94bp,152.24bp)  .. (197.94bp,140.5bp) .. controls (197.94bp,130.08bp) and (165.13bp,126.67bp)  .. (q1);
+  \draw (210.44bp,144.3bp) node {b};
+  \draw (210.44bp,129.3bp) node {r(t1)};
+  \draw [->] (q2) ..controls (139.58bp,30.198bp) and (150.44bp,26.723bp)  .. (150.44bp,18.0bp) .. controls (150.44bp,11.867bp) and (145.07bp,8.3279bp)  .. (q2);
+  \draw (162.94bp,21.8bp) node {b};
+  \draw (162.94bp,6.8bp) node {r(t1)};
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+
+

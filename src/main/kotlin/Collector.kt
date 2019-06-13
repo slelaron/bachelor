@@ -1,8 +1,8 @@
 import java.util.*
 import java.io.*
-import kotlin.math.roundToInt
+import kotlin.math.*
 
-data class Q(           val testIndex: Int,
+data class Q1(          val testIndex: Int,
 			val solutionIndex: Int,
 			val states: Int,
 			val symbols: Int,
@@ -19,7 +19,23 @@ data class R(val states: Int, val symbols: Int, val splits: Int, val edges: Int,
 		compareValuesBy(this, other, { it.edges }, { it.states }, { it.splits }, { it.symbols }, { it.inf})
 }
 
-data class E(val time: Double, val states: Double, val edges: Double, val percent: Double, val f: Double, val noSol: Double, val fMax: Double)
+const val Tmin = 1.9659
+
+fun est(list: List<Double>): Est {
+	val mean = list.sum() / list.size
+	val dispersion = list.map { (it - mean).pow(2) }.sum() / list.size
+	val S = list.map { (it - mean).pow(2) }.sum() / (list.size - 1)
+	
+	val r = Tmin * sqrt(S) / sqrt(list.size.toDouble())
+
+	return Est(mean, dispersion, r)
+}
+
+data class Est(val mean: Double, val dispersion: Double, val r: Double, val left: Double = mean - r, val right: Double = mean + r) {
+	override fun toString() = "${mean.p(2)} ${r.p(2)}"
+}
+
+data class E(val time: Est, val states: Est, val edges: Est, val percent: Est, val f: Est, val noSol: Est, val fMax: Est)
 
 data class T(val item20: E, val item30: E, val itemRTI: E, val itemRTI30: E)
 
@@ -27,17 +43,17 @@ fun Double.p(digits: Int) = String.format("%.${digits}f", this)
 fun Double.mul() = this * 100
 
 fun stringify(r: R, s: T) = listOf(r.edges, r.states, r.symbols, r.splits, r.inf, 
-					s.item20.percent.p(1), s.item30.percent.p(1), s.itemRTI.percent.p(1), s.itemRTI30.percent.p(1),
-					s.item20.f.p(2), s.item30.f.p(2), s.itemRTI.f.p(2), s.itemRTI30.f.p(2),
-					s.item20.fMax.p(2), s.item30.fMax.p(2), s.itemRTI30.fMax.p(2)).joinToString(" & ", postfix = """ \\\hline""")
+					s.item20.percent, s.item30.percent, s.itemRTI.percent, s.itemRTI30.percent,
+					s.item20.f, s.item30.f, s.itemRTI.f, s.itemRTI30.f,
+					s.item20.fMax, s.item30.fMax, s.itemRTI30.fMax).joinToString(" ")
 
 fun stringify1(r: R, s: T) = listOf(r.edges, r.states, r.symbols, r.splits, r.inf, 
-					s.item20.noSol.p(1), s.item30.noSol.p(1), 
-					s.item20.time.p(1), s.item30.time.p(1), s.itemRTI.time.p(1), s.itemRTI30.time.p(1),
-					s.item20.states.p(1), s.item30.states.p(1), s.itemRTI.states.p(1), s.itemRTI30.states.p(1),
-					s.item20.edges.p(2), s.item30.edges.p(2), s.itemRTI.edges.p(2), s.itemRTI30.edges.p(2)).joinToString(" & ", postfix = """ \\\hline""")
+					s.item20.noSol, s.item30.noSol, 
+					s.item20.time, s.item30.time, s.itemRTI.time, s.itemRTI30.time,
+					s.item20.states, s.item30.states, s.itemRTI.states, s.itemRTI30.states,
+					s.item20.edges, s.item30.edges, s.itemRTI.edges, s.itemRTI30.edges).joinToString(" ")
 
-fun q(a: Double): Double? {
+fun q1(a: Double): Double? {
 	if (a < 0) return null
 	return a
 }
@@ -45,21 +61,23 @@ fun q(a: Double): Double? {
 const val total = 19
 const val totalSolutions = 20
 
-fun process(list: List<Q>): E {
-	val ns = list.count { it.statesGet == null }
-	val states = list.mapNotNull { it.statesGet }.sum().toDouble() / (list.size - ns)
-	val edges = list.mapNotNull { it.edgesGet }.sum().toDouble() / (list.size - ns)
-        val goodTime = list.mapNotNull { it.timeGet }.count { it > 0.001 }
-	val time = list.mapNotNull { it.timeGet }.sum().toDouble() / goodTime
-	val percent = 100.0 * list.mapNotNull { it.percentGet }.sum() / (list.size - ns)
-	val f = list.mapNotNull { it.fGet }.sum().toDouble() / (list.size - ns)
-	val fMax = list.mapNotNull { it.fGet }.max() ?: 0.0
-	val noSol = 100.0 * ns / totalSolutions 
-	return E(time, states, edges, percent, f, noSol, fMax)
+fun process(list: List<Q1>): E {
+	val states = list.mapNotNull { it.statesGet?.toDouble() }
+	val edges = list.mapNotNull { it.edgesGet?.toDouble() }
+        val goodTime = list.mapNotNull { it.timeGet }.filter { it > 0.001 }
+	val percent = list.mapNotNull { it.percentGet }.map { it * 100.0 }
+	val f = list.mapNotNull { it.fGet }
+	val fMax = Est(list.mapNotNull { it.fGet }.max() ?: 0.0, 0.0, 0.0)
+	val noSol = Est(list.count { it.statesGet == null }.toDouble(), 0.0, 0.0)
+	return E(est(goodTime), est(states), est(edges), est(percent), est(f), noSol, fMax)
 }
 
-fun eval(list: Iterable<E>): E {
-	return E(list.sumByDouble { it.time } / total, list.sumByDouble { it.states } / total, list.sumByDouble { it.edges } / total, list.sumByDouble { it.percent } / total, list.sumByDouble { it.f } / total, list.sumByDouble { it.noSol } / total, list.sumByDouble { it.fMax } / total)
+fun meanEst(list: List<Est>) = est(list.map { it.mean })
+
+fun eval(list: List<E>): E {
+	val total = list.size
+	return E(meanEst(list.map { it.time }), meanEst(list.map { it.states }), meanEst(list.map { it.edges }), 
+		meanEst(list.map { it.percent }), meanEst(list.map { it.f }), est(list.map { it.noSol.mean }), est(list.map { it.fMax.mean }))
 }
 
 fun main(args: Array<String>) {
@@ -81,11 +99,11 @@ fun main(args: Array<String>) {
 			info.close()
 			
 			info = Scanner(File("$start$test/solution$solution/result_machine$postfix"))
-			val timeGet = q(info.next().toDouble())
-			val fGet = q(info.next().toDouble())
+			val timeGet = q1(info.next().toDouble())
+			val fGet = q1(info.next().toDouble())
 			info.next().toDouble()
 			info.next().toDouble()
-			val percentGet = q(info.next().toDouble())
+			val percentGet = q1(info.next().toDouble())
 			info.close()
 			var statesGet: Int? = null
 			var edgesGet: Int? = null
@@ -98,7 +116,7 @@ fun main(args: Array<String>) {
 				info.close()
 			}
 			
-			Q(
+			Q1(
 				states = states,
 				symbols = labels.size,
 				splits = splits,
